@@ -4,7 +4,7 @@
 \alias{rk4sys}
 \title{Classical Runge-Kutta for system of equations}
 \usage{
-rk4sys(f, a, b, y0, n, Pars)
+rk4sys(f, a, b, y0, n, Pars, ...)
 }
 \arguments{
 \item{f}{function in the differential equation \eqn{y' = f(x, y)};
@@ -16,14 +16,17 @@ defined as a function \eqn{R \times R^m \rightarrow R^m}, where \eqn{m} is the n
 
 \item{y0}{starting values at time \code{a}}
 
+\item{n}{the number of steps from a to b.}
+
 \item{Pars}{named list of parameters passed to f}
 
-\item{steps}{the number of steps from a to b.}
+\item{...}{additional inputs to function \code{f}}
 }
 \description{
 Classical Runge-Kutta of order 4.
 }
 \details{
-Classical Runge-Kutta of order 4 for (systems of) ordinary differential equations with fixed step size.
+Classical Runge-Kutta of order 4 for (systems of) ordinary differential
+equations with fixed step size.
 Copied from pracma under GPL-3, with small modifications to work with RTMB
 }

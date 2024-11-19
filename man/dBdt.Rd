@@ -4,16 +4,32 @@
 \alias{dBdt}
 \title{Dynamics from EcoSim}
 \usage{
-dBdt(Time, State, Pars, what = "dBdt")
+dBdt(
+  Time,
+  State,
+  Pars,
+  type_i,
+  n_species,
+  F_type = "integrated",
+  what = "dBdt"
+)
 }
 \arguments{
-\item{Time}{todo}
+\item{Time}{not used}
 
-\item{State}{todo}
+\item{State}{vector of state variables to integrate}
 
-\item{Pars}{todo}
+\item{Pars}{list of parameters governing the ODE}
 
-\item{what}{todo}
+\item{type_i}{type for each taxon}
+
+\item{n_species}{number of species}
+
+\item{F_type}{whether to integrate catches along with biomass (\code{"integrated"})
+or calculate catches from the Baranov catch equation applied to average
+biomass (\code{"averaged"})}
+
+\item{what}{what output to produce}
 }
 \value{
 An object (list) of ranges. Elements include:
@@ -28,8 +44,9 @@ An object (list) of ranges. Elements include:
 }
 }
 \description{
-Compute system of differential equations representing EcoSim dynamics
+Compute system of differential equations representing EcoState dynamics
+derived from EcoSim.
 }
 \details{
-todo
+This function has syntax designed to match \code{pracma} solvers.
 }

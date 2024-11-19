@@ -4,9 +4,10 @@
 #' @description Calculate how a tracer propagates through consumption.
 #'
 #' @inheritParams ecostate
+#' @inheritParams compute_nll
+#' @inheritParams ecostate_control
 #'
 #' @param Q_ij Consumption of each prey i by predator j in units biomass.
-#' @param inverse_method whether to use pseudoinverse or standard inverse
 #' @param tracer_i an indicator matrix specifying the traver value
 #'
 #' @details
@@ -66,9 +67,9 @@ function( Q_ij,
 
 #' @title Penrose-Moore pseudoinverse
 #' @description Extend \code{MASS:ginv} to work with RTMB
-#' @param X Matrix used to compute pseudoinverse
+#' @param x Matrix used to compute pseudoinverse
 #' @importFrom MASS ginv
-ginv <- RTMB::ADjoint(function(X) {
+ginv <- RTMB::ADjoint(function(x) {
     n <- sqrt(length(X))
     dim(X) <- c(n,n)
     MASS::ginv(X)
@@ -77,3 +78,56 @@ ginv <- RTMB::ADjoint(function(X) {
     dim(Y) <- dim(dY) <- c(n,n)
     -t(Y)%*%dY%*%t(Y)
 }, name="ginv")
+
+#' @title Dirichlet-multinomial
+#' @description Allows data-weighting as parameter
+#' @param x numeric vector of observations across categories
+#' @param prob numeric vector of category probabilities
+#' @param ln_theta logit-ratio of effective and input sample size
+#' @param log whether to return the log-probability or not
+#' @examples
+#' library(RTMB)
+#' prob = rep(0.1,10)
+#' x = rmultinom( n=1, prob=prob, size=20 )[,1]
+#' f = function( ln_theta ) ddirmult(x, prob, ln_theta)
+#' f( 0 )
+#' F = MakeTape(f, 0)
+#' F$jacfun()(0)
+#'
+#' @export
+ddirmult <-
+function( x,
+          prob,
+          ln_theta,
+          log=TRUE ){
+
+  # Pre-processing
+  "c" <- ADoverload("c")
+  "[<-" <- ADoverload("[<-")
+  Ntotal = sum(x)
+  p_exp = prob / sum(prob)
+  p_obs = x / Ntotal
+  dirichlet_Parm = exp(ln_theta) * Ntotal
+  logres = 0.0
+
+  # https://github.com/nmfs-stock-synthesis/stock-synthesis/blob/main/SS_objfunc.tpl#L306-L314
+  # https://github.com/James-Thorson/CCSRA/blob/master/inst/executables/CCSRA_v8.cpp#L237-L242
+  # https://www.sciencedirect.com/science/article/pii/S0165783620303696
+
+  # 1st term -- integration constant that could be dropped
+  logres = logres + lgamma( Ntotal+1 )
+  for( index in seq_along(x) ){
+    logres = logres - lgamma( Ntotal*p_obs[index] + 1.0 )
+  }
+
+  # 2nd term in formula
+  logres = logres + lgamma( dirichlet_Parm ) - lgamma( Ntotal+dirichlet_Parm )
+
+  # Summation in 3rd term
+  for( index in seq_along(x) ){
+    logres = logres + lgamma( Ntotal*p_obs[index] + dirichlet_Parm*p_exp[index] )
+    logres = logres - lgamma( dirichlet_Parm * p_exp[index] )
+  }
+  if(log){ return(logres) }else{ return(exp(logres)) }
+}
+

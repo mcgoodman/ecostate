@@ -8,10 +8,20 @@ add_equilibrium(ecoparams, scale_solver, noB_i, type_i)
 }
 \arguments{
 \item{ecoparams}{list of parameters}
+
+\item{scale_solver}{Whether to solve for ecotrophic efficiency EE given biomass B
+(\code{scale_solver="simple"}) or solve for a combination of EE and B values}
+
+\item{noB_i}{Boolean vector indicating which taxa have no B value}
+
+\item{type_i}{character vector indicating whether a taxon is "hetero", "auto", or
+"detritus"}
 }
 \description{
 Compute equilibrium values
 }
 \details{
-todo
+Replaces NA values in ecotrophic efficiency and/or biomass with equilibrium
+solution, and then calculates equilibrium consumption, natural mortality,
+and other rates.
 }

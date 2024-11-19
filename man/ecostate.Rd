@@ -7,8 +7,10 @@
 ecostate(
   taxa,
   years,
-  catch,
-  biomass,
+  catch = data.frame(Year = numeric(0), Mass = numeric(0), Taxon = numeric(0)),
+  biomass = data.frame(Year = numeric(0), Mass = numeric(0), Taxon = numeric(0)),
+  agecomp = list(),
+  weight = list(),
   PB,
   QB,
   B,
@@ -21,7 +23,12 @@ ecostate(
   fit_Q = vector(),
   fit_B0 = vector(),
   fit_EE = vector(),
+  fit_PB = vector(),
+  fit_QB = vector(),
   fit_eps = vector(),
+  fit_nu = vector(),
+  log_prior = function(p) 0,
+  settings = stanza_settings(taxa = taxa),
   control = ecostate_control()
 )
 }
@@ -37,6 +44,18 @@ and  \code{Taxon}}
 and  \code{Taxon}, where \code{Mass} is assumed to have the same units
 as \code{catch}}
 
+\item{agecomp}{a named list, with names corresponding to \code{stanza_groups},
+where each list-element is a matrix with rownames for \code{years}
+and colnames for integer ages, where NA excludes the entry from inclusion
+and the model computes the likelihood across included ages in a given year,
+and the rowsum is the input-sample size for a given year}
+
+\item{weight}{a named list, with names corresponding to \code{stanza_groups},
+where each list-element is a matrix with rownames for \code{years}
+and colnames for integer ages, where NA excludes the entry from inclusion
+and the model computes the lognormal likelihood for weight-at-age
+in each specified age-year combination}
+
 \item{PB}{numeric-vector with names matching \code{taxa}, providing the
 ratio of production to biomass for each taxon}
 
@@ -48,6 +67,10 @@ starting (or fixed) value for equilibrium biomass for each taxon}
 
 \item{DC}{numeric-matrix with rownames and colnames matching \code{taxa},
 where each column provides the diet proportion for a given predator}
+
+\item{EE}{numeric-vector with names matching \code{taxa}, providing the
+proportion of proportion of production that is subsequently
+modeled (termed ecotrophic efficiency)}
 
 \item{X}{numeric-matrix with rownames and colnames matching \code{taxa},
 where each element gives the vulnerability parameter for a given
@@ -71,11 +94,56 @@ coefficient is estimated as a fixed effect}
 \item{fit_B0}{Character-vector listing \code{taxa} for which the ratio of initial
 to equilibrium biomass is estimated as a fixed effect}
 
+\item{fit_EE}{Character-vector listing \code{taxa} for which ecotrophic
+efficiency is estimated.}
+
+\item{fit_PB}{Character-vector listing \code{taxa} for which equilibrium
+production per biomass is estimated.  Note that it is likely
+a good idea to include a prior for any species for which this is estimated.}
+
+\item{fit_QB}{Character-vector listing \code{taxa} for which equilibrium
+consumption per biomass is estimated.  Note that it is likely
+a good idea to include a prior for any species for which this is estimated.}
+
 \item{fit_eps}{Character-vector listing \code{taxa} for which the
 model should estimate annual process errors in dB/dt}
 
+\item{fit_nu}{Character-vector listing \code{taxa} for which the
+model should estimate annual process errors in consumption \code{Q_ij}}
+
+\item{log_prior}{A user-provided function that takes as input the list of
+parameters \code{out$obj$env$parList()} where \code{out} is the output from
+\code{ecostate()}, and returns a numeric vector
+where the sum is the log-prior probability.  For example
+\code{log_prior = function(p) dnorm( p$logq_i[1], mean=0, sd=0.1, log=TRUE)}
+specifies a lognormal prior probability for the catchability coefficient
+for the first \code{taxa} with logmean of zero and logsd of 0.1}
+
+\item{settings}{Output from \code{\link[=stanza_settings]{stanza_settings()}}, used to define age-structured
+dynamics (called stanza-groups).}
+
 \item{control}{Output from \code{\link[=ecostate_control]{ecostate_control()}}, used to define user
 settings.}
+}
+\value{
+An object (list) of S3-class \code{ecostate}. Elements include:
+\describe{
+\item{obj}{RTMB object from \code{\link[RTMB]{MakeADFun}}}
+\item{tmb_inputs}{The list of inputs passed to \code{\link[RTMB]{MakeADFun}}}
+\item{opt}{The output from \code{\link[stats]{nlminb}}}
+\item{sdrep}{The output from \code{\link[RTMB]{sdreport}}}
+\item{interal}{Objects useful for package function, i.e., all arguments
+passed during the call}
+\item{rep}{report file, including matrix \code{B_ti} for biomass in each year
+\code{t} and taxon \code{i}, \code{g_ti} for growth rate per biomass,
+and see \code{dBdt} for other quantities reported by year}
+\item{derived}{derived quantity estimates and standard errors, for \code{rep}
+objects as requested}
+\item{call}{function call record}
+\item{run_time}{Total runtime}
+}
+This S3 class then has functions \code{summary}, \code{print}, and
+\code{logLik}
 }
 \description{
 Estimate parameters for an EcoState model
@@ -85,4 +153,12 @@ All \code{taxa} must be included in \code{QB}, \code{PB}, \code{B}, and \code{DC
 but additional taxa can be in \code{QB}, \code{PB}, \code{B}, and \code{DC} that
 are not in \code{taxa}.  So \code{taxa} can be used to redefine the set of modeled
 species without changing other inputs
+}
+\references{
+\strong{Introducing the state-space mass-balance model:}
+
+Thorson, J.  Kristensen, K., Aydin, K., Gaichas, S., Kimmel, D.G.,
+McHuron, E.A., Nielsen, J.N., Townsend, H., Whitehouse, G.A (In press).
+The benefits of hierarchical ecosystem models: demonstration
+using a new state-space mass-balance model EcoState. Fish and Fisheries.
 }
