@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Eastern Bering Sea case study • EcoState</title>
+<title>Model of Intermediate Complexity • ecostate</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Eastern Bering Sea case study">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Model of Intermediate Complexity">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -18,9 +18,9 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="../index.html">EcoState</a>
+    <a class="navbar-brand me-2" href="../index.html">ecostate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,10 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/eastern_bering_sea.html">Eastern Bering Sea case study</a></li>
+<li><a class="dropdown-item" href="../articles/model_of_intermediate_complexity.html">Model of Intermediate Complexity</a></li>
     <li><a class="dropdown-item" href="../articles/simulation.html">Demonstrating EcoState via simulation</a></li>
     <li><a class="dropdown-item" href="../articles/surplus_production.html">EcoState as surplus production model</a></li>
+    <li><a class="dropdown-item" href="../articles/web_only/whole_of_ecosystem.html">Whole of ecosystem model</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -44,7 +45,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/EcoState/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/ecostate/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -58,24 +59,25 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Eastern Bering Sea case study</h1>
+      <h1>Model of Intermediate Complexity</h1>
                         <h4 data-toc-skip class="author">James
 Thorson</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/James-Thorson-NOAA/EcoState/blob/HEAD/vignettes/eastern_bering_sea.Rmd" class="external-link"><code>vignettes/eastern_bering_sea.Rmd</code></a></small>
-      <div class="d-none name"><code>eastern_bering_sea.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/James-Thorson-NOAA/ecostate/blob/HEAD/vignettes/model_of_intermediate_complexity.Rmd" class="external-link"><code>vignettes/model_of_intermediate_complexity.Rmd</code></a></small>
+      <div class="d-none name"><code>model_of_intermediate_complexity.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://james-thorson-noaa.github.io/EcoState/" class="external-link">EcoState</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://james-thorson-noaa.github.io/ecostate/" class="external-link">ecostate</a></span><span class="op">)</span></span></code></pre></div>
 <p><code>ecostate</code> is an R package for fitting the mass-balance
 dynamics specified by EcoSim as a state-space model. We here demonstrate
-how it can be fitted to a real-world data set including 10 functional
-groups and 1 detritus pool, using data across four trophic levels and
-representing both pelagic and demersal energy pathways.</p>
+how it can be fitted to a real-world data set as a “Model of
+Intermediate Complexity” while including 10 functional groups and 1
+detritus pool, using data across four trophic levels and representing
+both pelagic and demersal energy pathways.</p>
 <div class="section level2">
 <h2 id="eastern-bering-sea">Eastern Bering Sea<a class="anchor" aria-label="anchor" href="#eastern-bering-sea"></a>
 </h2>
@@ -122,6 +124,12 @@ inputs:</p>
 <span><span class="co"># To run full model use:</span></span>
 <span><span class="co"># taxa_to_include = taxa</span></span>
 <span></span>
+<span><span class="co"># Define priors</span></span>
+<span><span class="va">log_prior</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Prior on process-error log-SD to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logtau_i</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
 <span><span class="co"># Run model</span></span>
 <span><span class="va">out</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa_to_include</span>,</span>
 <span>                years <span class="op">=</span> <span class="va">years</span>,</span>
@@ -139,6 +147,7 @@ inputs:</p>
 <span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
 <span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
 <span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
 <span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> n_steps <span class="op">=</span> <span class="fl">20</span>, <span class="co"># using 15 by default</span></span>
 <span>                                            start_tau <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>                                            tmbad.sparse_hessian_compress <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span><span class="op">)</span></span>
@@ -146,16 +155,16 @@ inputs:</p>
 <span><span class="co"># print output</span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; Dynamics integrated using  ABM  with  20  time-steps</span></span>
-<span><span class="co">#&gt; Run time: Time difference of 3.688347 mins</span></span>
-<span><span class="co">#&gt; Negative log-likelihood: 110.8242</span></span>
+<span><span class="co">#&gt; Run time: Time difference of 1.875662 mins</span></span>
+<span><span class="co">#&gt; Negative log-likelihood: 111.8524</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim parameters:</span></span>
 <span><span class="co">#&gt;           type        QB          PB          B EE   U</span></span>
-<span><span class="co">#&gt; NFS     hetero 57.763550  0.09429851 0.01610613  0 0.2</span></span>
-<span><span class="co">#&gt; Pollock hetero  4.225892  0.82452074 3.26791790  1 0.2</span></span>
-<span><span class="co">#&gt; Copepod hetero 27.740000  6.00000000 1.85304306  1 0.2</span></span>
-<span><span class="co">#&gt; Chloro    auto        NA 99.40685006 0.63415347  1 0.2</span></span>
-<span><span class="co">#&gt; Krill   hetero 15.640000  5.48000000 1.05396595  1 0.2</span></span>
+<span><span class="co">#&gt; NFS     hetero 57.763550  0.09429851 0.01609925  0 0.2</span></span>
+<span><span class="co">#&gt; Pollock hetero  4.225892  0.82452074 3.26652224  1 0.2</span></span>
+<span><span class="co">#&gt; Copepod hetero 27.740000  6.00000000 1.85225167  1 0.2</span></span>
+<span><span class="co">#&gt; Chloro    auto        NA 99.40685006 0.63388263  1 0.2</span></span>
+<span><span class="co">#&gt; Krill   hetero 15.640000  5.48000000 1.05351582  1 0.2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim diet matrix:</span></span>
 <span><span class="co">#&gt;          Predator</span></span>
@@ -176,15 +185,15 @@ inputs:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimates: sdreport(.) result</span></span>
 <span><span class="co">#&gt;            Estimate Std. Error</span></span>
-<span><span class="co">#&gt; delta_i  -0.9112170 0.07451987</span></span>
-<span><span class="co">#&gt; delta_i  -0.9721216 0.10271052</span></span>
-<span><span class="co">#&gt; logB_i   -4.1285552 0.05717952</span></span>
-<span><span class="co">#&gt; logtau_i -1.1372673 0.14316381</span></span>
-<span><span class="co">#&gt; logq_i    0.9286230 0.05601754</span></span>
-<span><span class="co">#&gt; logq_i    0.9999230 0.06783386</span></span>
-<span><span class="co">#&gt; logq_i    2.6846407 0.05952428</span></span>
-<span><span class="co">#&gt; logq_i    2.3981400 0.07601978</span></span>
-<span><span class="co">#&gt; Maximum gradient component: 9.811169e-05</span></span></code></pre></div>
+<span><span class="co">#&gt; delta_i  -0.9107485 0.07412192</span></span>
+<span><span class="co">#&gt; delta_i  -0.9712690 0.10263244</span></span>
+<span><span class="co">#&gt; logB_i   -4.1289824 0.05667705</span></span>
+<span><span class="co">#&gt; logtau_i -1.1467111 0.14112593</span></span>
+<span><span class="co">#&gt; logq_i    0.9289014 0.05572851</span></span>
+<span><span class="co">#&gt; logq_i    1.0002721 0.06744515</span></span>
+<span><span class="co">#&gt; logq_i    2.6850118 0.05908211</span></span>
+<span><span class="co">#&gt; logq_i    2.3987716 0.07547528</span></span>
+<span><span class="co">#&gt; Maximum gradient component: 0.0001222253</span></span></code></pre></div>
 <p>We can then plot the estimated foodweb:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot foodweb at equilibrium</span></span>
@@ -195,7 +204,8 @@ inputs:</p>
 <span>              type_i <span class="op">=</span> <span class="va">type_i</span><span class="op">[</span><span class="va">taxa_to_include</span><span class="op">]</span> <span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Removed 4 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_point()`).</span></span></code></pre></div>
-<p><img src="eastern_bering_sea_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
+<p><img src="model_of_intermediate_complexity_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
+<p>Runtime for this vignette: 1.9 mins</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -208,7 +218,7 @@ inputs:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>

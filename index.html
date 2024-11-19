@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>State-Space Extension of EcoPath with EcoSim • EcoState</title>
+<title>State-Space Extension of EcoPath with EcoSim • ecostate</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
@@ -20,9 +20,9 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="index.html">EcoState</a>
+    <a class="navbar-brand me-2" href="index.html">ecostate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,10 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/eastern_bering_sea.html">Eastern Bering Sea case study</a></li>
+<li><a class="dropdown-item" href="articles/model_of_intermediate_complexity.html">Model of Intermediate Complexity</a></li>
     <li><a class="dropdown-item" href="articles/simulation.html">Demonstrating EcoState via simulation</a></li>
     <li><a class="dropdown-item" href="articles/surplus_production.html">EcoState as surplus production model</a></li>
+    <li><a class="dropdown-item" href="articles/web_only/whole_of_ecosystem.html">Whole of ecosystem model</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -46,7 +47,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/EcoState/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/ecostate/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -57,22 +58,36 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="ecostate">EcoState<a class="anchor" aria-label="anchor" href="#ecostate"></a>
 </h1></div>
-<p><a href="https://james-thorson-noaa.github.io/EcoState/" class="external-link"><img src="https://img.shields.io/badge/documentation-EcoState-orange.svg?colorB=E91E63" alt="Documentation"></a></p>
-<p>Package <em>EcoState</em> fits a state-space mass-balance model intended for aquatic ecosystems, using mass-balance equations from matching and dynamical equations matching Ecosim. Unlike Ecopath with Ecosim (EwE), it fits both biological parameters (e.g., equilibrium biomass and predator-prey vulnerability) and measurement parameters (e.g., catchability coefficients) via fit to time-series data. It also estimates additional process errors representing nonstationarity in growth efficiency, ecotrophic efficient, migration, or other unmodeled processes.</p>
+<p><a href="https://james-thorson-noaa.github.io/ecostate/" class="external-link"><img src="https://img.shields.io/badge/documentation-ecostate-orange.svg?colorB=E91E63" alt="Documentation"></a></p>
+<p>Package <em>ecostate</em> fits a state-space mass-balance model <em>EcoState</em> intended for aquatic ecosystems, using mass-balance equations matching those from Ecopath and dynamical equations matching Ecosim. Unlike the Ecopath-with-Ecosim (<em>EwE</em>) package, <em>ecostate</em> fits both biological parameters (e.g., equilibrium biomass and predator-prey vulnerability) and measurement parameters (e.g., catchability coefficients) via fit to time-series data. <em>ecostate</em> also estimates additional process errors representing nonstationarity in growth efficiency, ecotrophic efficient, migration, or other unmodeled processes. These process errors allow biomass patterns to closely match available data, so that resulting consumption (and associated productivity and mortality rates) can accurately be conditioned upon any residual patterns.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>EcoState can be installed from GitHub using:</p>
+<p><em>ecostate</em> can be installed from GitHub using:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span> <span class="st">"James-Thorson-NOAA/EcoState"</span> <span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span> <span class="st">"James-Thorson-NOAA/ecostate"</span> <span class="op">)</span></span></code></pre></div>
+<p>Or to access vignettes from your R session, please instead use:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span> <span class="st">"James-Thorson-NOAA/ecostate"</span>,</span>
+<span>                          build_vignettes <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/browseVignettes.html" class="external-link">browseVignettes</a></span><span class="op">(</span><span class="st">"ecostate"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
+<div class="section level1">
+<h1 id="more-details">More details<a class="anchor" aria-label="anchor" href="#more-details"></a>
+</h1>
+<p>For more background please read:</p>
+<p>Thorson, J. Kristensen, K., Aydin, K., Gaichas, S., Kimmel, D.G., McHuron, E.A., Nielsen, J.N., Townsend, H., Whitehouse, G.A. EcoState: Extending Ecopath with Ecosim to estimate biological parameters and process errors using RTMB and time-series data. Pre-print URL: <a href="https://doi.org/10.32942/X2QK81" class="external-link uri">https://doi.org/10.32942/X2QK81</a></p>
+<p>or the updated version:</p>
+<p>Thorson, J. Kristensen, K., Aydin, K., Gaichas, S., Kimmel, D.G., McHuron, E.A., Nielsen, J.N., Townsend, H., Whitehouse, G.A. (In press) The benefits of hierarchical ecosystem models: demonstration using a new state-space mass-balance model EcoState. Fish and Fisheries.</p>
+</div>
+
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/James-Thorson-NOAA/EcoState/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/James-Thorson-NOAA/EcoState/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/James-Thorson-NOAA/ecostate/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/James-Thorson-NOAA/ecostate/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -87,7 +102,7 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing EcoState</a></li>
+<li><a href="authors.html#citation">Citing ecostate</a></li>
 </ul>
 </div>
 
@@ -109,7 +124,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>

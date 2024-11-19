@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Demonstrating EcoState via simulation • EcoState</title>
+<title>Demonstrating EcoState via simulation • ecostate</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
@@ -18,9 +18,9 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="../index.html">EcoState</a>
+    <a class="navbar-brand me-2" href="../index.html">ecostate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,10 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/eastern_bering_sea.html">Eastern Bering Sea case study</a></li>
+<li><a class="dropdown-item" href="../articles/model_of_intermediate_complexity.html">Model of Intermediate Complexity</a></li>
     <li><a class="dropdown-item" href="../articles/simulation.html">Demonstrating EcoState via simulation</a></li>
     <li><a class="dropdown-item" href="../articles/surplus_production.html">EcoState as surplus production model</a></li>
+    <li><a class="dropdown-item" href="../articles/web_only/whole_of_ecosystem.html">Whole of ecosystem model</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -44,7 +45,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/EcoState/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/ecostate/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -63,14 +64,14 @@
 Thorson</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/James-Thorson-NOAA/EcoState/blob/HEAD/vignettes/simulation.Rmd" class="external-link"><code>vignettes/simulation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/James-Thorson-NOAA/ecostate/blob/HEAD/vignettes/simulation.Rmd" class="external-link"><code>vignettes/simulation.Rmd</code></a></small>
       <div class="d-none name"><code>simulation.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://james-thorson-noaa.github.io/EcoState/" class="external-link">EcoState</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://james-thorson-noaa.github.io/ecostate/" class="external-link">ecostate</a></span><span class="op">)</span></span></code></pre></div>
 <p><code>ecostate</code> is an R package for fitting the mass-balance
 dynamics specified by EcoSim as a state-space model. We here highlight a
 few features in particular.</p>
@@ -133,10 +134,10 @@ EcoState during parameter estimation:</p>
 <span>                     type_i <span class="op">=</span> <span class="va">type_i</span>,</span>
 <span>                     noB_i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">B_i</span><span class="op">)</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                     epsilon_i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">n_species</span><span class="op">)</span>,</span>
-<span>                     logF_i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>,<span class="va">n_species</span><span class="op">)</span>,</span>
-<span>                     which_primary <span class="op">=</span> <span class="va">which_primary</span>,</span>
-<span>                     which_detritus <span class="op">=</span> <span class="va">which_detritus</span>,</span>
-<span>                     F_type <span class="op">=</span> <span class="st">"integrated"</span> <span class="op">)</span></span>
+<span>                     logF_i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>,<span class="va">n_species</span><span class="op">)</span> <span class="op">)</span></span>
+<span>                     <span class="co">#which_detritus = which_detritus,</span></span>
+<span>                     <span class="co">#which_primary = which_primary,</span></span>
+<span>                     <span class="co">#F_type = "integrated" )</span></span>
 <span>  <span class="va">Pars_full</span> <span class="op">=</span> <span class="fu"><a href="../reference/add_equilibrium.html">add_equilibrium</a></span><span class="op">(</span> <span class="va">Pars</span>,</span>
 <span>                               scale_solver <span class="op">=</span> <span class="st">"joint"</span>,</span>
 <span>                               noB_i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">Pars</span><span class="op">$</span><span class="va">logB_i</span><span class="op">)</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span>,</span>
@@ -156,19 +157,23 @@ EcoState during parameter estimation:</p>
 <span>    <span class="va">pars_t</span> <span class="op">=</span> <span class="va">Pars_full</span></span>
 <span>    <span class="va">pars_t</span><span class="op">$</span><span class="va">logF_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">F_t</span><span class="op">)</span></span>
 <span>    <span class="va">pars_t</span><span class="op">$</span><span class="va">epsilon_i</span> <span class="op">=</span> <span class="va">epsilon_ti</span><span class="op">[</span><span class="va">t</span>,<span class="op">]</span></span>
-<span>    </span>
+<span>    <span class="va">pars_t</span><span class="op">$</span><span class="va">nu_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">n_species</span><span class="op">)</span></span>
+<span></span>
 <span>    <span class="co"># Integrate dynamics annually</span></span>
-<span>    <span class="va">data2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>                    <span class="va">n_species</span> <span class="op">=</span> <span class="va">n_species</span></span>
-<span>                    <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>    <span class="op">}</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="va">dBdt</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">data2</span></span>
+<span>    <span class="co">#data2 = local({</span></span>
+<span>    <span class="co">#                n_species = n_species</span></span>
+<span>    <span class="co">#                environment()</span></span>
+<span>    <span class="co">#})</span></span>
+<span>    <span class="co">#environment(dBdt) &lt;- data2</span></span>
 <span>    <span class="va">sim</span> <span class="op">=</span> <span class="fu">project_vars</span><span class="op">(</span></span>
 <span>          f <span class="op">=</span> <span class="va">dBdt</span>,</span>
 <span>          a <span class="op">=</span> <span class="va">years</span><span class="op">[</span><span class="va">t</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, </span>
 <span>          b <span class="op">=</span> <span class="va">years</span><span class="op">[</span><span class="va">t</span><span class="op">]</span>,</span>
 <span>          n <span class="op">=</span> <span class="va">n_steps</span>,</span>
 <span>          Pars <span class="op">=</span> <span class="va">pars_t</span>,</span>
+<span>          type_i <span class="op">=</span> <span class="va">type_i</span>,</span>
+<span>          n_species <span class="op">=</span> <span class="va">n_species</span>,</span>
+<span>          F_type <span class="op">=</span> <span class="st">"integrated"</span>,</span>
 <span>          y0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="va">B_ti</span><span class="op">[</span><span class="va">t</span><span class="op">-</span><span class="fl">1</span>,<span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">n_species</span><span class="op">)</span> <span class="op">)</span> <span class="op">)</span></span>
 <span>    </span>
 <span>    <span class="co"># Record results</span></span>
@@ -318,6 +323,12 @@ long-form data frames and fit them with <code>ecostate</code></p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">PB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">QB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fittedB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fittedEE_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">type_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">U_i</span><span class="op">)</span> <span class="op">=</span> <span class="va">taxa</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">DC_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">X_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Prey"</span><span class="op">=</span><span class="va">taxa</span>, <span class="st">"Predator"</span><span class="op">=</span><span class="va">taxa</span><span class="op">)</span></span>
 <span>  </span>
+<span><span class="co"># Define priors</span></span>
+<span><span class="va">log_prior</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Prior on process-error log-SD to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logtau_i</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
 <span><span class="co"># Run model</span></span>
 <span><span class="va">out</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
 <span>                years <span class="op">=</span> <span class="va">years</span>,</span>
@@ -335,57 +346,28 @@ long-form data frames and fit them with <code>ecostate</code></p>
 <span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
 <span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
 <span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> inverse_method <span class="op">=</span> <span class="st">"Standard"</span>, </span>
-<span>                                            trace <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                                            nlminb_loops <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                                            tmbad.sparse_hessian_compress <span class="op">=</span> <span class="fl">0</span>,  <span class="co"># Much faster to turn off</span></span>
-<span>                                            getsd <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                                            process_error <span class="op">=</span> <span class="st">"epsilon"</span>,  <span class="co"># alpha is faster than epsilon</span></span>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> <span class="co"># Much faster to turn off</span></span>
+<span>                                            tmbad.sparse_hessian_compress <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                                            <span class="co"># Faster to profile these</span></span>
 <span>                                            profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logF_ti"</span>,<span class="st">"logB_i"</span><span class="op">)</span>,</span>
-<span>                                            start_tau <span class="op">=</span> <span class="fl">0.001</span> <span class="op">)</span><span class="op">)</span>   </span>
-<span><span class="co">#&gt;   0:    -175.67951: -6.90776 -6.90776 -6.90776 -6.90776</span></span>
-<span><span class="co">#&gt;   1:    -176.09205: -6.45547 -6.65726 -6.90774 -6.87630</span></span>
-<span><span class="co">#&gt;   2:    -194.07887: -4.51446 -5.93490 -6.90771 -6.81779</span></span>
-<span><span class="co">#&gt;   3:    -231.52565: -2.28383 -5.79723 -6.90771 -6.81528</span></span>
-<span><span class="co">#&gt;   4:    -246.17855: -2.53994 -3.58688 -6.90762 -6.60686</span></span>
-<span><span class="co">#&gt;   5:    -254.85582: -2.53612 -2.37286 -6.90751 -6.60556</span></span>
-<span><span class="co">#&gt;   6:    -255.08065: -2.44978 -2.45820 -6.90751 -6.60496</span></span>
-<span><span class="co">#&gt;   7:    -255.08182: -2.45253 -2.57374 -6.90753 -6.56779</span></span>
-<span><span class="co">#&gt;   8:    -255.10439: -2.43108 -2.51739 -6.90752 -6.57478</span></span>
-<span><span class="co">#&gt;   9:    -255.10608: -2.44549 -2.51686 -6.90752 -6.57398</span></span>
-<span><span class="co">#&gt;  10:    -255.10628: -2.44407 -2.51297 -6.90753 -6.56015</span></span>
-<span><span class="co">#&gt;  11:    -255.10681: -2.44004 -2.51405 -6.90754 -6.52541</span></span>
-<span><span class="co">#&gt;  12:    -255.10898: -2.43522 -2.51301 -6.90758 -6.38555</span></span>
-<span><span class="co">#&gt;  13:    -255.97851: -2.37578 -2.49770 -6.90821 -4.14722</span></span>
-<span><span class="co">#&gt;  14:    -258.84048: -2.39224 -2.49867 -6.90845 -3.25170</span></span>
-<span><span class="co">#&gt;  15:    -262.20225: -2.43521 -2.51084 -6.90862 -2.45701</span></span>
-<span><span class="co">#&gt;  16:    -262.56510: -2.41559 -2.57204 -6.90862 -2.24141</span></span>
-<span><span class="co">#&gt;  17:    -262.57940: -2.43126 -2.58874 -6.90862 -2.21391</span></span>
-<span><span class="co">#&gt;  18:    -262.58100: -2.41829 -2.60958 -6.90862 -2.18788</span></span>
-<span><span class="co">#&gt;  19:    -262.58231: -2.42628 -2.60835 -6.90862 -2.19131</span></span>
-<span><span class="co">#&gt;  20:    -262.58237: -2.42845 -2.60079 -6.90863 -2.19523</span></span>
-<span><span class="co">#&gt;  21:    -262.58248: -2.42698 -2.60414 -6.90863 -2.19646</span></span>
-<span><span class="co">#&gt;  22:    -262.58249: -2.42756 -2.60460 -6.90863 -2.19634</span></span>
-<span><span class="co">#&gt;  23:    -262.58249: -2.42748 -2.60529 -6.90863 -2.19606</span></span>
-<span><span class="co">#&gt;  24:    -262.58249: -2.42753 -2.60524 -6.90863 -2.19605</span></span>
-<span><span class="co">#&gt;  25:    -262.58249: -2.42753 -2.60520 -6.90863 -2.19606</span></span>
-<span><span class="co">#&gt;  26:    -262.58249: -2.42753 -2.60517 -6.90863 -2.19606</span></span>
-<span><span class="co">#&gt;  27:    -262.58249: -2.42753 -2.60517 -6.90863 -2.19606</span></span>
+<span>                                            <span class="co"># More stable when starting low</span></span>
+<span>                                            start_tau <span class="op">=</span> <span class="fl">0.001</span> <span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># print output to terminal</span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; Dynamics integrated using  ABM  with  10  time-steps</span></span>
-<span><span class="co">#&gt; Run time: Time difference of 4.289819 mins</span></span>
-<span><span class="co">#&gt; Negative log-likelihood: -262.5825</span></span>
+<span><span class="co">#&gt; Run time: Time difference of 2.102548 mins</span></span>
+<span><span class="co">#&gt; Negative log-likelihood: -257.8807</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim parameters:</span></span>
 <span><span class="co">#&gt;                type QB   PB         B        EE   U</span></span>
-<span><span class="co">#&gt; Consumer_1   hetero 10  4.0 0.7859555 0.8561942 0.2</span></span>
-<span><span class="co">#&gt; Consumer_2   hetero  4  1.0 1.3010913 0.8725432 0.2</span></span>
-<span><span class="co">#&gt; Predator_1   hetero  3  0.2 0.9674416 0.0000000 0.2</span></span>
-<span><span class="co">#&gt; Predator_2   hetero  1  0.1 0.9246556 0.0000000 0.2</span></span>
-<span><span class="co">#&gt; Producer       auto NA 90.0 0.1008427 0.9514173 0.2</span></span>
-<span><span class="co">#&gt; Detritus   detritus NA  0.5 9.5704738 0.9255574 0.2</span></span>
+<span><span class="co">#&gt; Consumer_1   hetero 10  4.0 0.7862833 0.8547194 0.2</span></span>
+<span><span class="co">#&gt; Consumer_2   hetero  4  1.0 1.2979525 0.8762152 0.2</span></span>
+<span><span class="co">#&gt; Predator_1   hetero  3  0.2 0.9650080 0.0000000 0.2</span></span>
+<span><span class="co">#&gt; Predator_2   hetero  1  0.1 0.9304681 0.0000000 0.2</span></span>
+<span><span class="co">#&gt; Producer       auto NA 90.0 0.1006972 0.9527011 0.2</span></span>
+<span><span class="co">#&gt; Detritus   detritus NA  0.5 9.5823731 0.9226421 0.2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim diet matrix:</span></span>
 <span><span class="co">#&gt;             Predator</span></span>
@@ -408,19 +390,19 @@ long-form data frames and fit them with <code>ecostate</code></p>
 <span><span class="co">#&gt;   Detritus            2          2          2          2       91        2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimates: sdreport(.) result</span></span>
-<span><span class="co">#&gt;           Estimate  Std. Error</span></span>
-<span><span class="co">#&gt; logtau_i -2.427535   0.2049494</span></span>
-<span><span class="co">#&gt; logtau_i -2.605169   0.3047519</span></span>
-<span><span class="co">#&gt; logtau_i -6.908635 624.7193216</span></span>
-<span><span class="co">#&gt; logtau_i -2.196062   0.2882175</span></span>
-<span><span class="co">#&gt; Maximum gradient component: 0.0001702973</span></span></code></pre></div>
+<span><span class="co">#&gt;           Estimate Std. Error</span></span>
+<span><span class="co">#&gt; logtau_i -2.395457  0.1999421</span></span>
+<span><span class="co">#&gt; logtau_i -2.528423  0.2809718</span></span>
+<span><span class="co">#&gt; logtau_i -1.815466  0.7800328</span></span>
+<span><span class="co">#&gt; logtau_i -2.160598  0.2680706</span></span>
+<span><span class="co">#&gt; Maximum gradient component: 1.367582e-06</span></span></code></pre></div>
 <p>Finally, we can extract elements from the fitted model, and plot them
 easily using ggplot2 to compare them with known (simulated) values. This
 exercise shows that EcoState can accurately estimate biomass trends:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract estimated biomass</span></span>
-<span><span class="va">Bhat_ti</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">sdrep</span>, what<span class="op">=</span><span class="st">"Estimate"</span>, report<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span><span class="op">$</span><span class="va">B_ti</span></span>
-<span><span class="va">Bse_ti</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">sdrep</span>, what<span class="op">=</span><span class="st">"Std. Error"</span>, report<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span><span class="op">$</span><span class="va">B_ti</span></span>
+<span><span class="va">Bhat_ti</span> <span class="op">=</span> <span class="va">out</span><span class="op">$</span><span class="va">derived</span><span class="op">$</span><span class="va">Est</span><span class="op">$</span><span class="va">B_ti</span></span>
+<span><span class="va">Bse_ti</span> <span class="op">=</span> <span class="va">out</span><span class="op">$</span><span class="va">derived</span><span class="op">$</span><span class="va">SE</span><span class="op">$</span><span class="va">B_ti</span></span>
 <span></span>
 <span><span class="co"># Reformat to long-form data frame for ggplot</span></span>
 <span><span class="va">results</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">Bobs_ti</span><span class="op">)</span><span class="op">)</span></span>
@@ -444,7 +426,15 @@ exercise shows that EcoState can accurately estimate biomass trends:</p>
 <p>We can also explore estimating additional parameters. Here, we
 explore estimating vulnerability:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Run model</span></span>
+<code class="sourceCode R"><span><span class="co"># Define priors</span></span>
+<span><span class="va">log_prior</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Prior on process-error log-SD to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logtau_i</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="co"># Prior on vulnerability to stabilize model (single value mirrored below)</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="va">logp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">Xprime_ij</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">]</span>, mean<span class="op">=</span><span class="fl">0</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Run model</span></span>
 <span><span class="va">out0</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
 <span>                years <span class="op">=</span> <span class="va">years</span>,</span>
 <span>                catch <span class="op">=</span> <span class="va">Catch</span>,</span>
@@ -461,17 +451,18 @@ explore estimating vulnerability:</p>
 <span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
 <span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
 <span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> inverse_method <span class="op">=</span> <span class="st">"Standard"</span>, </span>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> inverse_method <span class="op">=</span> <span class="st">"Standard"</span>,</span>
 <span>                                            nlminb_loops <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                                            tmbad.sparse_hessian_compress <span class="op">=</span> <span class="fl">0</span>,  </span>
+<span>                                            tmbad.sparse_hessian_compress <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>                                            getsd <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                                            process_error <span class="op">=</span> <span class="st">"epsilon"</span>,</span>
 <span>                                            profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logF_ti"</span>,<span class="st">"logB_i"</span><span class="op">)</span>,</span>
-<span>                                            start_tau <span class="op">=</span> <span class="fl">0.001</span> <span class="op">)</span><span class="op">)</span>   <span class="co"># alpha is faster than epsilon</span></span>
+<span>                                            start_tau <span class="op">=</span> <span class="fl">0.1</span> <span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Change tmb_par</span></span>
 <span><span class="va">tmb_par</span> <span class="op">=</span> <span class="va">out0</span><span class="op">$</span><span class="va">tmb_inputs</span><span class="op">$</span><span class="va">p</span></span>
-<span>  <span class="va">tmb_par</span><span class="op">$</span><span class="va">Xprime_ij</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">type_i</span><span class="op">!=</span><span class="st">"auto"</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1.5</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> </span>
+<span>  <span class="va">tmb_par</span><span class="op">$</span><span class="va">Xprime_ij</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">type_i</span><span class="op">!=</span><span class="st">"auto"</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1.5</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">map</span> <span class="op">=</span> <span class="va">out0</span><span class="op">$</span><span class="va">tmb_inputs</span><span class="op">$</span><span class="va">map</span></span>
 <span>  <span class="va">map</span><span class="op">$</span><span class="va">Xprime_ij</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="cn">NA</span>, dim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">tmb_par</span><span class="op">$</span><span class="va">Xprime_ij</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">map</span><span class="op">$</span><span class="va">Xprime_ij</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">type_i</span><span class="op">!=</span><span class="st">"auto"</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
@@ -494,9 +485,10 @@ explore estimating vulnerability:</p>
 <span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
 <span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
 <span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> inverse_method <span class="op">=</span> <span class="st">"Standard"</span>, </span>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> inverse_method <span class="op">=</span> <span class="st">"Standard"</span>,</span>
 <span>                                            nlminb_loops <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                                            tmbad.sparse_hessian_compress <span class="op">=</span> <span class="fl">0</span>,  </span>
+<span>                                            tmbad.sparse_hessian_compress <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>                                            getsd <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                                            process_error <span class="op">=</span> <span class="st">"epsilon"</span>,</span>
 <span>                                            profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logF_ti"</span>,<span class="st">"logB_i"</span><span class="op">)</span>,</span>
@@ -505,29 +497,21 @@ explore estimating vulnerability:</p>
 <span>                                            map <span class="op">=</span> <span class="va">map</span> <span class="op">)</span><span class="op">)</span>   <span class="co"># alpha is faster than epsilon</span></span>
 <span><span class="co">#&gt; Using `control$tmb_par`, so be cautious in constructing it</span></span>
 <span><span class="co">#&gt; Using `control$map`, so be cautious in constructing it</span></span>
-<span><span class="co">#&gt; Warning in nlminb(start = opt$par, objective = obj$fn, gradient = obj$gr, :</span></span>
-<span><span class="co">#&gt; NA/NaN function evaluation</span></span>
-<span><span class="co">#&gt; Warning in nlminb(start = opt$par, objective = obj$fn, gradient = obj$gr, :</span></span>
-<span><span class="co">#&gt; NA/NaN function evaluation</span></span>
-<span><span class="co">#&gt; Warning in nlminb(start = opt$par, objective = obj$fn, gradient = obj$gr, :</span></span>
-<span><span class="co">#&gt; NA/NaN function evaluation</span></span>
-<span><span class="co">#&gt; Warning in nlminb(start = opt$par, objective = obj$fn, gradient = obj$gr, :</span></span>
-<span><span class="co">#&gt; NA/NaN function evaluation</span></span>
 <span></span>
 <span><span class="co"># print output to terminal</span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; Dynamics integrated using  ABM  with  10  time-steps</span></span>
-<span><span class="co">#&gt; Run time: Time difference of 13.46761 mins</span></span>
-<span><span class="co">#&gt; Negative log-likelihood: -262.5825</span></span>
+<span><span class="co">#&gt; Run time: Time difference of 2.504987 mins</span></span>
+<span><span class="co">#&gt; Negative log-likelihood: -256.9749</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim parameters:</span></span>
 <span><span class="co">#&gt;                type QB   PB         B        EE   U</span></span>
-<span><span class="co">#&gt; Consumer_1   hetero 10  4.0 0.7859487 0.8562777 0.2</span></span>
-<span><span class="co">#&gt; Consumer_2   hetero  4  1.0 1.3011220 0.8726118 0.2</span></span>
-<span><span class="co">#&gt; Predator_1   hetero  3  0.2 0.9675226 0.0000000 0.2</span></span>
-<span><span class="co">#&gt; Predator_2   hetero  1  0.1 0.9247681 0.0000000 0.2</span></span>
-<span><span class="co">#&gt; Producer       auto NA 90.0 0.1008435 0.9514061 0.2</span></span>
-<span><span class="co">#&gt; Detritus   detritus NA  0.5 9.5704580 0.9255754 0.2</span></span>
+<span><span class="co">#&gt; Consumer_1   hetero 10  4.0 0.7859114 0.8583339 0.2</span></span>
+<span><span class="co">#&gt; Consumer_2   hetero  4  1.0 1.2992375 0.8788253 0.2</span></span>
+<span><span class="co">#&gt; Predator_1   hetero  3  0.2 0.9685480 0.0000000 0.2</span></span>
+<span><span class="co">#&gt; Predator_2   hetero  1  0.1 0.9344566 0.0000000 0.2</span></span>
+<span><span class="co">#&gt; Producer       auto NA 90.0 0.1008355 0.9511963 0.2</span></span>
+<span><span class="co">#&gt; Detritus   detritus NA  0.5 9.5883393 0.9227409 0.2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim diet matrix:</span></span>
 <span><span class="co">#&gt;             Predator</span></span>
@@ -542,21 +526,22 @@ explore estimating vulnerability:</p>
 <span><span class="co">#&gt; EcoSim vulnerability matrix:</span></span>
 <span><span class="co">#&gt;             Predator</span></span>
 <span><span class="co">#&gt; Prey         Consumer_1 Consumer_2 Predator_1 Predator_2 Producer Detritus</span></span>
-<span><span class="co">#&gt;   Consumer_1   1.999266   1.999266   1.999266   1.999266       91 1.999266</span></span>
-<span><span class="co">#&gt;   Consumer_2   1.999266   1.999266   1.999266   1.999266       91 1.999266</span></span>
-<span><span class="co">#&gt;   Predator_1   1.999266   1.999266   1.999266   1.999266       91 1.999266</span></span>
-<span><span class="co">#&gt;   Predator_2   1.999266   1.999266   1.999266   1.999266       91 1.999266</span></span>
-<span><span class="co">#&gt;   Producer     1.999266   1.999266   1.999266   1.999266       91 1.999266</span></span>
-<span><span class="co">#&gt;   Detritus     1.999266   1.999266   1.999266   1.999266       91 1.999266</span></span>
+<span><span class="co">#&gt;   Consumer_1   1.977243   1.977243   1.977243   1.977243       91 1.977243</span></span>
+<span><span class="co">#&gt;   Consumer_2   1.977243   1.977243   1.977243   1.977243       91 1.977243</span></span>
+<span><span class="co">#&gt;   Predator_1   1.977243   1.977243   1.977243   1.977243       91 1.977243</span></span>
+<span><span class="co">#&gt;   Predator_2   1.977243   1.977243   1.977243   1.977243       91 1.977243</span></span>
+<span><span class="co">#&gt;   Producer     1.977243   1.977243   1.977243   1.977243       91 1.977243</span></span>
+<span><span class="co">#&gt;   Detritus     1.977243   1.977243   1.977243   1.977243       91 1.977243</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimates: sdreport(.) result</span></span>
-<span><span class="co">#&gt;                Estimate  Std. Error</span></span>
-<span><span class="co">#&gt; Xprime_ij -0.0007346168   0.1769047</span></span>
-<span><span class="co">#&gt; logtau_i  -2.4276318459   0.2064240</span></span>
-<span><span class="co">#&gt; logtau_i  -2.6048038918   0.3155934</span></span>
-<span><span class="co">#&gt; logtau_i  -6.9077525593 613.9938951</span></span>
-<span><span class="co">#&gt; logtau_i  -2.1959829825   0.2887926</span></span>
-<span><span class="co">#&gt; Maximum gradient component: 0.0001617564</span></span></code></pre></div>
+<span><span class="co">#&gt;              Estimate Std. Error</span></span>
+<span><span class="co">#&gt; Xprime_ij -0.02302001  0.1539942</span></span>
+<span><span class="co">#&gt; logtau_i  -2.39718954  0.2012940</span></span>
+<span><span class="co">#&gt; logtau_i  -2.51981549  0.2867294</span></span>
+<span><span class="co">#&gt; logtau_i  -1.77412399  0.8408468</span></span>
+<span><span class="co">#&gt; logtau_i  -2.15986779  0.2684473</span></span>
+<span><span class="co">#&gt; Maximum gradient component: 2.810887e-05</span></span></code></pre></div>
+<p>Runtime for this vignette: 4.67 mins</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -569,7 +554,7 @@ explore estimating vulnerability:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>

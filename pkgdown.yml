@@ -1,8 +1,9 @@
 pandoc: 3.1.1
-pkgdown: 2.1.0
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
-  eastern_bering_sea: eastern_bering_sea.html
+  model_of_intermediate_complexity: model_of_intermediate_complexity.html
   simulation: simulation.html
   surplus_production: surplus_production.html
-last_built: 2024-07-29T22:37Z
+  web_only/whole_of_ecosystem: web_only/whole_of_ecosystem.html
+last_built: 2024-11-19T23:26Z

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>EcoState as surplus production model • EcoState</title>
+<title>EcoState as surplus production model • ecostate</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
@@ -18,9 +18,9 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="../index.html">EcoState</a>
+    <a class="navbar-brand me-2" href="../index.html">ecostate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,10 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/eastern_bering_sea.html">Eastern Bering Sea case study</a></li>
+<li><a class="dropdown-item" href="../articles/model_of_intermediate_complexity.html">Model of Intermediate Complexity</a></li>
     <li><a class="dropdown-item" href="../articles/simulation.html">Demonstrating EcoState via simulation</a></li>
     <li><a class="dropdown-item" href="../articles/surplus_production.html">EcoState as surplus production model</a></li>
+    <li><a class="dropdown-item" href="../articles/web_only/whole_of_ecosystem.html">Whole of ecosystem model</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -44,7 +45,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/EcoState/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/James-Thorson-NOAA/ecostate/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -63,14 +64,14 @@
 Thorson</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/James-Thorson-NOAA/EcoState/blob/HEAD/vignettes/surplus_production.Rmd" class="external-link"><code>vignettes/surplus_production.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/James-Thorson-NOAA/ecostate/blob/HEAD/vignettes/surplus_production.Rmd" class="external-link"><code>vignettes/surplus_production.Rmd</code></a></small>
       <div class="d-none name"><code>surplus_production.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://james-thorson-noaa.github.io/EcoState/" class="external-link">EcoState</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://james-thorson-noaa.github.io/ecostate/" class="external-link">ecostate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span></code></pre></div>
 <p><code>ecostate</code> is an R package for fitting the mass-balance
 dynamics specified by EcoSim as a state-space model. It can be used as a
@@ -147,10 +148,11 @@ production model with Gompertz effort dynamics:</p>
 <p>Next, we fit them with <code>ecostate</code></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Settings: specify what parameters to estimate</span></span>
-<span><span class="va">fit_delta</span> <span class="op">=</span> <span class="va">taxa</span>   <span class="co"># process errors</span></span>
+<span><span class="va">fit_eps</span> <span class="op">=</span> <span class="va">taxa</span>   <span class="co"># process errors</span></span>
 <span><span class="va">fit_Q</span> <span class="op">=</span> <span class="va">taxa</span>       <span class="co"># catchability coefficient</span></span>
 <span><span class="va">fit_B0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>      <span class="co"># non-equilibrium initial condition</span></span>
 <span><span class="va">fit_B</span> <span class="op">=</span> <span class="va">taxa</span>       <span class="co"># equilibrium biomass</span></span>
+<span><span class="va">fit_PB</span> <span class="op">=</span> <span class="va">taxa</span>     <span class="co"># Productivity _propto_ natural mortality</span></span>
 <span></span>
 <span><span class="co"># Treat it as an autotroph (given there's no prey to consume)</span></span>
 <span><span class="va">type</span> <span class="op">=</span> <span class="st">"auto"</span></span>
@@ -159,6 +161,16 @@ production model with Gompertz effort dynamics:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">PB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">QB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">B_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">EE_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">type</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">U_i</span><span class="op">)</span> <span class="op">=</span> <span class="va">taxa</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">DC_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">X_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Prey"</span><span class="op">=</span><span class="va">taxa</span>, <span class="st">"Predator"</span><span class="op">=</span><span class="va">taxa</span><span class="op">)</span></span>
 <span>  </span>
+<span><span class="co"># Define priors</span></span>
+<span><span class="va">log_prior</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Prior on productivity</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logPB_i</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">0.5</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span></span>
+<span>  <span class="co"># Prior on process-error log-SD to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="va">logp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logtau_i</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span></span>
+<span>  <span class="co"># Prior on vulnerability to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="va">logp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">Xprime_ij</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">]</span>, mean<span class="op">=</span><span class="fl">0</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
 <span><span class="co"># Run model</span></span>
 <span><span class="va">out0</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
 <span>                years <span class="op">=</span> <span class="va">years</span>,</span>
@@ -174,10 +186,13 @@ production model with Gompertz effort dynamics:</p>
 <span>                U <span class="op">=</span> <span class="va">U_i</span>,</span>
 <span>                fit_B <span class="op">=</span> <span class="va">fit_B</span>,</span>
 <span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
-<span>                fit_eps <span class="op">=</span> <span class="va">fit_delta</span>,</span>
+<span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
 <span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
+<span>                fit_PB <span class="op">=</span> <span class="va">fit_PB</span>,</span>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
 <span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> nlminb_loops <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                                            getsd <span class="op">=</span> <span class="cn">FALSE</span> <span class="op">)</span> <span class="op">)</span></span>
+<span>                                            getsd <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                                            start_tau <span class="op">=</span> <span class="fl">0.1</span> <span class="op">)</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Estimate logPB</span></span>
 <span><span class="va">pars</span> <span class="op">=</span> <span class="va">out0</span><span class="op">$</span><span class="va">tmb_inputs</span><span class="op">$</span><span class="va">p</span></span>
@@ -199,8 +214,10 @@ production model with Gompertz effort dynamics:</p>
 <span>                U <span class="op">=</span> <span class="va">U_i</span>,</span>
 <span>                fit_B <span class="op">=</span> <span class="va">fit_B</span>,</span>
 <span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
-<span>                fit_eps <span class="op">=</span> <span class="va">fit_delta</span>,</span>
+<span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
 <span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
+<span>                fit_PB <span class="op">=</span> <span class="va">fit_PB</span>,</span>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
 <span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> map <span class="op">=</span> <span class="va">map</span>,</span>
 <span>                                            tmb_par <span class="op">=</span> <span class="va">pars</span> <span class="op">)</span> <span class="op">)</span></span>
 <span><span class="co">#&gt; Using `control$tmb_par`, so be cautious in constructing it</span></span>
@@ -209,12 +226,12 @@ production model with Gompertz effort dynamics:</p>
 <span><span class="co"># print output to terminal</span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; Dynamics integrated using  ABM  with  10  time-steps</span></span>
-<span><span class="co">#&gt; Run time: Time difference of 5.068917 secs</span></span>
-<span><span class="co">#&gt; Negative log-likelihood: -80.04545</span></span>
+<span><span class="co">#&gt; Run time: Time difference of 4.749453 secs</span></span>
+<span><span class="co">#&gt; Negative log-likelihood: -74.51341</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim parameters:</span></span>
-<span><span class="co">#&gt;        type QB  PB        B EE   U</span></span>
-<span><span class="co">#&gt; target auto NA 0.1 1340.769  0 0.2</span></span>
+<span><span class="co">#&gt;        type QB        PB        B EE   U</span></span>
+<span><span class="co">#&gt; target auto NA 0.1588959 1357.543  0 0.2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; EcoSim diet matrix:</span></span>
 <span><span class="co">#&gt;         Predator</span></span>
@@ -224,15 +241,16 @@ production model with Gompertz effort dynamics:</p>
 <span><span class="co">#&gt; EcoSim vulnerability matrix:</span></span>
 <span><span class="co">#&gt;         Predator</span></span>
 <span><span class="co">#&gt; Prey       target</span></span>
-<span><span class="co">#&gt;   target 1.059258</span></span>
+<span><span class="co">#&gt;   target 1.357989</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimates: sdreport(.) result</span></span>
-<span><span class="co">#&gt;              Estimate   Std. Error</span></span>
-<span><span class="co">#&gt; logB_i      7.2009983 8.730774e-02</span></span>
-<span><span class="co">#&gt; Xprime_ij  -2.8258572 9.229292e-01</span></span>
-<span><span class="co">#&gt; logtau_i  -13.4706023 5.068437e+03</span></span>
-<span><span class="co">#&gt; logq_i     -0.3438141 1.086117e-01</span></span>
-<span><span class="co">#&gt; Maximum gradient component: 0.0004253756</span></span></code></pre></div>
+<span><span class="co">#&gt;             Estimate Std. Error</span></span>
+<span><span class="co">#&gt; logB_i     7.2134320  0.3091545</span></span>
+<span><span class="co">#&gt; logPB_i   -1.8395058  0.4064990</span></span>
+<span><span class="co">#&gt; Xprime_ij -1.0272522  0.6851844</span></span>
+<span><span class="co">#&gt; logtau_i  -3.0608084  0.4094129</span></span>
+<span><span class="co">#&gt; logq_i    -0.3785607  0.3285576</span></span>
+<span><span class="co">#&gt; Maximum gradient component: 0.000126564</span></span></code></pre></div>
 <p>Finally we can calculate a function that calculates the annualized
 surplus production</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -249,13 +267,8 @@ surplus production</p>
 <span>                       type_i <span class="op">=</span> <span class="va">type_i</span> <span class="op">)</span></span>
 <span>  <span class="va">p</span><span class="op">$</span><span class="va">logF_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, <span class="va">n_taxa</span><span class="op">)</span></span>
 <span>  <span class="va">p</span><span class="op">$</span><span class="va">epsilon_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">n_taxa</span><span class="op">)</span></span>
-<span>  <span class="va">data2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>                  <span class="va">type_i</span> <span class="op">=</span> <span class="va">type_i</span></span>
-<span>                  <span class="va">n_species</span> <span class="op">=</span> <span class="va">n_taxa</span></span>
-<span>                  <span class="va">F_type</span> <span class="op">=</span> <span class="va">ecofit</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">control</span><span class="op">$</span><span class="va">F_type</span></span>
-<span>                  <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="va">dBdt</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">data2</span></span>
+<span>  <span class="va">p</span><span class="op">$</span><span class="va">nu_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">n_taxa</span><span class="op">)</span></span>
+<span>  <span class="va">p</span><span class="op">$</span><span class="va">phi_g2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">ecofit</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">settings</span><span class="op">$</span><span class="va">n_g2</span><span class="op">)</span></span>
 <span>  <span class="va">State</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="va">ecofit</span><span class="op">$</span><span class="va">rep</span><span class="op">$</span><span class="va">out_initial</span><span class="op">$</span><span class="va">B_i</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">n_taxa</span><span class="op">)</span> <span class="op">)</span></span>
 <span>  <span class="va">State</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">taxon</span>,<span class="va">ecofit</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">taxa</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="va">biomass</span></span>
 <span>  <span class="co">#dBdt(Time=0, State=State, Pars=p)</span></span>
@@ -265,6 +278,9 @@ surplus production</p>
 <span>        b <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>        n <span class="op">=</span> <span class="va">ecofit</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">control</span><span class="op">$</span><span class="va">n_steps</span>,</span>
 <span>        Pars <span class="op">=</span> <span class="va">p</span>,</span>
+<span>        type_i <span class="op">=</span> <span class="va">type_i</span>,</span>
+<span>        n_species <span class="op">=</span> <span class="va">n_taxa</span>,</span>
+<span>        F_type <span class="op">=</span> <span class="st">"integrated"</span>,</span>
 <span>        y0 <span class="op">=</span> <span class="va">State</span> <span class="op">)</span></span>
 <span>  <span class="va">biomass1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span> <span class="va">proj</span><span class="op">$</span><span class="va">y</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">taxon</span>,<span class="va">ecofit</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">taxa</span><span class="op">)</span><span class="op">]</span> <span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span> <span class="va">biomass1</span> <span class="op">-</span> <span class="va">biomass</span> <span class="op">)</span></span>
@@ -290,13 +306,13 @@ that uses a first-order Euler approximation:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">eval</a></span><span class="op">(</span><span class="va">dBdt_expr</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">phi1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/optimize.html" class="external-link">optimize</a></span><span class="op">(</span> <span class="va">dBdt_approx</span>, lower<span class="op">=</span><span class="fl">0.01</span>, upper<span class="op">=</span><span class="fl">0.99</span>, maximum<span class="op">=</span><span class="cn">TRUE</span>,</span>
-<span>                x <span class="op">=</span> <span class="fl">1</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">parhat</span><span class="op">[[</span><span class="st">'Xprime_ij'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>                x <span class="op">=</span> <span class="fl">1</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">parhat</span><span class="op">[[</span><span class="st">'Xprime_ij'</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span>, </span>
 <span>                p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">parhat</span><span class="op">[[</span><span class="st">'logPB_i'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">)</span><span class="op">$</span><span class="va">maximum</span></span>
 <span><span class="co"># Empirical</span></span>
 <span><span class="va">phi2</span> <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">yhat</span><span class="op">)</span><span class="op">]</span> <span class="op">/</span> <span class="fl">1000</span> </span>
 <span><span class="co">#</span></span>
 <span><span class="va">msy1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">parhat</span><span class="op">$</span><span class="va">logB_i</span><span class="op">)</span> <span class="op">*</span> <span class="fu">dBdt_approx</span><span class="op">(</span><span class="va">phi1</span>, </span>
-<span>                x <span class="op">=</span> <span class="fl">1</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">parhat</span><span class="op">[[</span><span class="st">'Xprime_ij'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>                x <span class="op">=</span> <span class="fl">1</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">parhat</span><span class="op">[[</span><span class="st">'Xprime_ij'</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span>, </span>
 <span>                p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">parhat</span><span class="op">[[</span><span class="st">'logPB_i'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">)</span></span>
 <span><span class="co">#</span></span>
 <span><span class="va">msy2</span> <span class="op">=</span> <span class="va">yhat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">yhat</span><span class="op">)</span><span class="op">]</span></span>
@@ -311,8 +327,8 @@ that uses a first-order Euler approximation:</p>
 <p>And we can also plot the estimated and true biomass</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract estimated biomass</span></span>
-<span><span class="va">Bhat_t</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">sdrep</span>, what<span class="op">=</span><span class="st">"Estimate"</span>, report<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span><span class="op">$</span><span class="va">B_ti</span></span>
-<span><span class="va">Bse_t</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">sdrep</span>, what<span class="op">=</span><span class="st">"Std. Error"</span>, report<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span><span class="op">$</span><span class="va">B_ti</span></span>
+<span><span class="va">Bhat_t</span> <span class="op">=</span> <span class="va">out</span><span class="op">$</span><span class="va">derived</span><span class="op">$</span><span class="va">Est</span><span class="op">$</span><span class="va">B_ti</span></span>
+<span><span class="va">Bse_t</span> <span class="op">=</span> <span class="va">out</span><span class="op">$</span><span class="va">derived</span><span class="op">$</span><span class="va">SE</span><span class="op">$</span><span class="va">B_ti</span></span>
 <span></span>
 <span><span class="co"># Reformat to long-form data frame for ggplot</span></span>
 <span><span class="va">results</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span> <span class="st">"Year"</span> <span class="op">=</span> <span class="va">years</span>,</span>
@@ -349,7 +365,7 @@ data:</p>
 <span><span class="va">B_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="cn">NA</span>, <span class="fl">1</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Settings: specify what parameters to estimate</span></span>
-<span><span class="va">fit_delta</span> <span class="op">=</span> <span class="st">"target"</span>   <span class="co"># process errors</span></span>
+<span><span class="va">fit_eps</span> <span class="op">=</span> <span class="st">"target"</span>   <span class="co"># process errors</span></span>
 <span><span class="va">fit_Q</span> <span class="op">=</span> <span class="st">"target"</span>       <span class="co"># catchability coefficient</span></span>
 <span><span class="va">fit_B0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>      <span class="co"># non-equilibrium initial condition</span></span>
 <span><span class="va">fit_B</span> <span class="op">=</span> <span class="st">"target"</span>       <span class="co"># equilibrium biomass</span></span>
@@ -358,30 +374,11 @@ data:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">PB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">QB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">B_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">EE_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">type</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">U_i</span><span class="op">)</span> <span class="op">=</span> <span class="va">taxa</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">DC_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">X_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Prey"</span><span class="op">=</span><span class="va">taxa</span>, <span class="st">"Predator"</span><span class="op">=</span><span class="va">taxa</span><span class="op">)</span></span>
 <span>  </span>
-<span><span class="co"># Run model</span></span>
-<span><span class="va">out0</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
-<span>                years <span class="op">=</span> <span class="va">years</span>,</span>
-<span>                catch <span class="op">=</span> <span class="va">Catch</span>,</span>
-<span>                biomass <span class="op">=</span> <span class="va">Biomass</span>,</span>
-<span>                PB <span class="op">=</span> <span class="va">PB_i</span>,</span>
-<span>                QB <span class="op">=</span> <span class="va">QB_i</span>,</span>
-<span>                DC <span class="op">=</span> <span class="va">DC_ij</span>,</span>
-<span>                B <span class="op">=</span> <span class="va">B_i</span>,</span>
-<span>                EE <span class="op">=</span> <span class="va">EE_i</span>,</span>
-<span>                X <span class="op">=</span> <span class="va">X_ij</span>,</span>
-<span>                type <span class="op">=</span> <span class="va">type</span>,</span>
-<span>                U <span class="op">=</span> <span class="va">U_i</span>,</span>
-<span>                fit_B <span class="op">=</span> <span class="va">fit_B</span>,</span>
-<span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
-<span>                fit_eps <span class="op">=</span> <span class="va">fit_delta</span>,</span>
-<span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> nlminb_loops <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                                            getsd <span class="op">=</span> <span class="cn">FALSE</span> <span class="op">)</span> <span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Estimate logPB</span></span>
-<span><span class="va">pars</span> <span class="op">=</span> <span class="va">out0</span><span class="op">$</span><span class="va">tmb_inputs</span><span class="op">$</span><span class="va">p</span></span>
-<span><span class="va">map</span> <span class="op">=</span> <span class="va">out0</span><span class="op">$</span><span class="va">tmb_inputs</span><span class="op">$</span><span class="va">map</span></span>
-<span><span class="co">#map$Xprime_ij = factor( rep(1,n_taxa) %o% ifelse(type=="auto",NA,1) )</span></span>
+<span><span class="co"># Define priors</span></span>
+<span><span class="va">log_prior</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Prior on process-error log-SD to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logtau_i</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span></span>
+<span><span class="op">}</span></span>
 <span></span>
 <span><span class="co"># Run model</span></span>
 <span><span class="va">out_bivar</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
@@ -398,12 +395,40 @@ data:</p>
 <span>                U <span class="op">=</span> <span class="va">U_i</span>,</span>
 <span>                fit_B <span class="op">=</span> <span class="va">fit_B</span>,</span>
 <span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
-<span>                fit_eps <span class="op">=</span> <span class="va">fit_delta</span>,</span>
+<span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
 <span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span> map <span class="op">=</span> <span class="va">map</span>,</span>
-<span>                                            tmb_par <span class="op">=</span> <span class="va">pars</span> <span class="op">)</span> <span class="op">)</span></span>
-<span><span class="co">#&gt; Using `control$tmb_par`, so be cautious in constructing it</span></span>
-<span><span class="co">#&gt; Using `control$map`, so be cautious in constructing it</span></span></code></pre></div>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span><span class="op">)</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># print output to terminal</span></span>
+<span><span class="va">out_bivar</span></span>
+<span><span class="co">#&gt; Dynamics integrated using  ABM  with  10  time-steps</span></span>
+<span><span class="co">#&gt; Run time: Time difference of 23.59865 secs</span></span>
+<span><span class="co">#&gt; Negative log-likelihood: -75.16433</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim parameters:</span></span>
+<span><span class="co">#&gt;          type  QB  PB         B EE   U</span></span>
+<span><span class="co">#&gt; prey     auto  NA 5.0  81.99584  1 0.2</span></span>
+<span><span class="co">#&gt; target hetero 0.5 0.1 819.95841  0 0.2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim diet matrix:</span></span>
+<span><span class="co">#&gt;         Predator</span></span>
+<span><span class="co">#&gt; Prey     prey target</span></span>
+<span><span class="co">#&gt;   prey      0      1</span></span>
+<span><span class="co">#&gt;   target    0      0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim vulnerability matrix:</span></span>
+<span><span class="co">#&gt;         Predator</span></span>
+<span><span class="co">#&gt; Prey     prey target</span></span>
+<span><span class="co">#&gt;   prey      2      2</span></span>
+<span><span class="co">#&gt;   target    2      2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimates: sdreport(.) result</span></span>
+<span><span class="co">#&gt;            Estimate Std. Error</span></span>
+<span><span class="co">#&gt; logB_i    6.7092536  0.0935837</span></span>
+<span><span class="co">#&gt; logtau_i -2.6240934  0.2387366</span></span>
+<span><span class="co">#&gt; logq_i    0.1161167  0.1428179</span></span>
+<span><span class="co">#&gt; Maximum gradient component: 1.10751e-05</span></span></code></pre></div>
 <p>We can then calculate and visualize how this changes the production
 function:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -427,13 +452,233 @@ function:</p>
 <p><img src="surplus_production_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
 </div>
 <div class="section level2">
+<h2 id="age-structured-model">Age-structured model<a class="anchor" aria-label="anchor" href="#age-structured-model"></a>
+</h2>
+<p>Additionally, we could fit this model while also tracking abundance,
+average weight, and consumption for each age of the target species. We
+do this by including a single stanza. This then allows us to extract a
+time-series of average age and average weight.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Inputs</span></span>
+<span><span class="va">taxa</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"prey"</span>, <span class="st">"target"</span> <span class="op">)</span></span>
+<span><span class="va">n_taxa</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">taxa</span><span class="op">)</span></span>
+<span><span class="va">PB_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">5</span>, <span class="fl">0.1</span> <span class="op">)</span></span>
+<span><span class="va">QB_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="cn">NA</span>, <span class="fl">0.5</span> <span class="op">)</span></span>
+<span><span class="va">DC_ij</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span> <span class="op">)</span></span>
+<span><span class="va">X_ij</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span> <span class="fl">2</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">2</span> <span class="op">)</span></span>
+<span><span class="va">U_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0.2</span>, <span class="fl">0.2</span> <span class="op">)</span></span>
+<span><span class="va">type</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"auto"</span>, <span class="st">"hetero"</span> <span class="op">)</span></span>
+<span><span class="va">EE_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">1</span>, <span class="cn">NA</span> <span class="op">)</span> </span>
+<span><span class="va">B_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="cn">NA</span>, <span class="fl">1</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Settings: specify what parameters to estimate</span></span>
+<span><span class="va">fit_eps</span> <span class="op">=</span> <span class="st">"target"</span>   <span class="co"># process errors</span></span>
+<span><span class="va">fit_Q</span> <span class="op">=</span> <span class="st">"target"</span>       <span class="co"># catchability coefficient</span></span>
+<span><span class="va">fit_B0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>      <span class="co"># non-equilibrium initial condition</span></span>
+<span><span class="va">fit_B</span> <span class="op">=</span> <span class="st">"target"</span>       <span class="co"># equilibrium biomass</span></span>
+<span></span>
+<span><span class="co"># Label EwE inputs for each taxon as expected (so users can easily change taxa)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">PB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">QB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">B_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">EE_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">type</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">U_i</span><span class="op">)</span> <span class="op">=</span> <span class="va">taxa</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">DC_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">X_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Prey"</span><span class="op">=</span><span class="va">taxa</span>, <span class="st">"Predator"</span><span class="op">=</span><span class="va">taxa</span><span class="op">)</span></span>
+<span>  </span>
+<span><span class="co"># Define priors</span></span>
+<span><span class="va">log_prior</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Prior on process-error log-SD to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logtau_i</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span> <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">out_stanzas</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
+<span>                years <span class="op">=</span> <span class="va">years</span>,</span>
+<span>                catch <span class="op">=</span> <span class="va">Catch</span>,</span>
+<span>                biomass <span class="op">=</span> <span class="va">Biomass</span>,</span>
+<span>                PB <span class="op">=</span> <span class="va">PB_i</span>,</span>
+<span>                QB <span class="op">=</span> <span class="va">QB_i</span>,</span>
+<span>                DC <span class="op">=</span> <span class="va">DC_ij</span>,</span>
+<span>                B <span class="op">=</span> <span class="va">B_i</span>,</span>
+<span>                EE <span class="op">=</span> <span class="va">EE_i</span>,</span>
+<span>                X <span class="op">=</span> <span class="va">X_ij</span>,</span>
+<span>                type <span class="op">=</span> <span class="va">type</span>,</span>
+<span>                U <span class="op">=</span> <span class="va">U_i</span>,</span>
+<span>                fit_B <span class="op">=</span> <span class="va">fit_B</span>,</span>
+<span>                fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
+<span>                fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
+<span>                fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
+<span>                settings <span class="op">=</span> <span class="fu"><a href="../reference/stanza_settings.html">stanza_settings</a></span><span class="op">(</span> taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
+<span>                                            stanza_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"target"</span><span class="op">=</span><span class="st">"age_structured"</span><span class="op">)</span>,</span>
+<span>                                            K <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>                                            Wmat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="op">(</span><span class="fl">2</span><span class="op">/</span><span class="fl">3</span><span class="op">)</span><span class="op">^</span><span class="fl">3</span><span class="op">)</span>,</span>
+<span>                                            d <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span><span class="op">)</span>,</span>
+<span>                                            Amax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"target"</span> <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span>
+<span>                                            SpawnX <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>                                           <span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># print output to terminal</span></span>
+<span><span class="va">out_stanzas</span></span>
+<span><span class="co">#&gt; Dynamics integrated using  ABM  with  10  time-steps</span></span>
+<span><span class="co">#&gt; Run time: Time difference of 26.69284 secs</span></span>
+<span><span class="co">#&gt; Negative log-likelihood: -71.35349</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim parameters:</span></span>
+<span><span class="co">#&gt;          type  QB  PB         B EE   U</span></span>
+<span><span class="co">#&gt; prey     auto  NA 5.0  104.2852  1 0.2</span></span>
+<span><span class="co">#&gt; target hetero 0.5 0.1 1042.8523  0 0.2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim diet matrix:</span></span>
+<span><span class="co">#&gt;         Predator</span></span>
+<span><span class="co">#&gt; Prey     prey target</span></span>
+<span><span class="co">#&gt;   prey      0      1</span></span>
+<span><span class="co">#&gt;   target    0      0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim vulnerability matrix:</span></span>
+<span><span class="co">#&gt;         Predator</span></span>
+<span><span class="co">#&gt; Prey     prey target</span></span>
+<span><span class="co">#&gt;   prey      2      2</span></span>
+<span><span class="co">#&gt;   target    2      2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimates: sdreport(.) result</span></span>
+<span><span class="co">#&gt;            Estimate Std. Error</span></span>
+<span><span class="co">#&gt; logB_i    6.9497148 0.02793407</span></span>
+<span><span class="co">#&gt; logtau_i -3.1538949 0.50332833</span></span>
+<span><span class="co">#&gt; logq_i   -0.1443941 0.04695328</span></span>
+<span><span class="co">#&gt; Maximum gradient component: 0.0002864114</span></span>
+<span></span>
+<span><span class="co">#</span></span>
+<span><span class="va">meanage_t</span> <span class="op">=</span> <span class="va">meanweight_t</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span><span class="op">(</span><span class="va">t</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">meanage_t</span><span class="op">[</span><span class="va">t</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/weighted.mean.html" class="external-link">weighted.mean</a></span><span class="op">(</span> x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">30</span>,</span>
+<span>                                w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out_stanzas</span><span class="op">$</span><span class="va">rep</span><span class="op">$</span><span class="va">Y_tzz_g2</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">t</span>,,<span class="st">'log_NageS'</span><span class="op">]</span><span class="op">)</span> <span class="op">)</span></span>
+<span>  <span class="va">meanweight_t</span><span class="op">[</span><span class="va">t</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/weighted.mean.html" class="external-link">weighted.mean</a></span><span class="op">(</span> x <span class="op">=</span> <span class="va">out_stanzas</span><span class="op">$</span><span class="va">rep</span><span class="op">$</span><span class="va">Y_tzz_g2</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">t</span>,,<span class="st">'WageS'</span><span class="op">]</span>,</span>
+<span>                                   w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out_stanzas</span><span class="op">$</span><span class="va">rep</span><span class="op">$</span><span class="va">Y_tzz_g2</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">t</span>,,<span class="st">'log_NageS'</span><span class="op">]</span><span class="op">)</span> <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span> mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span> x<span class="op">=</span><span class="va">years</span>, y<span class="op">=</span><span class="va">meanage_t</span>, lwd<span class="op">=</span><span class="fl">2</span>, type<span class="op">=</span><span class="st">"l"</span>, main<span class="op">=</span><span class="st">"Mean age"</span> <span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span> x<span class="op">=</span><span class="va">years</span>, y<span class="op">=</span><span class="va">meanweight_t</span>, lwd<span class="op">=</span><span class="fl">2</span>, type<span class="op">=</span><span class="st">"l"</span>, main<span class="op">=</span><span class="st">"Mean weight"</span> <span class="op">)</span></span></code></pre></div>
+<p><img src="surplus_production_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+<p>In this age-structured production model, mean age decreases with
+increased fishing, but mean weight increases due to compensatory growth
+as the ratio of forage to predator increases.</p>
+</div>
+<div class="section level2">
+<h2 id="multi-stanza-age-structured-production-model">Multi-stanza age-structured production model<a class="anchor" aria-label="anchor" href="#multi-stanza-age-structured-production-model"></a>
+</h2>
+<p>Finally, we could fit a model with three variables, representing a
+forage species and two age-structured “stanzas” for the focal species.
+Here, we specify identical diet but varying bioenergetics by size:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Inputs</span></span>
+<span><span class="va">taxa</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"prey"</span>, <span class="st">"stage1"</span>, <span class="st">"stage2"</span> <span class="op">)</span></span>
+<span><span class="va">n_taxa</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">taxa</span><span class="op">)</span></span>
+<span><span class="va">PB_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">0.1</span> <span class="op">)</span></span>
+<span><span class="va">QB_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0.5</span> <span class="op">)</span></span>
+<span><span class="va">DC_ij</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span> <span class="st">"prey"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>, <span class="st">"stage1"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>, <span class="st">"stage2"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>  <span class="op">)</span></span>
+<span><span class="va">X_ij</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span> <span class="fl">2</span>, nrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">taxa</span><span class="op">)</span>, ncol<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">taxa</span><span class="op">)</span> <span class="op">)</span></span>
+<span><span class="va">U_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span> <span class="op">)</span></span>
+<span><span class="va">type</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"auto"</span>, <span class="st">"hetero"</span>, <span class="st">"hetero"</span> <span class="op">)</span></span>
+<span><span class="va">EE_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">1</span>, <span class="cn">NA</span>, <span class="cn">NA</span> <span class="op">)</span> </span>
+<span><span class="va">B_i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Settings: specify what parameters to estimate</span></span>
+<span><span class="va">fit_eps</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage1"</span>,<span class="st">"stage2"</span><span class="op">)</span>   <span class="co"># process errors</span></span>
+<span><span class="va">fit_Q</span> <span class="op">=</span> <span class="st">"stage2"</span>       <span class="co"># catchability coefficient</span></span>
+<span><span class="va">fit_B0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>      <span class="co"># non-equilibrium initial condition</span></span>
+<span><span class="va">fit_B</span> <span class="op">=</span> <span class="st">"stage2"</span>       <span class="co"># equilibrium biomass</span></span>
+<span></span>
+<span><span class="co"># Label EwE inputs for each taxon as expected (so users can easily change taxa)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">PB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">QB_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">B_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">EE_i</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">type</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">U_i</span><span class="op">)</span> <span class="op">=</span> <span class="va">taxa</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">DC_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">X_ij</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Prey"</span><span class="op">=</span><span class="va">taxa</span>, <span class="st">"Predator"</span><span class="op">=</span><span class="va">taxa</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define priors</span></span>
+<span><span class="va">log_prior</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Prior on process-error log-SD to stabilize model</span></span>
+<span>  <span class="va">logp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span> <span class="va">p</span><span class="op">$</span><span class="va">logtau_i</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, mean<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">1</span>, log<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">out_trivar</span> <span class="op">=</span> <span class="fu"><a href="../reference/ecostate.html">ecostate</a></span><span class="op">(</span> </span>
+<span>  taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
+<span>  years <span class="op">=</span> <span class="va">years</span>,</span>
+<span>  catch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Mass"</span><span class="op">=</span><span class="va">Catch</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="st">"Year"</span><span class="op">=</span><span class="va">Catch</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,<span class="st">"Taxon"</span><span class="op">=</span><span class="st">"stage2"</span><span class="op">)</span>,</span>
+<span>  biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Mass"</span><span class="op">=</span><span class="va">Biomass</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="st">"Year"</span><span class="op">=</span><span class="va">Biomass</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,<span class="st">"Taxon"</span><span class="op">=</span><span class="st">"stage2"</span><span class="op">)</span>,</span>
+<span>  PB <span class="op">=</span> <span class="va">PB_i</span>,</span>
+<span>  QB <span class="op">=</span> <span class="va">QB_i</span>,</span>
+<span>  DC <span class="op">=</span> <span class="va">DC_ij</span>,</span>
+<span>  B <span class="op">=</span> <span class="va">B_i</span>,</span>
+<span>  EE <span class="op">=</span> <span class="va">EE_i</span>,</span>
+<span>  X <span class="op">=</span> <span class="va">X_ij</span>,</span>
+<span>  type <span class="op">=</span> <span class="va">type</span>,</span>
+<span>  U <span class="op">=</span> <span class="va">U_i</span>,</span>
+<span>  fit_B <span class="op">=</span> <span class="va">fit_B</span>,</span>
+<span>  fit_Q <span class="op">=</span> <span class="va">fit_Q</span>,</span>
+<span>  fit_eps <span class="op">=</span> <span class="va">fit_eps</span>,</span>
+<span>  fit_B0 <span class="op">=</span> <span class="va">fit_B0</span>,</span>
+<span>  log_prior <span class="op">=</span> <span class="va">log_prior</span>,</span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="../reference/ecostate_control.html">ecostate_control</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  settings <span class="op">=</span> <span class="fu"><a href="../reference/stanza_settings.html">stanza_settings</a></span><span class="op">(</span> </span>
+<span>    taxa <span class="op">=</span> <span class="va">taxa</span>,</span>
+<span>    stanza_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage1"</span><span class="op">=</span><span class="st">"age_structured"</span>, <span class="st">"stage2"</span><span class="op">=</span><span class="st">"age_structured"</span><span class="op">)</span>,</span>
+<span>    K <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>    Wmat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="op">(</span><span class="fl">2</span><span class="op">/</span><span class="fl">3</span><span class="op">)</span><span class="op">^</span><span class="fl">3</span><span class="op">)</span>,</span>
+<span>    d <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span><span class="op">)</span>,</span>
+<span>    Amax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage1"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"stage2"</span> <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span>
+<span>    SpawnX <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_structured"</span> <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in nlminb(start = opt$par, objective = obj$fn, gradient = list(obj$gr,</span></span>
+<span><span class="co">#&gt; : NA/NaN function evaluation</span></span>
+<span></span>
+<span><span class="co"># print output to terminal</span></span>
+<span><span class="va">out_trivar</span></span>
+<span><span class="co">#&gt; Dynamics integrated using  ABM  with  10  time-steps</span></span>
+<span><span class="co">#&gt; Run time: Time difference of 1.288744 mins</span></span>
+<span><span class="co">#&gt; Negative log-likelihood: -70.41958</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim parameters:</span></span>
+<span><span class="co">#&gt;          type       QB  PB            B EE   U</span></span>
+<span><span class="co">#&gt; prey     auto       NA 5.0  106.7457516  1 0.2</span></span>
+<span><span class="co">#&gt; stage1 hetero 3.916939 1.0    0.8281451  0 0.2</span></span>
+<span><span class="co">#&gt; stage2 hetero 0.500000 0.1 1060.9699286  0 0.2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim diet matrix:</span></span>
+<span><span class="co">#&gt;         Predator</span></span>
+<span><span class="co">#&gt; Prey     prey stage1 stage2</span></span>
+<span><span class="co">#&gt;   prey      0      1      1</span></span>
+<span><span class="co">#&gt;   stage1    0      0      0</span></span>
+<span><span class="co">#&gt;   stage2    0      0      0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; EcoSim vulnerability matrix:</span></span>
+<span><span class="co">#&gt;         Predator</span></span>
+<span><span class="co">#&gt; Prey     prey stage1 stage2</span></span>
+<span><span class="co">#&gt;   prey      2      2      2</span></span>
+<span><span class="co">#&gt;   stage1    2      2      2</span></span>
+<span><span class="co">#&gt;   stage2    2      2      2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimates: sdreport(.) result</span></span>
+<span><span class="co">#&gt;            Estimate Std. Error</span></span>
+<span><span class="co">#&gt; logB_i    6.9669388 0.08521457</span></span>
+<span><span class="co">#&gt; logtau_i  0.3498846 0.37557231</span></span>
+<span><span class="co">#&gt; logtau_i -3.1440545 0.50456842</span></span>
+<span><span class="co">#&gt; logq_i   -0.1292594 0.09806604</span></span>
+<span><span class="co">#&gt; Maximum gradient component: 1.809354e-09</span></span></code></pre></div>
+<p>The model includes process-errors in the first-stage (eggs to
+recruits, from age-0 to age-2) and the second stage (age-2 onward),
+although the variance for stage-1 collapses to zero in this simulation
+replicate.</p>
+</div>
+<div class="section level2">
 <h2 id="comparison-with-other-models">Comparison with other models<a class="anchor" aria-label="anchor" href="#comparison-with-other-models"></a>
 </h2>
 <p>We can compare this with a state-space production model in continuous
 time (SPiCT):</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">spict</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: TMB</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'TMB'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:RTMB':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     checkConsistency, MakeADFun, oneStepPredict, sdreport</span></span>
 <span><span class="co">#&gt; Welcome to spict_v1.3.8@107a32</span></span>
 <span></span>
 <span><span class="co"># Format for SPiCT</span></span>
@@ -447,10 +692,10 @@ time (SPiCT):</p>
 <span><span class="co"># Fit and plot</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/spict/man/fit.spict.html" class="external-link">fit.spict</a></span><span class="op">(</span><span class="va">datalist</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/spict/man/plotspict.biomass.html" class="external-link">plotspict.biomass</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
-<p><img src="surplus_production_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+<p><img src="surplus_production_files/figure-html/unnamed-chunk-12-1.png" width="672"></p>
 <p>Similarly, we can compare it with Just Another Bayesian Biomass
 Assessment (JABBA):</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">JABBA</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compile JABBA JAGS model and input object</span></span>
@@ -497,22 +742,27 @@ Assessment (JABBA):</p>
 <span><span class="co">#&gt; &gt;&lt;&gt; Produce results output of Schaefer model for target TestRun &lt;&gt;&lt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; &gt;&lt;&gt; Scenario TestRun_Schaefer completed in 0 min and 28 sec &lt;&gt;&lt;</span></span>
+<span><span class="co">#&gt; &gt;&lt;&gt; Scenario TestRun_Schaefer completed in 0 min and 13 sec &lt;&gt;&lt;</span></span>
 <span></span>
 <span><span class="co"># Make individual plots</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/JABBA/man/jbplot_cpuefits.html" class="external-link">jbplot_cpuefits</a></span><span class="op">(</span><span class="va">bet1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; &gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</span></span></code></pre></div>
-<p><img src="surplus_production_files/figure-html/unnamed-chunk-11-1.png" width="672"></p>
-<p>Comparing the two shows that SPICT and EcoState both have errors in
-estimating population scale, presumably due to mis-specifying the
-production function:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p><img src="surplus_production_files/figure-html/unnamed-chunk-13-1.png" width="672"></p>
+<p>Comparing the two shows that SPICT, JABBA, and all configurations of
+EcoState have errors in estimating population scale, presumably due to
+mis-specifying the production function. As expected, the age-structured
+and 2-species EcoState models result in identical estimates, where the
+age-structured version also provides auxiliary information about changes
+in average age and size.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compare estimates</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
 <span>  <span class="st">"True"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"q"</span> <span class="op">=</span> <span class="va">q</span>, <span class="st">"K"</span><span class="op">=</span><span class="va">K</span>, <span class="st">"MSY"</span><span class="op">=</span><span class="va">true_msy</span><span class="op">)</span>,</span>
 <span>  <span class="st">"EcoState 1-species"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">opt</span><span class="op">$</span><span class="va">par</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'logq_i'</span>,<span class="st">'logB_i'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,<span class="va">msy2</span><span class="op">)</span>,</span>
 <span>  <span class="st">"EcoState 2-species"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out_bivar</span><span class="op">$</span><span class="va">opt</span><span class="op">$</span><span class="va">par</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'logq_i'</span>,<span class="st">'logB_i'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,<span class="va">msy_bivar</span><span class="op">)</span>,</span>
+<span>  <span class="st">"EcoState age-structured"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out_stanzas</span><span class="op">$</span><span class="va">opt</span><span class="op">$</span><span class="va">par</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'logq_i'</span>,<span class="st">'logB_i'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,<span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  <span class="st">"EcoState multi-stanza"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">out_trivar</span><span class="op">$</span><span class="va">opt</span><span class="op">$</span><span class="va">par</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'logq_i'</span>,<span class="st">'logB_i'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,<span class="cn">NA</span><span class="op">)</span>,</span>
 <span>  <span class="st">"SPiCT"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">value</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'q'</span>,<span class="st">'K'</span>,<span class="st">'MSY'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>  <span class="st">"JABBA"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">bet1</span><span class="op">$</span><span class="va">pars</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'q'</span>,<span class="st">'K'</span><span class="op">)</span>,<span class="st">'Median'</span><span class="op">]</span>,<span class="va">bet1</span><span class="op">$</span><span class="va">estimates</span><span class="op">[</span><span class="st">'MSY'</span>,<span class="st">'mu'</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">)</span>, digits<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
@@ -532,15 +782,27 @@ production function:</p>
 </tr>
 <tr class="even">
 <td align="left">EcoState 1-species</td>
-<td align="right">0.709</td>
-<td align="right">1340.769</td>
-<td align="right">82.607</td>
+<td align="right">0.685</td>
+<td align="right">1357.543</td>
+<td align="right">69.279</td>
 </tr>
 <tr class="odd">
 <td align="left">EcoState 2-species</td>
-<td align="right">1.124</td>
-<td align="right">820.067</td>
-<td align="right">56.553</td>
+<td align="right">1.123</td>
+<td align="right">819.958</td>
+<td align="right">56.546</td>
+</tr>
+<tr class="even">
+<td align="left">EcoState age-structured</td>
+<td align="right">0.866</td>
+<td align="right">1042.852</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">EcoState multi-stanza</td>
+<td align="right">0.879</td>
+<td align="right">1060.970</td>
+<td align="right">NA</td>
 </tr>
 <tr class="even">
 <td align="left">SPiCT</td>
@@ -556,6 +818,7 @@ production function:</p>
 </tr>
 </tbody>
 </table>
+<p>Runtime for this vignette: 2.65 mins</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -568,7 +831,7 @@ production function:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
