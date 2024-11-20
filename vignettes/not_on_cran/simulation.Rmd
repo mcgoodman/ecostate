@@ -7,6 +7,7 @@ vignette: >
   %\VignetteIndexEntry{Demonstrating EcoState via simulation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{Rpath}
 ---
 
 ```{r, include = FALSE, warning=FALSE, message=FALSE}
@@ -15,6 +16,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 start_time = Sys.time()
+# Dependencies
+#  remotes::install_github( "NOAA-EDAB/Rpath" )
 # Install locally
 #  devtools::install_local( R'(C:\Users\James.Thorson\Desktop\Git\ecostate)', force=TRUE )
 #  devtools::install_github( 'James-Thorson-NOAA/ecostate', force=TRUE )
@@ -25,6 +28,7 @@ start_time = Sys.time()
 
 ```{r setup, echo=TRUE, message=FALSE}
 library(ecostate)
+library(Rpath)
 ```
 
 `ecostate` is an R package for fitting the mass-balance dynamics specified by EcoSim as a state-space model.   We here highlight a few features in particular.
@@ -155,8 +159,6 @@ sim = simulate_data()
 We then load `Rpath` and reformat inputs in the format that it expects to calculate mass-balance:
 
 ```{r, echo=TRUE, message=TRUE, fig.width=7, fig.height=7}
-library(Rpath)
-
 # Rpath needs types in ascending order (EcoState doesn't care)
 types  <- sapply( c(type_i,"fishery"), FUN=switch, 
                   "hetero"==0, "auto"=1, "detritus"=2, "fishery"=3 )

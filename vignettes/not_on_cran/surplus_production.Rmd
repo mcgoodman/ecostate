@@ -7,6 +7,7 @@ vignette: >
   %\VignetteIndexEntry{EcoState as surplus production model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{spict,JABBA}
 ---
 
 ```{r, include = FALSE, warning=FALSE, message=FALSE}
@@ -15,6 +16,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 start_time = Sys.time()
+# Dependencies
+#  remotes::install_github( "jabbamodel/JABBA" )
+#  remotes::install_github( "DTUAqua/spict/spict" )
 # Install locally
 #  devtools::install_local( R'(C:\Users\James.Thorson\Desktop\Git\ecostate)', force=TRUE, dep=FALSE )
 #  devtools::install_github( 'James-Thorson-NOAA/ecostate', force=TRUE )
@@ -25,6 +29,8 @@ start_time = Sys.time()
 
 ```{r setup, echo=TRUE, message=FALSE}
 library(ecostate)
+library(JABBA)
+library(spict)
 set.seed(101)
 ```
 
@@ -513,8 +519,6 @@ The model includes process-errors in the first-stage (eggs to recruits, from age
 We can compare this with a state-space production model in continuous time (SPiCT):
 
 ```{r, echo=TRUE, message=TRUE, fig.width=7, fig.height=7}
-library(spict)
-
 # Format for SPiCT
 datalist = list(
   obsC = C_t[-1],
@@ -531,8 +535,6 @@ plotspict.biomass(res)
 Similarly, we can compare it with Just Another Bayesian Biomass Assessment (JABBA):
 
 ```{r, echo=TRUE, message=TRUE, fig.width=7, fig.height=7}
-library(JABBA)
-
 # Compile JABBA JAGS model and input object
 jbinput = build_jabba( catch = data.frame(Year=years, Total=C_t)[-1,],
                        cpue = data.frame(Year=years, Index=Bobs_t)[-1,],

@@ -28,16 +28,6 @@ Imports:
     igraph
 Suggests:
     knitr
-Enhances:
-    spict,
-    JABBA,
-    Rpath,
-    boot
-Remotes:
-    DTUAqua/spict/spict,
-    jabbamodel/JABBA,
-    NOAA-EDAB/Rpath,
-    kaskr/RTMB/RTMBode
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr

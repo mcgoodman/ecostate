@@ -5,4 +5,5 @@
 ^pkgdown$
 ^scratch$
 ^codecov\.yml$
-^vignettes/web_only$
+^vignettes/not_on_cran/.*$
+^vignettes/too_slow/.*$
