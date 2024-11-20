@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   model_of_intermediate_complexity: model_of_intermediate_complexity.html
-  simulation: simulation.html
-  surplus_production: surplus_production.html
-  web_only/whole_of_ecosystem: web_only/whole_of_ecosystem.html
-last_built: 2024-11-19T23:26Z
+  not_on_cran/simulation: not_on_cran/simulation.html
+  not_on_cran/surplus_production: not_on_cran/surplus_production.html
+  too_slow/whole_of_ecosystem: too_slow/whole_of_ecosystem.html
+last_built: 2024-11-20T18:53Z

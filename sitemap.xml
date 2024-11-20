@@ -2,9 +2,9 @@
 <url><loc>/404.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/model_of_intermediate_complexity.html</loc></url>
-<url><loc>/articles/simulation.html</loc></url>
-<url><loc>/articles/surplus_production.html</loc></url>
-<url><loc>/articles/web_only/whole_of_ecosystem.html</loc></url>
+<url><loc>/articles/not_on_cran/simulation.html</loc></url>
+<url><loc>/articles/not_on_cran/surplus_production.html</loc></url>
+<url><loc>/articles/too_slow/whole_of_ecosystem.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
