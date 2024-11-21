@@ -676,6 +676,10 @@ function( taxa,
 #' @param n_steps number of steps used in the ODE solver for biomass dynamics
 #' @param inverse_method whether to use pseudoinverse or standard inverse
 #'
+#' @return
+#' An S3 object of class "ecostate_control" that specifies detailed model settings,
+#' allowing user specification while also specifying default values
+#'
 #' @export
 ecostate_control <-
 function( nlminb_loops = 1,

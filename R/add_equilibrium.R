@@ -17,6 +17,11 @@
 #' solution, and then calculates equilibrium consumption, natural mortality,
 #' and other rates.
 #'
+#' @return
+#' the list of parameters with missing values in \code{ecoparams$B_i} and/or
+#' \code{ecoparams$EE_i} filled in, as well as additional values \code{Qe_ij},
+#' \code{m0_i}, and \code{GE_i}
+#'
 #' @export
 add_equilibrium <-
 function( ecoparams,

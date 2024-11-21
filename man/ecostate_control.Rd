@@ -105,6 +105,10 @@ decrease in speed for model-fitting with a small model.}
 
 \item{start_tau}{Starting value for the standard deviation of process errors}
 }
+\value{
+An S3 object of class "ecostate_control" that specifies detailed model settings,
+allowing user specification while also specifying default values
+}
 \description{
 Define a list of control parameters.
 }

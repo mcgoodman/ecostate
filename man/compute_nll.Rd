@@ -72,6 +72,10 @@ dynamics (called stanza-groups).}
 
 \item{control}{output from \link{ecostate_control}}
 }
+\value{
+The joint negative log-likelihood including contribution of priors
+and fit to data.
+}
 \description{
 Compute negative log-likelihood for EcoState model
 }

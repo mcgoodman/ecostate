@@ -21,6 +21,9 @@ compute_tracer(
 
 \item{tracer_i}{an indicator matrix specifying the traver value}
 }
+\value{
+The vector \deqn{\mathbf{y_i}} resulting from tracer \deqn{\mathbf{x_i}}
+}
 \description{
 Calculate how a tracer propagates through consumption.
 }

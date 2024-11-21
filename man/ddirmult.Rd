@@ -15,6 +15,9 @@ ddirmult(x, prob, ln_theta, log = TRUE)
 
 \item{log}{whether to return the log-probability or not}
 }
+\value{
+The log-likelihood resulting from the Dirichlet-multinomial distribution
+}
 \description{
 Allows data-weighting as parameter
 }

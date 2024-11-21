@@ -28,6 +28,9 @@
 #'
 #' This then allows us to separate alternative components of the foodweb.
 #'
+#' @return
+#' The vector \deqn{\mathbf{y_i}} resulting from tracer \deqn{\mathbf{x_i}}
+#'
 #' @export
 compute_tracer <-
 function( Q_ij,
@@ -93,6 +96,9 @@ ginv <- RTMB::ADjoint(function(x) {
 #' f( 0 )
 #' F = MakeTape(f, 0)
 #' F$jacfun()(0)
+#'
+#' @return
+#' The log-likelihood resulting from the Dirichlet-multinomial distribution
 #'
 #' @export
 ddirmult <-

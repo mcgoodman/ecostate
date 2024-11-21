@@ -27,6 +27,10 @@
 #' age-composition data, weight-at-age data, priors, and the distribution for
 #' random effects.
 #'
+#' @return
+#' The joint negative log-likelihood including contribution of priors
+#' and fit to data.
+#'
 #' @export
 compute_nll <-
 function( p,

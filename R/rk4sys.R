@@ -18,6 +18,11 @@
 #' equations with fixed step size.
 #' Copied from pracma under GPL-3, with small modifications to work with RTMB
 #'
+#' @return
+#' List with components x for grid points between a and b and y an
+#' n-by-m matrix with solutions for variables in columns, i.e.
+#' each row contains one time stamp.
+#'
 #' @export
 rk4sys <-
 function( f,

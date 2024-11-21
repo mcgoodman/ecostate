@@ -22,6 +22,11 @@ defined as a function \eqn{R \times R^m \rightarrow R^m}, where \eqn{m} is the n
 
 \item{...}{additional inputs to function \code{f}}
 }
+\value{
+List with components x for grid points between a and b and y an
+n-by-m matrix with solutions for variables in columns, i.e.
+each row contains one time stamp.
+}
 \description{
 Classical Runge-Kutta of order 4.
 }

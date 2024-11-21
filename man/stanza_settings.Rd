@@ -73,7 +73,9 @@ integrating individual weight-at-age}
 \item{comp_weight}{method used for weighting age-composition data}
 }
 \value{
-An object (list) of S3-class \code{stanza_settings}.
+An S3 object of class "stanza_settings" that specifies detailed model settings
+related to age-structured dynamics (e.g., stanzas),
+allowing user specification while also specifying default values
 }
 \description{
 Define a list of control parameters.

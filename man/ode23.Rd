@@ -24,6 +24,11 @@ defined as a function \eqn{R \times R^m \rightarrow R^m}, where \eqn{m} is the n
 
 \item{atol}{absolute tolerance.}
 }
+\value{
+List with components t for time points between a and b and y an
+n-by-m matrix with solutions for variables in columns, i.e.
+each row contains one time stamp.
+}
 \description{
 Runge-Kutta (2, 3)-method with variable step size, resp
 }

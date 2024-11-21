@@ -26,6 +26,9 @@
 #' of different prey (rows).  We identify primary producers as any taxa with no
 #' consumption (a column of 0s), and assign them as the first trophic level.
 #'
+#' @return
+#' invisibly return \code{ggplot} object for foodweb
+#'
 #' @export
 plot_foodweb <-
 function( Q_ij,

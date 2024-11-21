@@ -33,6 +33,9 @@ plot_foodweb(
 
 \item{yloc}{y-axis location (overrides calculation using \code{ytracer_i})}
 }
+\value{
+invisibly return \code{ggplot} object for foodweb
+}
 \description{
 Plot consumption as a directed graph including all taxa (vertices)
 and biomass consumed (arrows).  Taxa are located using tracers,

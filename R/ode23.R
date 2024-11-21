@@ -18,6 +18,11 @@
 #' Copied from pracma under GPL-3, with small modifications to work with RTMB.
 #' This can be used to simulate dynamics, but not during estimation
 #'
+#' @return
+#' List with components t for time points between a and b and y an
+#' n-by-m matrix with solutions for variables in columns, i.e.
+#' each row contains one time stamp.
+
 #' @export
 ode23 <- 
 function( f, 

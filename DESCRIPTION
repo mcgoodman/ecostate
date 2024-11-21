@@ -1,6 +1,6 @@
 Package: ecostate
 Type: Package
-Title: State-Space Extension of EcoPath with EcoSim
+Title: State-Space Mass-Balance Model for Marine Ecosystems
 Version: 0.2.0
 Date: 2024-11-15
 Authors@R: c(
@@ -9,12 +9,16 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-7415-1010"))
     )
 Maintainer: James T. Thorson <James.Thorson@noaa.gov>
-Description: Fits a state-space extension of Ecopath with Ecosim (EwE)
-	to time-series of catch and biomass.  EwE is a widely used
-	mass-balance model for biomass dynamics in aquatic ecosystems.
-	EcoState fits biological parameters (e.g., equilibrium mass)
+Description: 
+	Fits a state-space mass-balance model for marine ecosystems,
+	which implements dynamics derived from 
+	`Ecopath with Ecosim` (`EwE`) <https://ecopath.org/>
+	while fiting to time-series of fishery catch, biomass indices,
+	age-composition samples, and weight-at-age data.  
+	`Ecostate` fits biological parameters (e.g., equilibrium mass)
 	and measurement parameters (e.g., catchability coefficients)
-	jointly with residual variation in process errors.  
+	jointly with residual variation in process errors, and can include
+	Bayesian priors for parameters.  
 License: GPL-3
 Depends:
     R (>= 4.1.0),

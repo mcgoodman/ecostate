@@ -539,8 +539,10 @@ function( p,
 #' @param comp_weight method used for weighting age-composition data
 #'
 #' @return
+#' An S3 object of class "stanza_settings" that specifies detailed model settings
+#' related to age-structured dynamics (e.g., stanzas),
+#' allowing user specification while also specifying default values
 #'
-#' An object (list) of S3-class `stanza_settings`.
 #' @export
 stanza_settings <-
 function( taxa,
