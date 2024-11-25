@@ -1,5 +1,8 @@
 # EcoState
 
+[![](https://www.r-pkg.org/badges/version/ecostate)](https://cran.r-project.org/package=ecostate)
+[![](https://cranlogs.r-pkg.org/badges/ecostate)](https://cran.r-project.org/package=ecostate)
+[![](https://cranlogs.r-pkg.org/badges/grand-total/ecostate)](https://cran.r-project.org/package=ecostate)
 [![Documentation](https://img.shields.io/badge/documentation-ecostate-orange.svg?colorB=E91E63)](https://james-thorson-noaa.github.io/ecostate/)
 
 Package _ecostate_ fits a state-space mass-balance model _EcoState_ intended for aquatic ecosystems, using mass-balance equations matching those from Ecopath and dynamical equations matching Ecosim.  Unlike the Ecopath-with-Ecosim (_EwE_) package, _ecostate_ fits both biological parameters (e.g., equilibrium biomass and predator-prey vulnerability) and measurement parameters (e.g., catchability coefficients) via fit to time-series data.  _ecostate_ also estimates additional process errors representing nonstationarity in growth efficiency, ecotrophic efficient, migration, or other unmodeled processes.  These process errors allow biomass patterns to closely match available data, so that resulting consumption (and associated productivity and mortality rates) can accurately be conditioned upon any residual patterns.     
