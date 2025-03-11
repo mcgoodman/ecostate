@@ -155,7 +155,8 @@ function( taxa,
           covariates = NULL,
           log_prior = function(p) 0,
           settings = stanza_settings(taxa=taxa),
-          control = ecostate_control()){
+          control = ecostate_control(), 
+          debug = 0){
   # importFrom RTMB MakeADFun REPORT ADREPORT sdreport getAll
   # importFrom Matrix Matrix Diagonal sparseMatrix
 
@@ -200,7 +201,7 @@ function( taxa,
     if (!is.null(covariates)) {
       
       if (isFALSE(nrow(covariates) == length(years))) {
-        stop("matrix of SEM covariates must have a row for each year")
+        stop("matrix of SEM covariates must have a row for each year (NAs are allowed)")
       }
       
       if (isFALSE(ncol(covariates) == length(unique(colnames(covariates))))) {
@@ -213,16 +214,22 @@ function( taxa,
     
     sem <- dsem:::read_model(sem, times = years, variables = sem_vars)
     
-    if (any(grepl(" ", taxa))) {
-      stop("If using SEM, taxa (and stanza) names must not have spaces")
+    sem_taxa <- unique(unlist(strsplit(gsub("eps_|nu_|phi_", "", proc_vars), ":")))
+    
+    if (any(grepl(" |:", taxa))) {
+      stop("If using SEM, taxa (and stanza) names must not have spaces or colons")
+    }
+    
+    if (!(all(sem_taxa %in% c(taxa, settings$unique_stanza_groups)))) {
+      stop("Some taxa / stanza groups specified in SEM path missing from `taxa` or `settings$unique_stanza_groups`")
     }
     
     if (length(settings$stanza_groups) > 0) {
-      if (any(grepl(" ", settings$unique_stanza_groups))) {
-        stop("If using SEM, taxa (and stanza) names must not have spaces")
+      if (any(grepl(" |:", settings$unique_stanza_groups))) {
+        stop("If using SEM, taxa (and stanza) names must not have spaces or colons")
       }
       for (i in seq_along(proc_vars)) {
-        if (gsub("eps_|nu_", "", proc_vars[i]) %in% settings$unique_stanza_groups) {
+        if (any(strsplit(gsub("eps_|nu_", "", proc_vars[i]), ":")[[1]] %in% settings$unique_stanza_groups)) {
           if (!(gsub("eps_|nu_", "", proc_vars[i]) %in% taxa)) {
             stop("epsilon and nu process errors must be specified for taxa, not stanza groups")
           }
@@ -257,7 +264,7 @@ function( taxa,
     names(U) = taxa
   }  
   if(missing(type)){
-    type = ifelse(colSums(DC_ij)==0, "auto", "hetero")
+    type = ifelse(colSums(DC)==0, "auto", "hetero")
     names(type) = taxa
   }
   
@@ -362,7 +369,8 @@ function( taxa,
             logpsi_g2 = setNames(rep(NA, settings$n_g2), settings$unique_stanza_groups),
             epsilon_ti = array( 0, dim=c(0,n_species) ),
             alpha_ti = array( 0, dim=c(0,n_species) ),
-            nu_ti = array( 0, dim=c(0,n_species) ),
+            nu_ti = array( 0, dim = c(0,n_species) ),
+            nu_tij = array(0, dim = c(nrow(Bobs_ti), n_species, n_species)),
             phi_tg2 = array( 0, dim=c(0,settings$n_g2) ),
             beta = if (use_sem && length(beta) > 0) beta else numeric(0),
             mu = if (!is.null(covariates)) setNames(rep(0, ncol(covariates)), colnames(covariates)) else numeric(0),
@@ -447,15 +455,27 @@ function( taxa,
     }
     map$epsilon_ti = factor(map$epsilon_ti)
     
-    # Variation in consumption
+    # Variation in consumption by predator
     p$nu_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
-    map$nu_ti = array( seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
-    if(any(grepl("nu_", proc_vars))) {
+    map$nu_ti = array(seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
+    if(any(grepl("nu_", proc_vars) & !(grepl(":", proc_vars)))) {
       map$nu_ti[,-as.integer(na.omit(match(gsub("nu_", "", proc_vars), taxa)))] <- NA 
     } else {
       map$nu_ti[,] <- NA
     }
     map$nu_ti = factor(map$nu_ti)
+    
+    # Variation in consumption by predator-prey pair
+    map$nu_tij = array(NA, dim = dim(p$nu_tij))
+    if (any(grepl("nu_", proc_vars) & grepl(":", proc_vars))) {
+      pred_prey <- strsplit(gsub("nu_", "", proc_vars[grepl("nu_", proc_vars) & grepl(":", proc_vars)]), ":")
+      which_pred = vapply(pred_prey, function(x) match(x[1], taxa), integer(1))
+      which_prey = vapply(pred_prey, function(x) match(x[2], taxa), integer(1))
+      for (i in seq_along(pred_prey)) {
+        map$nu_tij[, which_pred[i], which_prey[i]] <- array(seq_len(prod(dim(p$nu_tij))), dim = dim(p$nu_tij))[, which_pred[i], which_prey[i]]
+      }
+    }
+    map$nu_tij = factor(map$nu_tij)
     
     # Variation in recruitment
     p$phi_tg2 = array( 0, dim=c(nrow(Bobs_ti),settings$n_g2) )
@@ -508,6 +528,7 @@ function( taxa,
       }
     }
     map$nu_ti = factor(map$nu_ti)
+    map$nu_tij =  factor(rep(NA, length(c(p$nu_tij))))
     # Variation in recruitment
     p$phi_tg2 = array( 0, dim=c(nrow(Bobs_ti),settings$n_g2) )
     map$phi_tg2 = array( seq_len(prod(dim(p$phi_tg2))), dim=dim(p$phi_tg2))
@@ -524,6 +545,7 @@ function( taxa,
   # Set names
   colnames(p$epsilon_ti) = colnames(p$alpha_ti) = colnames(p$nu_ti) = colnames(p$logF_ti) = taxa
   colnames(p$phi_tg2) = settings$unique_stanza_groups
+  dimnames(p$nu_tij) <- list(year = years, predator = taxa, prey = taxa)
 
   # Measurement errors
   p$ln_sdB = log(0.1)
@@ -628,6 +650,13 @@ function( taxa,
   #cmb <- function(f, d) function(p) f(p, d) ## Helper to make closure
   cmb <- function(f, ...) function(p) f(p, ...) ## Helper to make closure
   
+  if (debug == 1) {
+    random = control$random
+    profile = control$profile
+    silent = control$silent 
+    browser()
+  }
+  
   obj <- MakeADFun( func = cmb( compute_nll,
                                 Bobs_ti = Bobs_ti,
                                 Cobs_ti = Cobs_ti,
@@ -646,7 +675,8 @@ function( taxa,
                                 log_prior = log_prior,
                                 #DC_ij = DC_ij,
                                 stanza_data = stanza_data, 
-                                sem = sem),
+                                sem = sem, 
+                                debug = debug),
                     parameters = p,
                     map = map,
                     random = control$random,
@@ -906,7 +936,7 @@ function( nlminb_loops = 1,
           trace = getOption("ecostate.trace", 0),
           verbose = getOption("ecostate.verbose", FALSE),
           profile = c("logF_ti","log_winf_z","s50_z","srate_z"),
-          random = c("epsilon_ti","alpha_ti","nu_ti","phi_tg2","covariates"),
+          random = c("epsilon_ti","alpha_ti","nu_ti","nu_tij","phi_tg2","covariates"),
           tmb_par = NULL,
           map = NULL,
           getJointPrecision = FALSE,
