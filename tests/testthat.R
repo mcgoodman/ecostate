@@ -10,3 +10,7 @@ library(testthat)
 library(ecostate)
 
 test_check("ecostate")
+
+# Run from local directory
+# testthat::test_dir( "C:/Users/James.Thorson/Desktop/Git/ecostate/tests/testthat/", reporter="check" )
+# testthat::test_local(path = "C:/Users/James.Thorson/Desktop/Git/tinyVAST" )
