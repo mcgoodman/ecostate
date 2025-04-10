@@ -126,3 +126,15 @@ NULL
 #' @keywords data
 NULL
 
+#' @title
+#' Output from optimizer for GOA stanza example
+#'
+#' @description
+#' Objective function and MLE for coefficients in GOA stanza example
+#'
+#' @name goa_mle
+#' @docType data
+#' @usage data(goa_mle)
+#' @keywords data
+NULL
+
