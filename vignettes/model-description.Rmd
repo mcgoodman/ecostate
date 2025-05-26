@@ -5,7 +5,7 @@ output:
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{tinyVAST model description}
+  %\VignetteIndexEntry{ecostate model description}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 bibliography: 'refs.bib'
