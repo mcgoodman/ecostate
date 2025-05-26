@@ -87,10 +87,10 @@ function( Q_ij,
   #                          weighted = TRUE )
   #g$log_flow = log(g$weight / min(g$weight,na.rm=TRUE))
   g$flow = g$weight
-  if(rescale==TRUE) g$flow = g$flow / min(g$flow)
+  if(rescale==TRUE) g$flow = g$flow / min(g$flow,na.rm=TRUE)
   g$mass = rep(NA, nrow(g))
 
-  # Only fill in mass for rows without a flow
+  # Only fill in mass for rows without a flow, which represent node masses
   #g$log_mass[which(is.na(g$log_flow))] = log(B_i / min(B_i,na.rm=TRUE))
   if( length(which(is.na(g$flow))) != length(B_i) ) stop("Check plotting code")
   g$mass[which(is.na(g$flow))] = B_i
