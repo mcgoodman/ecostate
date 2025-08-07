@@ -38,7 +38,7 @@ knitr::opts_chunk$set(
 
 # Introducing ecostate
 
-`ecostate` [@thorson_benefits_2025] is an R package that implements a nonlinear state-space model representing equilibrium conditions from Ecopath [@polovina_model_1984], biomass dynamics from Ecosim [@walters_structuring_1997], and age/stage-structured dynamics from Ecosim version-2 [@walters_representing_2000].  The parameterization is heavily inspired by RPath [@lucey_conducting_2020].  However, it also adds features that are not available in EwE or Rpath including:
+`ecostate` [@thorson_benefits_2025; @thorson_bottom-up_nodate] is an R package that implements a nonlinear state-space model representing equilibrium conditions from Ecopath [@polovina_model_1984], biomass dynamics from Ecosim [@walters_structuring_1997], and age/stage-structured dynamics from Ecosim version-2 [@walters_representing_2000].  The parameterization is heavily inspired by RPath [@lucey_conducting_2020].  However, it also adds features that are not available in EwE or Rpath including:
 
 * _Estimating equilibrium and dynamical parameters simultaneously_:  ecostate uses maximum likelihood estimation to identify the values (and standard errors) for parameters representing both ecosystem equilibrium (e.g., equilibrium biomass, production/consumption per biomass), ecosystem dynamics (e.g., ratio of initial to equilibrium biomass), and measurement parameters (e.g., catchability coefficient);
 
@@ -131,7 +131,9 @@ This expression states that:
 
 # Age- and size-structured dynamics
 
-_ecostate_ also includes features that allow age- and size-structured dynamics.  This requires defining one or more age-structured populations ("multi-stanza groups") $g2$, and each multi-stanza group has a growth coefficient $K_{g2}$, allometric scaling of consumption to weight $d_{g2}$, age at maturity $A_{\text{mat},g2}$ or weight at maturity $W_{\text{mat},g2}$, and density dependence in larval survival $X_{\text{spawn},g2}$.  Each multi-stanza group then has one or more stanzas $s2[g2]$, where each stanza has a minimum age $a_{\text{min},s2}$ and therefore corresponds to ages from that minimum to the minimum for the next stanza (or a high upper limit for the oldest stanza).  Finally each stanza corresponds to a single "taxon" $s[s2[g2]]$, such that the biomass for stanza $s2[g2]$ of age-structured population $g2$ is $\beta_{s[s2[g2]]}$.  
+_ecostate_ also includes features that allow age- and size-structured dynamics [@thorson_bottom-up_nodate] that are inspired by the parameterization from Rpath [@lucey_conducting_2020].  This requires defining one or more age-structured populations ("multi-stanza groups") $g2$, and each multi-stanza group has a growth coefficient $K_{g2}$, allometric scaling of consumption to weight $d_{g2}$, age at maturity $A_{\text{mat},g2}$ or weight at maturity $W_{\text{mat},g2}$, and density dependence in larval survival $X_{\text{spawn},g2}$.  Each multi-stanza group then has one or more stanzas $s2[g2]$, where each stanza has a minimum age $a_{\text{min},s2}$ and therefore corresponds to ages from that minimum to the minimum for the next stanza (or a high upper limit for the oldest stanza).  Finally each stanza corresponds to a single "taxon" $s[s2[g2]]$, such that the biomass for stanza $s2[g2]$ of age-structured population $g2$ is $\beta_{s[s2[g2]]}$.  
+
+### Theoretical background
 
 The link between biomass dynamics for taxa $s$ and stanza $s2[g2]$ is established via the generalized von Bertalanffy growth equation:
 
@@ -143,6 +145,9 @@ Integrating this expression over time where individuals start at zero mass then 
 $$
 \omega(a) = \omega_{\infty} (1 - e^{K(1-d)a})^{\frac{1}{1-d}}
 $$
+
+### Equilibrium calculation
+
 We subsequently track abundance-at-age $\nu_{a^*}$ for $n_{\Delta}$ fractional ages $a^*$ within each integer age $a$, and calculate equilibrium weight-at-age $\omega_{a^*}$ for those fractional ages.  We start by using a first-order explicit Euler approximation to growth:
 
 $$
@@ -151,12 +156,16 @@ $$
 We then assume that anabolism will vary linearly with consumption per metabolic demand.  After some algebra, this results in:
 
 $$
-\bar{\alpha}_{a^*} \underbrace{( \frac{\bar{Q}_{s2}}{\sum_{a^{*'} \in s2} \nu_{a^{*'}} \omega_{a^{a'}}^d)} )}_{\text{Equilibrium consumption per demand}} = \underbrace{\bar{\omega}_{a^*+1} - \bar{\omega_{a^*}} + \frac{K}{n_{\Delta}} \bar{\omega}_{a^*}}_{\text{Equilibrium anabolism}}
+\bar{\alpha}_{a^*} \underbrace{\left( \frac{\bar{Q}_{s2}}{\sum_{a^{*'} \in s2} \nu_{a^{*'}} \omega_{a^{a'}}^d)} \right)}_{\text{Equilibrium consumption per demand}} = \underbrace{\bar{\omega}_{a^*+1} - \bar{\omega_{a^*}} + \frac{K}{n_{\Delta}} \bar{\omega}_{a^*}}_{\text{Equilibrium anabolism}}
 $$
-where the right-hand-side is known from equilibrium weight-at-age, the second-term of the left-hand-side is calculated from equilibrium biomass-dynamics, and we can use this to solve for $\bar{\alpha}_{a^*}$, which converts the ratio of consumption and metabolim demand to anabolism for a given fractional age. After calculating $\bar{\alpha}_{a^*}$ at equilibrium, we can then use non-equilibrium consumption $Q_{s2}$ to calculate non-equilibrium growth:
+where the right-hand-side is known from equilibrium weight-at-age, the second-term of the left-hand-side is calculated from equilibrium biomass-dynamics, and we can use this to solve for $\bar{\alpha}_{a^*}$, which converts the ratio of consumption and metabolim demand to anabolism for a given fractional age. 
+
+### Projecting nonequilibrium dynamics over time
+
+After calculating $\bar{\alpha}_{a^*}$ at equilibrium, we can then use non-equilibrium consumption $Q_{s2}$ to calculate non-equilibrium growth:
 
 $$
-\omega_{a^*+1} = \omega_{a^*} + \bar{\alpha}_{a^*} \frac{Q_{s2}}{\sum_{a^{*'} \in s2} \nu_{a^{*'}} \omega_{a^{*'}}^d} - \frac{K}{n_{\Delta}} \omega_{a^*}
+\omega_{a^*+1} = \omega_{a^*} + \bar{\alpha}_{a^*} \left( \frac{Q_{s2}}{\sum_{a^{*'} \in s2} \nu_{a^{*'}} \omega_{a^{*'}}^d} \right) - \frac{K}{n_{\Delta}} \omega_{a^*}
 $$
 Similarly, we use the Euler approximation to update abundance at age:
 
