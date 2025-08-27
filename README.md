@@ -30,10 +30,10 @@ browseVignettes("ecostate")
 For more background, please read:
 
 ### For state-space mass-balance equilibrium and biomass-dynamic modelling
-Thorson, J.  Kristensen, K., Aydin, K., Gaichas, S., Kimmel, D.G., McHuron, E.A., Nielsen, J.N., Townsend, H., Whitehouse, G.A. (In press) The benefits of hierarchical ecosystem models: demonstration using a new state-space mass-balance model EcoState.  Fish and Fisheries.  https://doi.org/10.1111/faf.12874
+Thorson, J.  Kristensen, K., Aydin, K., Gaichas, S., Kimmel, D.G., McHuron, E.A., Nielsen, J.N., Townsend, H., Whitehouse, G.A. (2025) The Benefits of Hierarchical Ecosystem Models: Demonstration Using EcoState, a New State-Space Mass-Balance Mode.  Fish and Fisheries, 26(2): 203-218. https://doi.org/10.1111/faf.12874
 
 ### For age-structured dynamics and bottom-up linkages to animal growth:
-Thorson, J. T., Aydin, K. H., Cheng, M., Dias, B. S., Kimmel, D. G., & Kristensen, K. (2025). Bottom-up interactions in age-structured stock assessment and state-space mass-balance modelling. https://ecoevorxiv.org/repository/view/8411/
+Thorson, J. T., Aydin, K. H., Cheng, M., Dias, B. S., Kimmel, D. G., & Kristensen, K. (2025). Bottom-up interactions in age-structured stock assessment and state-space mass-balance modelling. http://doi.org/10.1111/faf.70016
 
 ### For original development of ecopath for mass-balance equilibria:
 Polovina, J. J. (1984). Model of a coral reef ecosystem. Coral Reefs, 3(1), 1–11. https://doi.org/10.1007/BF00306135
