@@ -72,7 +72,8 @@ sem <- "
   cold_pool -> eps_Pollock, 1, beta_cp_plk, 0,
   eps_Pollock -> eps_Pollock, 1, rho_plk, 0,
   cold_pool <-> cold_pool, 0, sigma_cp, 0.1,
-  eps_Pollock <-> eps_Pollock, 0, sigma_plk, 0.5
+  eps_Pollock <-> eps_Pollock, 0, sigma_plk, 0.5, 
+  eps_NFS <-> eps_NFS, 0, sigma_NFS, 0.5
 "
 
 ## Initial run (to return simulate()) ----------------------
@@ -88,29 +89,7 @@ out0 <- ecostate(
 
 ## Plot biomass fits --------------------------------------
 
-B_ti <- list(
-  observed = out0$internal$Bobs_ti, 
-  est = out0$derived$Est$B_ti, 
-  se = out0$derived$SE$B_ti
-)
-
-B_ti <- B_ti |> 
-  lapply(as.data.frame) |> 
-  lapply(\(x) {colnames(x) <- taxa; x}) |> 
-  lapply(\(x) {rownames(x) <- years; x}) |> 
-  lapply(rownames_to_column, var = "year") |> 
-  lapply(pivot_longer, cols = -year, names_to = "taxon") |> 
-  bind_rows(.id = "source") |> 
-  pivot_wider(names_from = "source", values_from = "value") |> 
-  mutate(year = as.integer(year))
-
-B_ti |> 
-  ggplot(aes(year)) + 
-  geom_ribbon(aes(ymin = est - se, ymax = est + se), alpha = 0.25) + 
-  geom_line(aes(y = est)) + 
-  geom_point(aes(y = observed)) + 
-  facet_wrap(~taxon, scales = "free_y")
-
+plot_timeseries(out0)
 
 ## Loop over parameter grid, fit models -------------------
 
