@@ -2,7 +2,7 @@ Package: ecostate
 Type: Package
 Title: State-Space Mass-Balance Model for Marine Ecosystems
 Version: 0.3.0
-Date: 2025-08-06
+Date: 2025-09-08
 Authors@R: c(
     person(c("James", "T."), "Thorson", , "James.Thorson@noaa.gov", 
 	   role = c("aut", "cre"),
