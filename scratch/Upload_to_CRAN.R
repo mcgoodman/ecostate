@@ -11,19 +11,19 @@ if( FALSE ){
 # Test install
 install_local(force=TRUE, dep=TRUE, build_vignettes=TRUE, upgrade=FALSE)
 #install_local(force=TRUE, dep=TRUE, build_vignettes=FALSE, upgrade=FALSE)
-browseVignettes("dsem")
+browseVignettes("ecostate")
 
 #
 if( FALSE ){
   library(TMB)
-  setwd( R'(C:\Users\James.Thorson\Desktop\Git\dsem\src)' )
-  compile("dsem.cpp")
+  setwd( R'(C:\Users\James.Thorson\Desktop\Git\ecostate\src)' )
+  compile("ecostate.cpp")
 }
 
 # Try building vignetttes
 if( FALSE ){
   library(rmarkdown)
-  setwd( R'(C:\Users\James.Thorson\Desktop\Git\dsem\vignettes)' )
+  setwd( R'(C:\Users\James.Thorson\Desktop\Git\ecostate\vignettes)' )
   devtools::build_rmd("vignettes/vignette.Rmd")
   render( file.path(getwd(),"vignette.Rmd"), pdf_document())
 }
@@ -35,7 +35,7 @@ if( FALSE ){
   x = dependencies()
 
   # Listed dependencies
-  tools::package_dependencies("dsem")
+  tools::package_dependencies("ecostate")
   tools::package_dependencies("dynlm")
 
   # All
@@ -55,8 +55,8 @@ if( FALSE ){
   tools::texi2pdf
 }
 
-# Check online but document first!
-document()
+# Check online ... only run document if necessary, because it changes NAMESPACE for imports("RTMB")
+#document()
 check_win_devel()
 
 # Submit to CRAN via devtools .. not preferred!
