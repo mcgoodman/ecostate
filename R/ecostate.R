@@ -61,8 +61,9 @@
 #'        0 is a starting value. See \code{\link[dsem]{make_dsem_ram}} for an introduction to DSEM 
 #'        path notation.
 #'        \code{\link[dsem]{make_dsem_ram}} for introduction to DSEM path notation.
-#' @param covariates Matrix of covariates (with one row per year) for use in dynamic 
-#'        structural equation model on process errors.
+#' @param covariates Matrix of covariates for use in dynamic structural equation m
+#'        model on process errors, with rownames for \code{years} and colnames for 
+#'        covariates.
 #' @param fit_PB Character-vector listing \code{taxa} for which equilibrium
 #'        production per biomass is estimated.  Note that it is likely
 #'        a good idea to include a prior for any species for which this is estimated.
@@ -178,6 +179,7 @@ function( taxa,
       sem = sem, covariates = covariates, taxa = taxa, years = years, fit_eps = fit_eps, fit_nu = fit_nu, 
       settings = settings, control = control
     )
+    covariates <- sem_settings$covariates
   } else {
     sem_settings <- list(model = sem)
   }
