@@ -138,3 +138,13 @@ function( x,
   if(log){ return(logres) }else{ return(exp(logres)) }
 }
 
+# Unexported function from RTMB to sample from a GMRF
+# with mean 0 and precision Q
+rgmrf0 <- function(n, Q) {
+  L <- Matrix::Cholesky(Q, super=TRUE, LDL=FALSE)
+  u <- matrix(rnorm(ncol(L)*n), ncol(L), n)
+  ## NOTE: This code requires LDL=FALSE
+  u <- Matrix::solve(L, u, system="Lt") ## Solve Lt^-1 %*% u
+  u <- Matrix::solve(L, u, system="Pt") ## Multiply Pt %*% u
+  as.matrix(u)
+}

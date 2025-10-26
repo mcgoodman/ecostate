@@ -155,8 +155,6 @@ function( p,
   use_sem <- class(sem) == "data.frame"
   if (use_sem) {
     
-    rgmrf0 <- getFromNamespace("rgmrf0", "RTMB")
-    
     # SEM precision matrix
     variables <- unique(c(sem$first, sem$second))
     sem_mat <- make_matrices(p_t$beta, sem, years, variables)

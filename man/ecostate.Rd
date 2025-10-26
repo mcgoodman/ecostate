@@ -123,8 +123,9 @@ where 1 indicates a lagged effect, \code{rho_i} is a user-provided parameter nam
 path notation.
 \code{\link[dsem]{make_dsem_ram}} for introduction to DSEM path notation.}
 
-\item{covariates}{Matrix of covariates (with one row per year) for use in dynamic
-structural equation model on process errors.}
+\item{covariates}{Matrix of covariates for use in dynamic structural equation m
+model on process errors, with rownames for \code{years} and colnames for
+covariates.}
 
 \item{log_prior}{A list of sampling statements representing parameter priors, or a
 user-provided function that takes as input the list of
