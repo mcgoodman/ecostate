@@ -227,17 +227,11 @@ project <- function(
     # ecostate(), or may not always evaluate correctly (e.g. values from call()). 
     # Use update() to recycle most arguments by calling in the parent env., 
     # but pull specific values to use from the function environment
-    local <- environment()
-    years_value <- get("years_all", envir = local)
-    ctrl_value <- get("ctrl_new", envir = local)
-    cov_value <- get("cov_full", envir = local)
-    
-    # Call now contains the values for these objects
     new_call <- bquote(update(
-      model, 
-      years = .(years_value), 
-      covariates = .(cov_value), 
-      control = .(ctrl_value)
+      object = .(model), 
+      years = .(years_all), 
+      covariates = .(cov_full), 
+      control = .(ctrl_new)
     ))
     
     # Build
