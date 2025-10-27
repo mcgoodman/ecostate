@@ -8,7 +8,7 @@ project(
   model,
   nsim = 1,
   extra_years,
-  catch,
+  Frate,
   covariates,
   future_var = TRUE,
   past_var = FALSE,
@@ -21,19 +21,20 @@ project(
 
 \item{nsim}{Number simulations}
 
-\item{extra_years}{a vector of extra years, matching values in \code{catch} and
+\item{extra_years}{a vector of extra years, matching values in \code{Frate} and
 \code{covariates}}
 
-\item{catch}{data.frame formatted as for \code{catch} argument in \code{ecostate},
-with column names "Year", "Mass", and "Taxon".}
+\item{Frate}{matrix with rownames corresponding to \code{extra_years} and colnames
+corresponding to \code{model$internal$taxa} giving fishing mortality in future
+years. Any missing years or taxa will be assigned an F rate of 0.}
 
 \item{covariates}{matrix with rownames corresponding to \code{extra_years}
 and columns corresponding to SEM covariates. Covariates corresponding to
 missing covariate columns and/or NA values within included covariate columns
-will be estimateed conditional on included covariates.}
+will be estimated conditional on included covariates.}
 
 \item{future_var}{logical indicating whether to simulate future process errors
-from GMRFs, or just compute the predictive mean}
+from GMRF, or just compute the predictive mean}
 
 \item{past_var}{logical indicating whether to re-simulate past process errors
 from predictive distribution of random effects, thus changing the boundary

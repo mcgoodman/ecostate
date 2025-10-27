@@ -3,18 +3,18 @@
 #'
 #' @description
 #' Generates samples from a Gaussian Markov random field (GMRF) conditional upon
-#' fixed values for some elements. Duplicated from package \code{tinyVAST}.
+#' fixed values for some elements. Modified from package \code{tinyVAST}.
 #'
 #' @param Q precision for a zero-centered GMRF.
 #' @param observed_idx integer vector listing rows of \code{Q} corresponding to
 #'        fixed measurements
 #' @param x_obs numeric vector with fixed values for indices \code{observed_idx}
-#' @param n_sims integer listing number of simulated values
+#' @param nsim integer listing number of simulated values
 #' @param what Whether to simulate from the conditional GMRF, or predict the mean
 #'        and precision
 #'
 #' @return
-#' A matrix with \code{n_sims} columns and a row for every row of \code{Q} not in
+#' A matrix with \code{nsim} columns and a row for every row of \code{Q} not in
 #' \code{observed_idx}, with simulations for those rows
 #'
 #' @export
@@ -22,7 +22,7 @@ conditional_gmrf <-
   function( Q,
             observed_idx,
             x_obs,
-            n_sims = 1,
+            nsim = 1,
             what = c("simulate","predict") ){
     
     # Required libraries
@@ -65,7 +65,7 @@ conditional_gmrf <-
     if( what == "predict" ){
       return(res$mean)
     }else{
-      y = c(res$mean + rgmrf0(n = n_sims, Q = res$Q_uu))
+      y = c(res$mean + rgmrf0(n = nsim, Q = res$Q_uu))
       return(y)
     }
   }
@@ -99,19 +99,19 @@ substitute_pars <- function(x, y) {
 #' Projects a fitted model forward in time, optionally 
 #' conditioning on covariates and/or catches.
 #'
-#' @inheritParams predict.tinyVAST
 #' @param model fitted model from \code{ecostate}
 #' @param nsim Number simulations
-#' @param extra_years a vector of extra years, matching values in \code{catch} and 
+#' @param extra_years a vector of extra years, matching values in \code{Frate} and 
 #'        \code{covariates}
-#' @param catch data.frame formatted as for \code{catch} argument in \code{ecostate},
-#'        with column names "Year", "Mass", and "Taxon".
+#' @param Frate matrix with rownames corresponding to \code{extra_years} and colnames
+#'        corresponding to \code{model$internal$taxa} giving fishing mortality in future
+#'        years. Any missing years or taxa will be assigned an F rate of 0.
 #' @param covariates matrix with rownames corresponding to \code{extra_years}
 #'        and columns corresponding to SEM covariates. Covariates corresponding to 
 #'        missing covariate columns and/or NA values within included covariate columns
-#'        will be estimateed conditional on included covariates.
+#'        will be estimated conditional on included covariates.
 #' @param future_var logical indicating whether to simulate future process errors
-#'        from GMRFs, or just compute the predictive mean
+#'        from GMRF, or just compute the predictive mean
 #' @param past_var logical indicating whether to re-simulate past process errors
 #'        from predictive distribution of random effects, thus changing the boundary
 #'        condition of the forecast
@@ -123,11 +123,13 @@ substitute_pars <- function(x, y) {
 #' @return
 #' A list (or list of lists, if nsim > 1) of estimated parameters and 
 #' derived quantities with structure resembling \code{model$internal$parhat}
+#' 
+#' @export
 project <- function(
     model, 
     nsim = 1,
     extra_years,
-    catch,
+    Frate,
     covariates, 
     future_var = TRUE, 
     past_var = FALSE, 
@@ -135,37 +137,68 @@ project <- function(
     obj_new
 ) {
   
+  taxa <- model$internal$taxa
+  stgroups <- model$internal$settings$unique_stanza_groups
+  parlist <- model$internal$parhat
   years_all <- c(model$internal$years, extra_years)
   
   if (!identical(min(years_all):max(years_all), years_all)) {
     stop("extra_years must be an integer sequence starting from the year following the last year in the model.")
   }
   
-  if (!missing(catch)) {
-    catch_full <- rbind(model$internal$catch, catch)
-  } else {
-    catch_full <- model$internal$catch
+  # Resample process errors regardless of whether they are 
+  # random effects or estimated via penalized likelihood
+  if (isFALSE(parm_var) & isTRUE(past_var)) {
+    parsim <- model$simulator(parlist, simulate_random = TRUE)
+    parlist <- substitute_pars(parlist, parsim)
   }
   
-  if (isFALSE(parm_var) & isFALSE(past_var)) {
-    parlist <- model$internal$parhat
-  } else {
-    message(paste(
-      "resmapling of fixed effects and and past random effects", 
-      "not yet implemented"
-    ))
-    parlist <- model$internal$parhat
+  if (isTRUE(parm_var))message("resmapling of fixed effects not yet implemented")
+  
+  # Populate / format logF_ti matrix
+  if (!missing(Frate)) {
+    
+    logF_new <- matrix(
+      -Inf, nrow = length(extra_years), ncol = length(taxa), 
+      dimnames = list(extra_years, taxa)
+    )
+    
+    if (!all(colnames(Frate) %in% taxa)) {
+      message(paste(
+        "ignoring Frate for taxa not included in the model:",
+        paste(colnames(Frate)[!(colnames(Frate) %in% taxa)], collapse = ", ")
+      ))
+      Frate <- Frate[,colnames(Frate) %in% taxa, drop = FALSE]
+    }
+    
+    if (!all(rownames(Frate) %in% as.character(extra_years))) {
+      message("ignoring years in Frate matrix not in extra_years")
+      Frate <- Frate[rownames(Frate) %in% as.character(extra_years),,drop = FALSE]
+    }
+    
+    for (i in seq_along(colnames(Frate))) {
+      logF_new[rownames(Frate),colnames(Frate)[i]] <- log(Frate[,colnames(Frate)[i]])
+    }
+  
+    parlist$logF_ti <- rbind(parlist$logF_ti, logF_new)
+    rownames(parlist$logF_ti) <- years_all
+      
   }
   
   # Populate / format covariates matrix
+  cov_hind <- parlist$covariates
+  
+  cov_new <- matrix(
+    NA, nrow = length(extra_years), ncol = ncol(cov_hind), 
+    dimnames = list(extra_years, colnames(cov_hind))
+  )
+  
   if (!missing(covariates)) {
-    
-    cov_hind <- parlist$covariates
     
     if (!all(colnames(covariates) %in% colnames(cov_hind))) {
       message(paste(
         "ignoring covariates not included in the model:",
-        paste(names(covariates)[!(names(covariates) %in% colnames(cov_hind))], collapse = ", ")
+        paste(colnames(covariates)[!(colnames(covariates) %in% colnames(cov_hind))], collapse = ", ")
       ))
       covariates <- covariates[,colnames(covariates) %in% colnames(cov_hind), drop = FALSE]
     }
@@ -175,23 +208,15 @@ project <- function(
       covariates <- covariates[rownames(covariates) %in% as.character(extra_years),,drop = FALSE]
     }
     
-    cov_new <- matrix(
-      NA, nrow = length(extra_years), ncol = ncol(cov_hind), 
-      dimnames = list(extra_years, colnames(cov_hind))
-    )
-    
     for (i in seq_along(colnames(covariates))) {
       cov_new[rownames(covariates),colnames(covariates)[i]] <- covariates[,colnames(covariates)[i]]
     }
     
-    cov_full <- rbind(cov_hind, cov_new)
-    
-  } else if (length(parlist$covariates)) {
-    
-    cov_full <- parlist$covariates
-    
-  }
+  } 
   
+  cov_full <- rbind(cov_hind, cov_new)
+  
+  # Rebuild object, if not provided
   if (missing(obj_new)) {
     # Control settings 
     ctrl_new <- model$internal$control
@@ -205,14 +230,12 @@ project <- function(
     local <- environment()
     years_value <- get("years_all", envir = local)
     ctrl_value <- get("ctrl_new", envir = local)
-    catch_value <- get("catch_full", envir = local)
     cov_value <- get("cov_full", envir = local)
     
     # Call now contains the values for these objects
     new_call <- bquote(update(
       model, 
       years = .(years_value), 
-      catch = .(catch_value), 
       covariates = .(cov_value), 
       control = .(ctrl_value)
     ))
@@ -234,7 +257,7 @@ project <- function(
     model$call$sem <- bquote(.(sem_path))
     
     sem <- parse_ecostate_sem(
-      sem_path, covariates = cov_full, taxa = model$internal$taxa, 
+      sem_path, covariates = cov_full, taxa = taxa, 
       years = years_all, fit_eps = c(), fit_nu = c(), 
       settings = model$internal$settings,
       control = model$internal$control
@@ -255,7 +278,6 @@ project <- function(
       Xit[,colnames(cov_full)] <- sweep(Xit[,colnames(cov_full), drop = FALSE], 2, par_new$mu) 
     }
     
-    taxa <- model$internal$taxa
     yr_ind <- seq_along(model$internal$years)
     
     # Pull out process error values from matrices
@@ -270,8 +292,8 @@ project <- function(
           pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
           Xit[yr_ind,i] <- parlist$nu_tij[, pred_prey[1], pred_prey[2]]
         } 
-      } else if (gsub("phi_", "", colnames(Xit)[i]) %in% model$internal$settings$unique_stanza_groups) {
-        Xit[yr_ind,i] <- parlist$phi_tg2[,which(model$internal$settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))]
+      } else if (gsub("phi_", "", colnames(Xit)[i]) %in% stgroups) {
+        Xit[yr_ind,i] <- parlist$phi_tg2[,which(stgroups %in% gsub("phi_", "", colnames(Xit)[i]))]
       }
     }
     
@@ -285,7 +307,7 @@ project <- function(
     Xit[is.na(Xit)] <- conditional_gmrf(
       Q, 
       observed_idx = X_fixed, 
-      x_obs = Xvec[X_fixed], n_sims = 1, 
+      x_obs = Xvec[X_fixed], nsim = 1, 
       what = ifelse(isTRUE(future_var), "simulate", "predict")
     )
     
@@ -305,8 +327,8 @@ project <- function(
           pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
           par_new$nu_tij[, pred_prey[1], pred_prey[2]] <- Xit[,i]
         } 
-      } else if (gsub("phi_", "", colnames(Xit)[i]) %in% model$internal$settings$unique_stanza_groups) {
-        par_new$phi_tg2[, which(model$internal$settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit[,i]
+      } else if (gsub("phi_", "", colnames(Xit)[i]) %in% stgroups) {
+        par_new$phi_tg2[, which(stgroups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit[,i]
       } else if (colnames(Xit)[i] %in% colnames(par_new$covariates)) {
         par_new$covariates[,which(colnames(par_new$covariates) == colnames(Xit)[i])] <- Xit[,i]
       }
@@ -316,7 +338,26 @@ project <- function(
     
     # If model does not use SEM,
     # implement i.i.d normal simulation for process errors
-    error("Projection not yet implemented for non-SEM models")
+    
+    for (i in seq_along(taxa)) {
+      
+      if (!is.na(par_new$logtau_i[taxa[i]])) {
+        par_new$epsilon_ti[,taxa[i]] <- rnorm(length(years_all), mean = 0, sd = exp(par_new$logtau_i[taxa[i]]))
+      }
+      
+      if (!is.na(par_new$logsigma_i[taxa[i]])) {
+        par_new$nu_ti[,taxa[i]] <- rnorm(length(years_all), mean = 0, sd = exp(par_new$logsigma_i[taxa[i]]))
+      }
+      
+    }
+    
+    for (i in seq_along(stgroups)) {
+      
+      if (!is.na(par_new$logpsi_g2[stgroups[i]])) {
+        par_new$phi_tg2[,stgroups[i]] <- rnorm(length(years_all), mean = 0, sd = exp(par_new$logpsi_g2[stgroups[i]]))
+      }
+      
+    }
     
   }
   
@@ -330,7 +371,7 @@ project <- function(
     for (i in seq_len(nsim)) {
       sim[[i]] <- project(
         model = model, obj_new = obj_new, nsim = 1,
-        extra_years = extra_years, catch = catch, covariates = covariates, 
+        extra_years = extra_years, Frate = Frate, covariates = covariates, 
         future_var = future_var, past_var = past_var, parm_var = parm_var
       )
     }

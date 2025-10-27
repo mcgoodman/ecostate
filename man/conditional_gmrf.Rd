@@ -8,7 +8,7 @@ conditional_gmrf(
   Q,
   observed_idx,
   x_obs,
-  n_sims = 1,
+  nsim = 1,
   what = c("simulate", "predict")
 )
 }
@@ -20,16 +20,16 @@ fixed measurements}
 
 \item{x_obs}{numeric vector with fixed values for indices \code{observed_idx}}
 
-\item{n_sims}{integer listing number of simulated values}
+\item{nsim}{integer listing number of simulated values}
 
 \item{what}{Whether to simulate from the conditional GMRF, or predict the mean
 and precision}
 }
 \value{
-A matrix with \code{n_sims} columns and a row for every row of \code{Q} not in
+A matrix with \code{nsim} columns and a row for every row of \code{Q} not in
 \code{observed_idx}, with simulations for those rows
 }
 \description{
 Generates samples from a Gaussian Markov random field (GMRF) conditional upon
-fixed values for some elements. Duplicated from package \code{tinyVAST}.
+fixed values for some elements. Modified from package \code{tinyVAST}.
 }
