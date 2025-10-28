@@ -55,9 +55,9 @@ function( p,
           stanza_data,
           settings,
           control,
+          projection_settings,
           simulate_data = FALSE,
           simulate_random = FALSE ) {
-
   
   # Necessary in packages
   "c" <- ADoverload("c")
@@ -69,6 +69,61 @@ function( p,
   inverse_method = control$inverse_method
   process_error = control$process_error
 
+  # Derived parameter list to hold process errors in projection years
+  use_prjn <- length(projection_settings$extra_years) > 0
+  extra_years <- projection_settings$extra_years
+  years_all <- union(years, extra_years)
+  
+  # Extract epsilon_ti (local copy be modified later)
+  epsilon_ti = p$epsilon_ti
+  if(control$process_error=="alpha"){
+    epsilon_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )
+  }
+  
+  # Augment process error arrays with projection years
+  if (use_prjn) {
+    
+    epsilon_ti <- rbind(
+      epsilon_ti, 
+      matrix(0, nrow = length(extra_years), ncol = length(taxa), 
+             dimnames = list(extra_years, taxa))
+    )
+    
+    rownames(epsilon_ti) <- years_all
+    
+    nu_ti <- rbind(
+      p$nu_ti, 
+      matrix(0, nrow = length(extra_years), ncol = length(taxa), 
+             dimnames = list(extra_years, taxa))
+    )
+    
+    rownames(nu_ti) <- years_all
+    
+    nu_tij <- array(0, dim = c(length(years_all), length(taxa), length(taxa)), 
+                    dimnames = list(year = years_all, predator = taxa, prey = taxa))
+    
+    nu_tij[dimnames(p$nu_tij)[[1]],,] <- p$nu_tij
+    
+    covariates <- rbind(
+      p$covariates, 
+      matrix(NA, nrow = length(extra_years), ncol = ncol(p$covariates), 
+             dimnames = list(extra_years, colnames(p$covariates)))
+    )
+    
+    # Add in fixed future covariates
+    for (i in seq_along(colnames(projection_settings$covariates))) {
+      covariates[rownames(projection_settings$covariates), colnames(projection_settings$covariates)[i]] <- 
+        projection_settings$covariates[,colnames(projection_settings$covariates)[i]]
+    }
+    
+  } else {
+    
+    nu_ti <- p$nu_ti
+    nu_tij <- p$nu_tij
+    covariates <- p$covariates
+    
+  }
+  
   # Compute stanza stuff
   p = add_stanza_params( p,
                    stanza_data = stanza_data,
@@ -79,12 +134,6 @@ function( p,
                        scale_solver = control$scale_solver,
                        noB_i = noB_i,
                        type_i = type_i )
-  
-  # Extract epsilon_ti (local copy be modified later)
-  epsilon_ti = p$epsilon_ti
-  if(control$process_error=="alpha"){
-    epsilon_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )
-  }
   
   #
   F_type = control$F_type
@@ -106,15 +155,15 @@ function( p,
               what = "stuff" )
   
   # Objects to save
-  TL_ti = dBdt0_ti = M_ti = m_ti = G_ti = g_ti = M2_ti = m2_ti = Bmean_ti = Chat_ti = B_ti = Bhat_ti = matrix( NA, ncol=n_species, nrow=nrow(Bobs_ti) )
-  loglik1_ti = loglik2_ti = loglik3_ti = loglik4_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )  # Missing = 0
+  TL_ti = dBdt0_ti = M_ti = m_ti = G_ti = g_ti = M2_ti = m2_ti = Bmean_ti = Chat_ti = B_ti = Bhat_ti = matrix( NA, ncol=n_species, nrow = length(years_all) )
+  loglik1_ti = loglik2_ti = loglik3_ti = loglik4_ti = matrix( 0, ncol = n_species, nrow = length(years_all) )  # Missing = 0
   loglik5_tg2 = loglik6_tg2 = loglik7_tg2 = matrix( 0, nrow=nrow(Bobs_ti), ncol=length(settings$unique_stanza_groups) )
   loglik8_sem = 0
-  Q_tij = array( NA, dim=c(nrow(Bobs_ti),n_species,n_species) )
+  Q_tij = array( NA, dim=c(length(years_all),n_species,n_species) )
   Nexp_ta_g2 = Nobs_ta_g2
   Wexp_ta_g2 = Wobs_ta_g2
-  TotalSB_tg2 = TotalEggs_tg2 = matrix( 0, nrow=nrow(Bobs_ti), ncol=stanza_data$n_g2 )
-  TotalZ_ts2 = matrix( 0, nrow=nrow(Bobs_ti), ncol=stanza_data$n_s2 )
+  TotalSB_tg2 = TotalEggs_tg2 = matrix( 0, nrow = length(years_all), ncol=stanza_data$n_g2 )
+  TotalZ_ts2 = matrix( 0, nrow = length(years_all), ncol=stanza_data$n_s2 )
 
   # Define initial condition
   B_ti[1,] = out_initial$B_i * exp(p$delta_i)
@@ -143,7 +192,7 @@ function( p,
   # 
   Y_tzz_g2 = vector("list", length(Y_zz_g2))
   for( g2 in seq_along(Y_zz_g2) ){
-    Y_tzz_g2[[g2]] = array( 0.0, dim=c(nrow(Bobs_ti),dim(p$Y_zz_g2[[g2]])),
+    Y_tzz_g2[[g2]] = array( 0.0, dim=c(length(years_all), dim(p$Y_zz_g2[[g2]])),
                  dimnames=list(NULL,rownames(p$Y_zz_g2[[g2]]),colnames(p$Y_zz_g2[[g2]])) )
     Y_tzz_g2[[g2]][1,,] = Y_zz_g2[[g2]]
   }
@@ -161,39 +210,93 @@ function( p,
     Q <- t(sem_mat$IminusP_kk) %*% sem_mat$invV_kk %*% sem_mat$IminusP_kk
     
     # Observations for SEM likelihood
-    Xit <- matrix(NA, nrow = length(years), ncol = length(variables))
+    Xit <- matrix(NA, nrow = length(years_all), ncol = length(variables))
     colnames(Xit) <- variables
     
     # Subtract covariate means
-    if (!is.null(dim(p$covariates))) {
-      Xit[,colnames(p$covariates)] <- p$covariates
-      Xit[,colnames(p$covariates)] <- sweep(Xit[,colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
+    if (!is.null(dim(covariates))) {
+      Xit[,colnames(covariates)] <- covariates
+      Xit[,colnames(covariates)] <- sweep(Xit[,colnames(covariates), drop = FALSE], 2, p_t$mu) 
     }
     
     # Pull out epsilon, nu values from epsilon_ti and nu_ti matrices
     for (i in seq_len(ncol(Xit))) {
       
       if (gsub("eps_", "", colnames(Xit)[i]) %in% taxa) {
-        Xit[,i] <- p_t$epsilon_ti[,which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))]
+        Xit[,i] <- epsilon_ti[,which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))]
       } else if (grepl("nu_", colnames(Xit)[i])) {
         if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
-          Xit[,i] <- p_t$nu_ti[,which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))]
+          Xit[,i] <- nu_ti[,which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))]
         } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
           pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
-          Xit[,i] <- p_t$nu_tij[, pred_prey[1], pred_prey[2]]
+          Xit[,i] <- nu_tij[, pred_prey[1], pred_prey[2]]
         } 
       } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
-        Xit[,i] <- p_t$phi_tg2[,which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))]
+        Xit[,i] <- phi_tg2[,which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))]
       }
+      
+      if (use_prjn) {
+        Xit[extra_years, i] <- NA
+      }
+      
     }
     
-    # Stack columnwise
-    Xvec <- c(Xit)
+    # Stack columnwise for years in likelihood
+    Xvec <- c(Xit[years,])
     
-    # Evaluate GMRF
+    # Evaluate GMRF likelihood excluding projection years
     loglik8_sem <- dgmrf(Xvec, mu = rep(0, length(Xvec)), Q = Q, log = TRUE)
     
+    # Derive future expected process errors
+    if (use_prjn) {
+      
+      sem_mat <- make_matrices(p_t$beta, sem, years_all, variables)
+      Q_prjn <- t(sem_mat$IminusP_kk) %*% sem_mat$invV_kk %*% sem_mat$IminusP_kk
+      
+      Xvec <- c(Xit)
+      
+      # Treat non-NA indices as fixed and condition the GMRF on them
+      X_fixed <- which(!is.na(Xvec))
+      
+      # Conditional simulation from GMRF
+      Xit[is.na(Xit)] <- conditional_gmrf(
+        Q_prjn, 
+        observed_idx = X_fixed, 
+        x_obs = Xvec[X_fixed], nsim = 1, 
+        what = "predict"
+      )
+      
+      # Add back in estimated covariate means
+      if (!is.null(dim(covariates))) {
+        Xit[,colnames(covariates)] <- sweep(Xit[,colnames(covariates), drop = FALSE], 2, par_new$mu, FUN = "+")
+      }
+      
+      # Pull projected process errors back out
+      for (i in seq_len(ncol(Xit))) {
+        if (gsub("eps_", "", colnames(Xit)[i]) %in% taxa) {
+          epsilon_ti[extra_years, which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))] <- Xit[extra_years,i]
+        } else if (grepl("nu_", colnames(Xit)[i])) {
+          if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
+            nu_ti[extra_years, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit[extra_years,i]
+          } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
+            pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
+            nu_tij[extra_years, pred_prey[1], pred_prey[2]] <- Xit[extra_years,i]
+          } 
+        } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
+          phi_tg2[extra_years, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit[extra_years,i]
+        } else if (colnames(Xit)[i] %in% colnames(covariates)) {
+          cv_col <- which(colnames(covariates) == colnames(Xit)[i])
+          covariates[is.na(covariates[,cv_col]), cv_col] <- Xit[is.na(covariates[,cv_col]),i]
+        }
+      }
+      
+    }
+    
     if (isTRUE(simulate_data) & isTRUE(simulate_random)) {
+      
+      if (use_prjn) {
+        stop("For future simulation conditional on SEM covariates, use ecostate::project()")
+      }
       
       Xit_sim <- matrix(rgmrf0(n = 1, Q = Q), nrow = nrow(Xit), ncol = ncol(Xit), byrow = FALSE)
       colnames(Xit_sim) <- colnames(Xit)
@@ -207,15 +310,15 @@ function( p,
           epsilon_ti[, which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
         } else if (grepl("nu_", colnames(Xit)[i])) {
           if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
-            p$nu_ti[, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
+            nu_ti[, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
           } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
             pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
-            p$nu_tij[, pred_prey[1], pred_prey[2]] <- Xit_sim[,i]
+            nu_tij[, pred_prey[1], pred_prey[2]] <- Xit_sim[,i]
           } 
         } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
-          p$phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
-        } else if (colnames(Xit)[i] %in% colnames(p$covariates)) {
-          p$covariates[,which(colnames(p$covariates) == colnames(Xit)[i])] <- Xit_sim[,i]
+          phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
+        } else if (colnames(Xit)[i] %in% colnames(covariates)) {
+          covariates[,which(colnames(covariates) == colnames(Xit)[i])] <- Xit_sim[,i]
         }
       }
     }
@@ -247,7 +350,7 @@ function( p,
   }
 
   # Loop through years
-  for( t in 2:nrow(Bobs_ti) ){
+  for( t in 2:nrow(years_all) ){
   #for( t in 2:66 ){
     # Assemble inputs
     p_t = p
@@ -379,7 +482,7 @@ function( p,
   # likelihood
   Bexp_ti = B_ti * (rep(1,nrow(B_ti)) %*% t(exp(p$logq_i)))
   for( i in seq_len(n_species) ){
-  for( t in seq_len(nrow(Bexp_ti)) ){
+  for( t in seq_len(nrow(years_all)) ){
     if( !is.na(Bobs_ti[t,i]) ){
       loglik1_ti[t,i] = dnorm( log(Bobs_ti[t,i]), log(Bexp_ti[t,i]), exp(p$ln_sdB), log=TRUE)
       if( isTRUE(simulate_data) ){

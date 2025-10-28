@@ -84,6 +84,11 @@
 #'        settings.
 #' @param settings Output from [stanza_settings()], used to define age-structured
 #'        dynamics (called stanza-groups).
+#' @param projection_settings List with elements "extra_years", "Frate", and "covariates"
+#'        specifying settings for projecting the model forward in time. Only necessary if
+#'        interested in exploring future fishing and/or covariate scenarios; for projecting
+#'        under equilibrium the model can simply be run while extending the \code{years}
+#'        argument above.
 #'
 #' @importFrom TMB config
 #' @importFrom checkmate assertDouble assertFactor assertCharacter assertList
@@ -156,6 +161,7 @@ function( taxa,
           covariates = NULL,
           log_prior = function(p) 0,
           settings = stanza_settings(taxa=taxa),
+          projection_settings = list(extra_years = c(), Frate = numeric(0), covariates = numeric(0)),
           control = ecostate_control()){
   # importFrom RTMB MakeADFun REPORT ADREPORT sdreport getAll
   # importFrom Matrix Matrix Diagonal sparseMatrix
@@ -650,7 +656,8 @@ function( taxa,
                                 log_prior = log_prior,
                                 #DC_ij = DC_ij,
                                 stanza_data = stanza_data, 
-                                sem = sem_settings$model),
+                                sem = sem_settings$model, 
+                                projection_settings = projection_settings),
                     parameters = p,
                     map = map,
                     random = control$random,
@@ -726,6 +733,7 @@ function( taxa,
                 stanza_data = stanza_data,
                 #DC_ij = DC_ij,
                 simulate_random = simulate_random,
+                projection_settings = projection_settings,
                 simulate_data = TRUE )
   }
 
