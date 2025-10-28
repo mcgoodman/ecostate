@@ -165,7 +165,7 @@ function( taxa,
           control = ecostate_control()){
   # importFrom RTMB MakeADFun REPORT ADREPORT sdreport getAll
   # importFrom Matrix Matrix Diagonal sparseMatrix
-
+  
   # Necessary in packages
   "c" <- ADoverload("c")
   "[<-" <- ADoverload("[<-")
@@ -178,6 +178,13 @@ function( taxa,
   if( any(biomass$Mass==0) ) stop("`biomass$Mass` cannot include zeros, given the assumed lognormal distribution")
   if( any(catch$Mass==0) ) stop("`catch$Mass` cannot include zeros, given the assumed lognormal distribution")
 
+  
+  if (length(projection_settings$extra_years)) {
+    years_all <- union(years, projection_settings$extra_years)
+  } else {
+    years_all <- years
+  }
+  
   # Set up inputs for SEM
   use_sem <- nchar(trimws(sem)) > 0
   if (isTRUE(use_sem)) {
@@ -264,7 +271,7 @@ function( taxa,
   
   # Convert long-form `catch` to wide-form Cobs_ti
   Cobs_ti = tapply( catch[,'Mass', drop = TRUE], FUN=mean, INDEX = list(
-                    factor(catch[,'Year', drop = TRUE], levels=years),
+                    factor(catch[,'Year', drop = TRUE], levels=years_all),
                     factor(catch[,'Taxon', drop = TRUE], levels=taxa) )
                   )
   if(any(!is.na(Cobs_ti[1,]))) message("Fixing catch=NA in first year as required")
@@ -272,7 +279,7 @@ function( taxa,
   
   # Convert long-form `biomass` to wide-form Bobs_ti
   Bobs_ti = tapply( biomass[,'Mass', drop = TRUE], FUN=mean, INDEX = list(
-                    factor(biomass[,'Year', drop = TRUE], levels=years),
+                    factor(biomass[,'Year', drop = TRUE], levels=years_all),
                     factor(biomass[,'Taxon', drop = TRUE], levels=taxa) )
                   )
   
@@ -358,12 +365,12 @@ function( taxa,
             epsilon_ti = array( 0, dim=c(0,n_species) ),
             alpha_ti = array( 0, dim=c(0,n_species) ),
             nu_ti = array( 0, dim=c(0,n_species) ),
-            nu_tij = array(0, dim = c(nrow(Bobs_ti), n_species, n_species)),
+            nu_tij = array(0, dim = c(length(years), n_species, n_species)),
             phi_tg2 = array( 0, dim=c(0,settings$n_g2) ),
             beta = if (use_sem && length(sem_settings$beta) > 0) sem_settings$beta else numeric(0),
             mu = if (!is.null(covariates)) setNames(rep(0, ncol(covariates)), colnames(covariates)) else numeric(0),
             covariates = numeric(0),
-            logF_ti = array( log(0.01), dim=c(nrow(Bobs_ti),n_species) ),
+            logF_ti = array( log(0.01), dim=c(length(years),n_species) ),
             logq_i = setNames(rep( log(1), n_species), taxa),
             s50_z = setNames(rep(1, n_selex), names(Nobs_ta_g2)),
             srate_z = setNames(rep(1, n_selex), names(Nobs_ta_g2)),
@@ -421,8 +428,8 @@ function( taxa,
   }
   
   # Catches
-  map$logF_ti = factor( ifelse(is.na(Cobs_ti), NA, seq_len(prod(dim(Cobs_ti)))) )
-  p$logF_ti[] = ifelse(is.na(Cobs_ti), -Inf, log(0.01))
+  map$logF_ti = factor( ifelse(is.na(Cobs_ti[as.character(years),]), NA, seq_len(prod(dim(Cobs_ti[as.character(years),])))) )
+  p$logF_ti[] = ifelse(is.na(Cobs_ti[as.character(years),]), -Inf, log(0.01))
   
   # Catchability
   map$logq_i = factor( ifelse(taxa %in% fit_Q, seq_len(n_species), NA) )
@@ -434,7 +441,7 @@ function( taxa,
   if (use_sem) {
     
     # Variation in biomass
-    p$epsilon_ti = array(0, dim=c(nrow(Bobs_ti), n_species) )
+    p$epsilon_ti = array(0, dim=c(length(years), n_species) )
     map$epsilon_ti = array(seq_len(prod(dim(p$epsilon_ti))), dim=dim(p$epsilon_ti))
     if(any(grepl("eps_", sem_settings$proc_vars))) {
       map$epsilon_ti[,-as.integer(na.omit(match(gsub("eps_", "", sem_settings$proc_vars), taxa)))] <- NA
@@ -444,7 +451,7 @@ function( taxa,
     map$epsilon_ti = factor(map$epsilon_ti)
     
     # Variation in consumption by predator
-    p$nu_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+    p$nu_ti = array( 0, dim=c(length(years),n_species) )
     map$nu_ti = array( seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
     if(any(grepl("nu_", sem_settings$proc_vars) & !(grepl(":", sem_settings$proc_vars)))) {
       map$nu_ti[,-as.integer(na.omit(match(gsub("nu_", "", sem_settings$proc_vars), taxa)))] <- NA
@@ -466,7 +473,7 @@ function( taxa,
     map$nu_tij = factor(map$nu_tij)
     
     # Variation in recruitment
-    p$phi_tg2 = array( 0, dim=c(nrow(Bobs_ti),settings$n_g2) )
+    p$phi_tg2 = array( 0, dim=c(length(years),settings$n_g2) )
     map$phi_tg2 = array( seq_len(prod(dim(p$phi_tg2))), dim=dim(p$phi_tg2))
     if(any(grepl("phi_", sem_settings$proc_vars))) {
       map$phi_tg2[,-as.integer(na.omit(match(gsub("phi_", "", sem_settings$proc_vars), settings$unique_stanza_groups)))] <- NA
@@ -486,7 +493,7 @@ function( taxa,
   } else {
     
     if( control$process_error == "epsilon" ){
-      p$epsilon_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+      p$epsilon_ti = array( 0, dim=c(length(years),n_species) )
       map$epsilon_ti = array( seq_len(prod(dim(p$epsilon_ti))), dim=dim(p$epsilon_ti))
       for(i in seq_len(n_species)){
         if( is.na(p$logtau_i[i]) ){
@@ -496,7 +503,7 @@ function( taxa,
       }
       map$epsilon_ti = factor(map$epsilon_ti)
     }else{
-      p$alpha_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+      p$alpha_ti = array( 0, dim=c(length(years),n_species) )
       map$alpha_ti = array( seq_len(prod(dim(p$alpha_ti))), dim=dim(p$alpha_ti))
       for(i in seq_len(n_species)){
         if( is.na(p$logtau_i[i]) ){
@@ -507,7 +514,7 @@ function( taxa,
       map$alpha_ti = factor(map$alpha_ti)
     }
     # Variation in consumption
-    p$nu_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+    p$nu_ti = array( 0, dim=c(length(years),n_species) )
     map$nu_ti = array( seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
     map$nu_tij =  factor(rep(NA, length(c(p$nu_tij))))
     for(i in seq_len(n_species)){
@@ -518,7 +525,7 @@ function( taxa,
     }
     map$nu_ti = factor(map$nu_ti)
     # Variation in recruitment
-    p$phi_tg2 = array( 0, dim=c(nrow(Bobs_ti),settings$n_g2) )
+    p$phi_tg2 = array( 0, dim=c(length(years),settings$n_g2) )
     map$phi_tg2 = array( seq_len(prod(dim(p$phi_tg2))), dim=dim(p$phi_tg2))
     for(g2 in seq_len(settings$n_g2)){
       if( is.na(p$logpsi_g2[g2]) ){
@@ -825,6 +832,7 @@ function( taxa,
     hessian.fixed = hessian.fixed,
     taxa = taxa,
     years = years,
+    extra_years = projection_settings$extra_years,
     type_i = type_i
   )
   out = list(

@@ -119,6 +119,8 @@ function( Q_ij,
 #' @export
 plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE) {
   
+  years <- union(fit$internal$years, fit$internal$extra_years)
+  
   if (missing(taxa)) {
     taxa <- fit$internal$taxa
   } else if (!all(taxa %in% fit$internal$taxa)) {
