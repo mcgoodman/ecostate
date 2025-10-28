@@ -11,7 +11,7 @@ project(
   Frate,
   covariates,
   future_var = TRUE,
-  past_var = FALSE,
+  past_var = c("fixed", "conditional", "unconditional"),
   parm_var = FALSE,
   obj_new
 )
@@ -34,11 +34,16 @@ missing covariate columns and/or NA values within included covariate columns
 will be estimated conditional on included covariates.}
 
 \item{future_var}{logical indicating whether to simulate future process errors
-from GMRF, or just compute the predictive mean}
+from GMRF, or just compute the predictive mean. If \code{covariates} are
+provided for future years, process errors will be simulated conditional
+on them.}
 
-\item{past_var}{logical indicating whether to re-simulate past process errors
-from predictive distribution of random effects, thus changing the boundary
-condition of the forecast}
+\item{past_var}{One of "fixed", "conditional", or "unconditional", where "fixed" holds
+past process errors at their estimates, "conditional" re-simulates them
+conditional on past covariates in the model, and "unconditional" re-simulates
+both past process errors and covariates from their joint distribution.
+"conditional" and "unconditional" past process errors thus change the boundary
+conditions of the projection.}
 
 \item{parm_var}{logical indicating whether to re-sample fixed effects from their
 predictive distribution, thus changing the GMRF for future process errors}

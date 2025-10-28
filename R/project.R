@@ -111,10 +111,15 @@ substitute_pars <- function(x, y) {
 #'        missing covariate columns and/or NA values within included covariate columns
 #'        will be estimated conditional on included covariates.
 #' @param future_var logical indicating whether to simulate future process errors
-#'        from GMRF, or just compute the predictive mean
-#' @param past_var logical indicating whether to re-simulate past process errors
-#'        from predictive distribution of random effects, thus changing the boundary
-#'        condition of the forecast
+#'        from GMRF, or just compute the predictive mean. If \code{covariates} are
+#'        provided for future years, process errors will be simulated conditional
+#'        on them.
+#' @param past_var One of "fixed", "conditional", or "unconditional", where "fixed" holds
+#'        past process errors at their estimates, "conditional" re-simulates them
+#'        conditional on past covariates in the model, and "unconditional" re-simulates
+#'        both past process errors and covariates from their joint distribution. 
+#'        "conditional" and "unconditional" past process errors thus change the boundary 
+#'        conditions of the projection.
 #' @param parm_var logical indicating whether to re-sample fixed effects from their
 #'        predictive distribution, thus changing the GMRF for future process errors
 #' @param obj_new Optional; a re-built model object with parameter blocks covering
@@ -132,10 +137,12 @@ project <- function(
     Frate,
     covariates, 
     future_var = TRUE, 
-    past_var = FALSE, 
+    past_var = c("fixed", "conditional", "unconditional"), 
     parm_var = FALSE, 
     obj_new
 ) {
+  
+  past_var <- match.arg(past_var)
   
   taxa <- model$internal$taxa
   stgroups <- model$internal$settings$unique_stanza_groups
@@ -146,14 +153,22 @@ project <- function(
     stop("extra_years must be an integer sequence starting from the year following the last year in the model.")
   }
   
-  # Resample process errors regardless of whether they are 
-  # random effects or estimated via penalized likelihood
-  if (isFALSE(parm_var) & isTRUE(past_var)) {
+  # For unconditional past variance, resample all process errors and covariates
+  if (isFALSE(parm_var) & past_var == "unconditional") {
     parsim <- model$simulator(parlist, simulate_random = TRUE)
     parlist <- substitute_pars(parlist, parsim)
   }
   
-  if (isTRUE(parm_var))message("resmapling of fixed effects not yet implemented")
+  # For conditional, drop process errors from parlist 
+  # to be imputated later based on covariates
+  if (past_var == "conditional") {
+    parlist$epsilon_ti[!is.na(model$tmb_inputs$map$epsilon_ti)] <- NA
+    parlist$nu_ti[!is.na(model$tmb_inputs$map$nu_ti)] <- NA
+    parlist$nu_tij[!is.na(model$tmb_inputs$map$nu_tij)] <- NA
+    parlist$phi_tg2[!is.na(model$tmb_inputs$map$phi_tg2)] <- NA
+  }
+  
+  if (isTRUE(parm_var)) message("resmapling of fixed effects not yet implemented")
   
   # Populate / format logF_ti matrix
   if (!missing(Frate)) {
