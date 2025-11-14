@@ -23,6 +23,7 @@ compute_nll(
   stanza_data,
   settings,
   control,
+  future,
   simulate_data = FALSE,
   simulate_random = FALSE
 )
@@ -82,6 +83,16 @@ path notation.
 dynamics (called stanza-groups).}
 
 \item{control}{output from \link{ecostate_control}}
+
+\item{future}{List with elements "extra_years", "Frate", and "covariates"
+specifying settings for projecting the model forward in time. Rownames for
+\code{future$Frate} and \code{future$covariates} matrices should correspond to years in
+\code{future$extra_years}, with colnames for \code{future$Frate} corresponding to taxa and
+colnames for \code{future$covariates} corresponding to those of the \code{covariates}.
+Missing covariates will be estimated conditional on those provided; missing F rates will be
+assumed to be zero. Only necessary if interested in exploring future fishing and/or covariate
+scenarios; for projecting under equilibrium the model can simply be run while extending
+the \code{years} argument above.}
 
 \item{simulate_data}{Whether to simulate new data instead of computing the
 objective function, as used in the ecostate simulator routine}

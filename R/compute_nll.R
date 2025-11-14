@@ -55,9 +55,9 @@ function( p,
           stanza_data,
           settings,
           control,
+          future,
           simulate_data = FALSE,
           simulate_random = FALSE ) {
-
   
   # Necessary in packages
   "c" <- ADoverload("c")
@@ -69,6 +69,17 @@ function( p,
   inverse_method = control$inverse_method
   process_error = control$process_error
 
+  # Derived parameter list to hold process errors in projection years
+  use_prjn <- length(future$extra_years) > 0
+  extra_years <- future$extra_years
+  years_all <- union(years, extra_years)
+  
+  # Extract epsilon_ti (local copy be modified later)
+  epsilon_ti = p$epsilon_ti
+  if(control$process_error=="alpha"){
+    epsilon_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )
+  }
+  
   # Compute stanza stuff
   p = add_stanza_params( p,
                    stanza_data = stanza_data,
@@ -79,12 +90,6 @@ function( p,
                        scale_solver = control$scale_solver,
                        noB_i = noB_i,
                        type_i = type_i )
-  
-  # Extract epsilon_ti (local copy be modified later)
-  epsilon_ti = p$epsilon_ti
-  if(control$process_error=="alpha"){
-    epsilon_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )
-  }
   
   #
   F_type = control$F_type
@@ -106,15 +111,15 @@ function( p,
               what = "stuff" )
   
   # Objects to save
-  TL_ti = dBdt0_ti = M_ti = m_ti = G_ti = g_ti = M2_ti = m2_ti = Bmean_ti = Chat_ti = B_ti = Bhat_ti = matrix( NA, ncol=n_species, nrow=nrow(Bobs_ti) )
-  loglik1_ti = loglik2_ti = loglik3_ti = loglik4_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )  # Missing = 0
+  TL_ti = dBdt0_ti = M_ti = m_ti = G_ti = g_ti = M2_ti = m2_ti = Bmean_ti = Chat_ti = B_ti = Bhat_ti = matrix( NA, ncol=n_species, nrow = length(years_all) )
+  loglik1_ti = loglik2_ti = loglik3_ti = loglik4_ti = matrix( 0, ncol = n_species, nrow = length(years_all) )  # Missing = 0
   loglik5_tg2 = loglik6_tg2 = loglik7_tg2 = matrix( 0, nrow=nrow(Bobs_ti), ncol=length(settings$unique_stanza_groups) )
-  loglik8_sem = 0
-  Q_tij = array( NA, dim=c(nrow(Bobs_ti),n_species,n_species) )
+  loglik8_sem = loglik9_fut = 0
+  Q_tij = array( NA, dim=c(length(years_all),n_species,n_species) )
   Nexp_ta_g2 = Nobs_ta_g2
   Wexp_ta_g2 = Wobs_ta_g2
-  TotalSB_tg2 = TotalEggs_tg2 = matrix( 0, nrow=nrow(Bobs_ti), ncol=stanza_data$n_g2 )
-  TotalZ_ts2 = matrix( 0, nrow=nrow(Bobs_ti), ncol=stanza_data$n_s2 )
+  TotalSB_tg2 = TotalEggs_tg2 = matrix( 0, nrow = length(years_all), ncol=stanza_data$n_g2 )
+  TotalZ_ts2 = matrix( 0, nrow = length(years_all), ncol=stanza_data$n_s2 )
 
   # Define initial condition
   B_ti[1,] = out_initial$B_i * exp(p$delta_i)
@@ -143,7 +148,7 @@ function( p,
   # 
   Y_tzz_g2 = vector("list", length(Y_zz_g2))
   for( g2 in seq_along(Y_zz_g2) ){
-    Y_tzz_g2[[g2]] = array( 0.0, dim=c(nrow(Bobs_ti),dim(p$Y_zz_g2[[g2]])),
+    Y_tzz_g2[[g2]] = array( 0.0, dim=c(length(years_all), dim(p$Y_zz_g2[[g2]])),
                  dimnames=list(NULL,rownames(p$Y_zz_g2[[g2]]),colnames(p$Y_zz_g2[[g2]])) )
     Y_tzz_g2[[g2]][1,,] = Y_zz_g2[[g2]]
   }
@@ -161,39 +166,82 @@ function( p,
     Q <- t(sem_mat$IminusP_kk) %*% sem_mat$invV_kk %*% sem_mat$IminusP_kk
     
     # Observations for SEM likelihood
-    Xit <- matrix(NA, nrow = length(years), ncol = length(variables))
-    colnames(Xit) <- variables
+    Xit <- matrix(NA, nrow = length(years_all), ncol = length(variables), 
+                  dimnames = list(years_all, variables))
     
-    # Subtract covariate means
+    # Fill in covariate columns, subtract covariate means
     if (!is.null(dim(p$covariates))) {
       Xit[,colnames(p$covariates)] <- p$covariates
       Xit[,colnames(p$covariates)] <- sweep(Xit[,colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
     }
     
-    # Pull out epsilon, nu values from epsilon_ti and nu_ti matrices
+    # Pull out epsilon, nu, phi values from epsilon_ti, nu_ti, phi_tg2 matrices
     for (i in seq_len(ncol(Xit))) {
       
       if (gsub("eps_", "", colnames(Xit)[i]) %in% taxa) {
-        Xit[,i] <- p_t$epsilon_ti[,which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))]
+        Xit[,i] <- epsilon_ti[,which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))]
       } else if (grepl("nu_", colnames(Xit)[i])) {
         if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
-          Xit[,i] <- p_t$nu_ti[,which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))]
+          Xit[,i] <- p$nu_ti[,which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))]
         } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
           pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
-          Xit[,i] <- p_t$nu_tij[, pred_prey[1], pred_prey[2]]
+          Xit[,i] <- p$nu_tij[, pred_prey[1], pred_prey[2]]
         } 
       } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
-        Xit[,i] <- p_t$phi_tg2[,which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))]
+        Xit[,i] <- p$phi_tg2[,which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))]
       }
+      
     }
     
-    # Stack columnwise
-    Xvec <- c(Xit)
+    # Stack columnwise for main model years
+    Xvec <- c(Xit[as.character(years),])
     
-    # Evaluate GMRF
+    # Evaluate GMRF likelihood excluding projection years
     loglik8_sem <- dgmrf(Xvec, mu = rep(0, length(Xvec)), Q = Q, log = TRUE)
     
+    # Derive future expected process errors
+    if (use_prjn) {
+      
+      sem_mat <- make_matrices(p_t$beta, sem, years_all, variables)
+      Q_prjn <- t(sem_mat$IminusP_kk) %*% sem_mat$invV_kk %*% sem_mat$IminusP_kk
+      
+      Xit_cond <- Xit
+      Xit_cond[as.character(extra_years), ] <- NA
+      
+      if (!is.null(dim(p$covariates))) {
+        Xit_cond[as.character(extra_years), colnames(future$covariates)] <- future$covariates
+        Xit_cond[as.character(extra_years), colnames(p$covariates)] <- sweep(Xit_cond[as.character(extra_years), colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
+      }
+      
+      # Treat non-NA indices as fixed and condition the GMRF on them
+      Xvec_cond <- c(Xit_cond)
+      X_fixed <- which(!is.na(Xit_cond))
+      
+      # Conditional simulation from GMRF
+      GMRF_prjn <- conditional_gmrf(
+        Q_prjn, 
+        observed_idx = X_fixed, 
+        x_obs = Xvec_cond[X_fixed], nsim = 1, 
+        what = "predict"
+      )
+      
+      Xit_cond[-X_fixed] <- GMRF_prjn$mean
+      
+      # Add back in estimated covariate means
+      if (!is.null(dim(p$covariates))) {
+        Xit_cond[as.character(extra_years),colnames(p$covariates)] <- sweep(Xit_cond[as.character(extra_years),colnames(p$covariates), drop = FALSE], 2, p_t$mu, FUN = "+")
+      }
+      
+      # Evaluate log-density of future non-fixed values around their means
+      loglik9_fut <- dgmrf(c(Xit[-X_fixed]), mu = c(Xit_cond[-X_fixed]), Q = GMRF_prjn$Q_uu, log = TRUE)
+      
+    }
+    
     if (isTRUE(simulate_data) & isTRUE(simulate_random)) {
+      
+      if (use_prjn) {
+        stop("For future simulation conditional on SEM covariates, use ecostate::project()")
+      }
       
       Xit_sim <- matrix(rgmrf0(n = 1, Q = Q), nrow = nrow(Xit), ncol = ncol(Xit), byrow = FALSE)
       colnames(Xit_sim) <- colnames(Xit)
@@ -379,7 +427,7 @@ function( p,
   # likelihood
   Bexp_ti = B_ti * (rep(1,nrow(B_ti)) %*% t(exp(p$logq_i)))
   for( i in seq_len(n_species) ){
-  for( t in seq_len(nrow(Bexp_ti)) ){
+  for( t in seq_len(nrow(Bobs_ti)) ){
     if( !is.na(Bobs_ti[t,i]) ){
       loglik1_ti[t,i] = dnorm( log(Bobs_ti[t,i]), log(Bexp_ti[t,i]), exp(p$ln_sdB), log=TRUE)
       if( isTRUE(simulate_data) ){
@@ -491,7 +539,7 @@ function( p,
   log_prior_value = evaluate_prior(log_prior, p)
 
   # Remove NAs to deal with missing values in Bobs_ti and Cobs_ti
-  jnll = jnll - ( sum(loglik1_ti) + sum(loglik2_ti) + sum(loglik3_ti) + sum(loglik4_ti) + sum(loglik5_tg2,na.rm=TRUE) + sum(loglik6_tg2) + sum(loglik7_tg2) + loglik8_sem + sum(log_prior_value,na.rm=TRUE) )
+  jnll = jnll - ( sum(loglik1_ti) + sum(loglik2_ti) + sum(loglik3_ti) + sum(loglik4_ti) + sum(loglik5_tg2,na.rm=TRUE) + sum(loglik6_tg2) + sum(loglik7_tg2) + loglik8_sem + loglik9_fut + sum(log_prior_value,na.rm=TRUE) )
   
   ###############
   # Derived
@@ -566,7 +614,7 @@ function( p,
   BoverB0_ti = B_ti
   for(t in 1:nrow(BoverB0_ti)) BoverB0_ti[t,] = B_ti[t,] / B0_i
   REPORT( BoverB0_ti )
-
+  
   # Reporting
   REPORT( B_ti )
   REPORT( TotalEggs_tg2 )
@@ -595,6 +643,7 @@ function( p,
   REPORT( loglik6_tg2 )
   REPORT( loglik7_tg2 )
   REPORT( loglik8_sem )
+  REPORT( loglik9_fut )
   REPORT( log_prior_value )
   REPORT( jnll )
   REPORT( TL_ti )
