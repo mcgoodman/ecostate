@@ -31,8 +31,8 @@ ecostate(
   covariates = NULL,
   log_prior = function(p) 0,
   settings = stanza_settings(taxa = taxa),
-  projection_settings = list(extra_years = c(), Frate = numeric(0), covariates =
-    numeric(0)),
+  future = list(extra_years = c(), Frate = matrix(nrow = 0, ncol = 0), covariates =
+    matrix(nrow = 0, ncol = 0)),
   control = ecostate_control()
 )
 }
@@ -141,11 +141,15 @@ for the first \code{taxa} with logmean of zero and logsd of 0.1. See \code{\link
 \item{settings}{Output from \code{\link[=stanza_settings]{stanza_settings()}}, used to define age-structured
 dynamics (called stanza-groups).}
 
-\item{projection_settings}{List with elements "extra_years", "Frate", and "covariates"
-specifying settings for projecting the model forward in time. Only necessary if
-interested in exploring future fishing and/or covariate scenarios; for projecting
-under equilibrium the model can simply be run while extending the \code{years}
-argument above.}
+\item{future}{List with elements "extra_years", "Frate", and "covariates"
+specifying settings for projecting the model forward in time. Rownames for
+\code{future$Frate} and \code{future$covariates} matrices should correspond to years in
+\code{future$extra_years}, with colnames for \code{future$Frate} corresponding to taxa and
+colnames for \code{future$covariates} corresponding to those of the \code{covariates}.
+Missing covariates will be estimated conditional on those provided; missing F rates will be
+assumed to be zero. Only necessary if interested in exploring future fishing and/or covariate
+scenarios; for projecting under equilibrium the model can simply be run while extending
+the \code{years} argument above.}
 
 \item{control}{Output from \code{\link[=ecostate_control]{ecostate_control()}}, used to define user
 settings.}

@@ -63,7 +63,7 @@ conditional_gmrf <-
     
     res <- predict_conditional_gmrf(Q, observed_idx, x_obs )
     if( what == "predict" ){
-      return(res$mean)
+      return(res)
     }else{
       y = c(res$mean + rgmrf0(n = nsim, Q = res$Q_uu))
       return(y)
@@ -160,7 +160,7 @@ project <- function(
   }
   
   # For conditional, drop process errors from parlist 
-  # to be imputated later based on covariates
+  # to be imputed later based on covariates
   if (past_var == "conditional") {
     parlist$epsilon_ti[!is.na(model$tmb_inputs$map$epsilon_ti)] <- NA
     parlist$nu_ti[!is.na(model$tmb_inputs$map$nu_ti)] <- NA
