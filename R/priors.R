@@ -55,9 +55,13 @@ evaluate_prior <- function(priors, p) {
     
     for (i in seq_along(priors)) {
       
+      if (!inherits(priors[[i]], "formula")) stop("priors should be specified as a function or list of formulas")
+      
       # Parse prior density function
       rhs <- priors[[i]][[3]]
       dens <- as.character(rhs[[1]])
+      
+      if (any(!nchar(names(rhs)[-1]))) stop("all arguments to prior density functions must be named") 
       
       # Unpack density arguments
       args <- as.list(formals(dens))
