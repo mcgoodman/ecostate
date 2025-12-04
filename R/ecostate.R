@@ -435,7 +435,16 @@ function( taxa,
   # Process error SDs
   if (use_sem) {
     
-    if(!is.null(covariates)) map$mu = factor(seq_along(p$mu))
+    if(!is.null(covariates)) {
+      if (isFALSE(control$estimate_mu)) {
+        map$mu = factor(rep(NA, length(p$mu)))
+      } else if (!isTRUE(control$estimate_mu)) {
+        map$mu = factor(ifelse(names(p$mu) %in% control$estimate_mu, seq_along(p$mu), NA))
+      } else {
+        map$mu = factor(seq_along(p$mu))
+      }
+    }
+    
     if(length(sem_settings$beta) > 0) map$beta = factor(seq_along(p$beta))
     
     # Map off process error SDs (redundant with SEM SD parameters)
@@ -968,6 +977,10 @@ function( taxa,
 #'        passed to \code{\link[RTMB]{MakeADFun}}
 #' @param n_steps number of steps used in the ODE solver for biomass dynamics
 #' @param inverse_method whether to use pseudoinverse or standard inverse
+#' @param estimate_mu Either TRUE (estimate all covariate means), FALSE (fix all
+#'        covariate means at zero), or a character vector (estimate a subset of
+#'        covariate means). Applicable if using centered / scaled covariates whose
+#'        means are known a-priori to be zero.
 #'
 #' @return
 #' An S3 object of class "ecostate_control" that specifies detailed model settings,
@@ -996,6 +1009,7 @@ function( nlminb_loops = 1,
           scale_solver = c("joint", "simple"),
           inverse_method = c("Standard", "Penrose_moore"),
           tmbad.sparse_hessian_compress = 1,
+          estimate_mu = TRUE,
           #use_gradient = TRUE,
           start_tau = 0.001 ){
 
@@ -1030,6 +1044,7 @@ function( nlminb_loops = 1,
     process_error = process_error,
     tmbad.sparse_hessian_compress = tmbad.sparse_hessian_compress,
     use_gradient = TRUE,
+    estimate_mu = estimate_mu,
     start_tau = start_tau
   ), class = "ecostate_control" )
 }
