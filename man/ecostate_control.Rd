@@ -26,6 +26,7 @@ ecostate_control(
   scale_solver = c("joint", "simple"),
   inverse_method = c("Standard", "Penrose_moore"),
   tmbad.sparse_hessian_compress = 1,
+  estimate_mu = TRUE,
   start_tau = 0.001
 )
 }
@@ -102,6 +103,11 @@ and hugely reduces memory use in both small
 and large models. Using \code{tmbad.sparse_hessian_compress=1} seems
 to hugely speed up the model-fitting with a large model but results in a small
 decrease in speed for model-fitting with a small model.}
+
+\item{estimate_mu}{Either TRUE (estimate all covariate means), FALSE (fix all
+covariate means at zero), or a character vector (estimate a subset of
+covariate means). Applicable if using centered / scaled covariates whose
+means are known a-priori to be zero.}
 
 \item{start_tau}{Starting value for the standard deviation of process errors}
 }
