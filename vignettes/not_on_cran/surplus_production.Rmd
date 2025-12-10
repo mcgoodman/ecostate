@@ -31,7 +31,7 @@ start_time = Sys.time()
 library(ecostate)
 library(JABBA)
 library(spict)
-set.seed(101)
+set.seed(102)
 ```
 
 `ecostate` is an R package for fitting the mass-balance dynamics specified by EcoSim as a state-space model.   It can be used as a surplus production model by treating a single species as a "producer"
@@ -307,8 +307,9 @@ B_i = c( NA, 1 )
 # Settings: specify what parameters to estimate
 fit_eps = "target"   # process errors
 fit_Q = "target"       # catchability coefficient
-fit_B0 = c()      # non-equilibrium initial condition
+fit_B0 = "target"      # non-equilibrium initial condition
 fit_B = "target"       # equilibrium biomass
+fit_PB = "target"
 
 # Label EwE inputs for each taxon as expected (so users can easily change taxa)
 names(PB_i) = names(QB_i) = names(B_i) = names(EE_i) = names(type) = names(U_i) = taxa
@@ -336,6 +337,7 @@ out_bivar = ecostate( taxa = taxa,
                 fit_B = fit_B,
                 fit_Q = fit_Q,
                 fit_eps = fit_eps,
+                fit_PB = fit_PB,
                 fit_B0 = fit_B0,
                 log_prior = log_prior,
                 control = ecostate_control() )
