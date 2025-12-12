@@ -1,11 +1,13 @@
 
+# devtools::install_local( R'(C:\Users\james\OneDrive\Desktop\Git\ecostate)', force = TRUE )
+
 library(ecostate)
 library(JABBA)
 library(spict)
 set.seed(101)
 
 # Time-interval
-years = 1981:2020
+years = 1981:2080
 n_years = length(years)
 
 # Biology
@@ -79,7 +81,7 @@ B_i = c( NA, NA, 1 )
 
 # Settings: specify what parameters to estimate
 fit_Q = "stage2"       # catchability coefficient
-fit_B0 = c()      # non-equilibrium initial condition
+fit_B0 = "stage2"      # non-equilibrium initial condition
 fit_B = "stage2"       # equilibrium biomass
 
 # Label EwE inputs for each taxon as expected (so users can easily change taxa)
@@ -95,7 +97,8 @@ settings <- stanza_settings(
   Wmat = c("age_structured" = (2/3)^3),
   d = c("age_structured" = 2/3),
   Amax = c("stage1" = 2, "stage2" = 30),
-  SpawnX = c("age_structured" = 2)
+  #SpawnX = c("age_structured" = 2)      # 4 / (5-1/0.999)
+  SpawnX = c("age_structured" = 4 / (5-1/0.999))      #
 )
 
 sem <- "
@@ -108,11 +111,17 @@ log_prior <- list(
   log(c(tau1, tau2)) ~ dnorm(mean = log(0.2), sd = 1)
 )
 
+#
+control = ecostate_control(
+  nlminb_loops = 0,
+  getsd = FALSE
+)
+
 # Run model
 sem_fit = ecostate( 
   taxa = taxa,
   years = years,
-  catch = data.frame("Mass"=Catch[,1],"Year"=Catch[,2],"Taxon"="stage2"),
+  #catch = data.frame("Mass"=Catch[,1],"Year"=Catch[,2],"Taxon"="stage2"),
   biomass = data.frame("Mass"=Biomass[,1],"Year"=Biomass[,2],"Taxon"="stage2"),
   PB = PB_i,
   QB = QB_i,
@@ -127,9 +136,19 @@ sem_fit = ecostate(
   fit_Q = fit_Q,
   fit_B0 = fit_B0,
   log_prior = log_prior,
-  control = ecostate_control(),
+  control = control,
   settings = settings
 )
+
+#
+lastpar = sem_fit$obj$env$last.par
+lastpar['delta_i'] = -1
+rep = sem_fit$obj$report( lastpar )
+matplot( rep$B_ti )
+
+#
+rep$N_ta_g2[[1]][1,] / rep$N_ta_g2[[1]][length(years),]
+rep$W_ta_g2[[1]][1,] / rep$W_ta_g2[[1]][length(years),]
 
 # All parameters
 sem_fit$opt$par

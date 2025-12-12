@@ -6,6 +6,10 @@
   (from Ecopath with Ecosim) with covariates, including direct and indirect effects
   and jointly imputing missing values (h/t Maurice Goodman)
 * Added testthat integrated tests (h/t Maurice Goodman)
+* Fix bug where delta_i was not applied to initial age-structure for multi-stanza
+  groups, i.e., fit_B0 was not working as intended for age-structured populations.
+  The fix now applies delta_i to to the initial abundance-at-age to match the expected
+  biomass impact of delta_i.
 
 # EcoState 0.3.0
 

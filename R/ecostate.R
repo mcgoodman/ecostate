@@ -96,11 +96,13 @@
 #'
 #' @importFrom TMB config
 #' @importFrom checkmate assertDouble assertFactor assertCharacter assertList
-#' @importFrom stats dnorm nlminb optimHess weighted.mean rgamma rmultinom rnorm
+#' @importFrom stats dnorm nlminb optimHess weighted.mean rgamma rmultinom rnorm na.omit setNames
 #' @importFrom igraph graph_from_adjacency_matrix
 #' @importFrom ggplot2 ggplot aes
 #' @importFrom ggnetwork ggnetwork geom_edges geom_nodes geom_nodetext
-#' @importFrom utils relist
+#' @importFrom utils relist getFromNamespace modifyList
+#' @importFrom Matrix t
+#' @importFrom dsem make_matrices
 #'
 #' @details
 #' All \code{taxa} must be included in \code{QB}, \code{PB}, \code{B}, and \code{DC},
@@ -266,7 +268,6 @@ function( taxa,
     X_ij = array(2, dim=c(n_species,n_species), dimnames=list(taxa,taxa))
     X_ij[,which_primary,drop=FALSE] = 91  # Default high value from Gaichas et al. 2011
   }else{
-    if(!all(taxa %in% rownames(X)) | !all(taxa %in% colnames(X))) stop("Check dimnames for `X`")
     if(!all(taxa %in% rownames(X)) | !all(taxa %in% colnames(X))) stop("Check dimnames for `X`")
     X_ij = X[taxa,taxa,drop=FALSE]
   }
