@@ -1,4 +1,9 @@
 
+#' @title Format stanza data
+#' @param settings list of stanza settings returned by \code{stanza_settings}
+#'
+#' @returns list
+#' @noRd
 make_stanza_data <-
 function( settings ){
 
@@ -107,13 +112,17 @@ function( W,
 }
 
 
-#' @title
-#' Compute state-varaibles for multi-stanza groups
+#' @title Compute state-variables for multi-stanza groups
+#' @param p list of parameters
+#' @param stanza_data list of stanza data returned by \code{make_stanza_data}
+#' @param settings list of stanza settings returned by \code{stanza_settings}
 #'
 #' @description
 #' Taking parameters, settings, and output from `make_stanza_dat,
 #' initialize the equilibrium (SplitAlpha) and initial state-variables
 #' for multi-stanza groups
+#' 
+#' @noRd
 add_stanza_params <-
 function( p,
           stanza_data,

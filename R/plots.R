@@ -114,6 +114,9 @@ function( Q_ij,
 #' @param interval Coverage of plotted confidence bands. Defaults to 0.95 (95%), omitted if FALSE.
 #' @param q_adj Where applicable, should estimates adjusted for catchability be plotted? Useful for 
 #'   assessing fit to survey data.
+#'   
+#' @importFrom stats reshape qlnorm
+#' @importFrom ggplot2 .data
 #'
 #' @return invisibly return \code{ggplot} object for biomass time series
 #' @export
@@ -184,22 +187,22 @@ plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj =
   
   # Plot estimate and interval
   p <- B_ti |> 
-    ggplot2::ggplot(ggplot2::aes(year)) + 
-    {if (!isFALSE(interval)) ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.25, na.rm = TRUE)} + 
-    ggplot2::geom_line(ggplot2::aes(y = est, color = "Bhat"), na.rm = TRUE) + 
-    ggplot2::facet_wrap(~Taxon, scales = "free_y") + 
+    ggplot2::ggplot(ggplot2::aes(.data$year)) + 
+    {if (!isFALSE(interval)) ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper), alpha = 0.25, na.rm = TRUE)} + 
+    ggplot2::geom_line(ggplot2::aes(y = .data$est, color = "Bhat"), na.rm = TRUE) + 
+    ggplot2::facet_wrap(~.data$Taxon, scales = "free_y") + 
     ggplot2::labs(y = "biomass", color = "source")
   
   # Plot estimate adjusted for catchability
   if (isTRUE(q_adj)) {
     colors <- c(colors, "Bhat * q" = "blue")
-    p <- p + ggplot2::geom_line(ggplot2::aes(y = est_q, color = "Bhat * q"), na.rm = TRUE) 
+    p <- p + ggplot2::geom_line(ggplot2::aes(y = .data$est_q, color = "Bhat * q"), na.rm = TRUE) 
   }
   
   # Plot survey data
   if (isTRUE(observed)) {
     colors <- c(colors, "Survey" = "black")
-    p <- p + ggplot2::geom_point(ggplot2::aes(y = observed, color = "Survey"), na.rm = TRUE)
+    p <- p + ggplot2::geom_point(ggplot2::aes(y = .data$observed, color = "Survey"), na.rm = TRUE)
   }
   
   # Set colors
