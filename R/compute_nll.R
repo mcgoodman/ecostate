@@ -296,7 +296,6 @@ function( p,
 
   # Loop through years
   for( t in 2:nrow(Bobs_ti) ){
-  #for( t in 2:66 ){
     # Assemble inputs
     p_t = p
     p_t$Y_zz_g2 = Y_zz_g2

@@ -106,6 +106,14 @@ function( W,
   return(out)
 }
 
+
+#' @title
+#' Compute state-varaibles for multi-stanza groups
+#'
+#' @description
+#' Taking parameters, settings, and output from `make_stanza_dat,
+#' initialize the equilibrium (SplitAlpha) and initial state-variables
+#' for multi-stanza groups
 add_stanza_params <-
 function( p,
           stanza_data,
@@ -231,8 +239,11 @@ function( p,
       SplitAlpha[length(SplitAlpha)] = SplitAlpha[length(SplitAlpha)-1]
     }
 
+    # Account for initial condition
+    log_NageS = log(NageS) + p$delta_i[s]
+
     # Stack
-    Yg2_zz = cbind( WageS=WageS, log_NageS=log(NageS), QageS=QageS, SplitAlpha=SplitAlpha)
+    Yg2_zz = cbind( WageS=WageS, log_NageS=log_NageS, QageS=QageS, SplitAlpha=SplitAlpha)
     #Y_zz = rbind( Y_zz, Yg2_zz )  # deparse.level=0 avoids RTMB error
     Y_zz_g2[[g2]] = Yg2_zz
   }
