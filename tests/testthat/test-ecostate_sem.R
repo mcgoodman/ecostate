@@ -24,14 +24,15 @@ X[,'Chloro'] <- 91
 taxa <- c("Pollock", "Krill", "Arrowtooth", "Cod")
 
 # DSEM additional covariates
+# Purposely missing a year to check behavior
 covariates <- structure(
-  c(0.349, 0.278, 0.481, 0.491, 0.462, 0.3, 0.381, 0.181, 
+  c(0.278, 0.481, 0.491, 0.462, 0.3, 0.381, 0.181, 
     0.298, 0.379, 0.57, 0.223, 0.379, 0.59, 0.373, 0.56, 0.27, 0.708, 
     0.515, 0.424, 0.379, 0.292, 0.379, 0.351, 0.602, 0.682, 0.69, 
     0.7, 0.702, 0.544, 0.722, 0.615, 0.335, 0.355, 0.27, 0.475, 0.055, 
     0.187, 0.535, 0.295, 0.475, 0.423), 
-  dim = c(42L, 1L), 
-  dimnames = list(NULL, "cold_pool")
+  dim = c(41L, 1L), 
+  dimnames = list(years[-1], "cold_pool")
 )
 
 # Tests ---------------------------------------------------
@@ -207,8 +208,9 @@ test_that(
       sem = sem, covariates = covariates
     )
     
-    expect_equal(dgmrf_mod$tmb_inputs$p$covariates, covariates)
-    expect_equal(dgmrf_mod$tmb_inputs$map$covariates, factor(rep(NA, nrow(covariates))))
+    cov_expected <- rbind("1982" = 0, covariates)
+    expect_equal(dgmrf_mod$tmb_inputs$p$covariates, cov_expected)
+    expect_equal(dgmrf_mod$tmb_inputs$map$covariates, factor(c(1, rep(NA, nrow(covariates)))))
     
     covariates[5:10,] <- NA
     
@@ -220,9 +222,10 @@ test_that(
       sem = sem, covariates = covariates
     )
     
-    map_expected <- seq_len(nrow(covariates))
-    map_expected <- factor(ifelse(is.na(covariates), map_expected, NA))
-    expect_equal(dgmrf_mod$tmb_inputs$p$covariates, ifelse(is.na(covariates), 0, covariates))
+    cov_expected <- rbind("1982" = 0, ifelse(is.na(covariates), 0, covariates))
+    map_expected <- seq_len(nrow(cov_expected))
+    map_expected <- factor(ifelse(is.na(c(NA, covariates)), map_expected, NA))
+    expect_equal(dgmrf_mod$tmb_inputs$p$covariates, cov_expected)
     expect_equal(dgmrf_mod$tmb_inputs$map$covariates, map_expected)
     
   }

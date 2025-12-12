@@ -119,6 +119,8 @@ function( Q_ij,
 #' @export
 plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE) {
   
+  years <- union(fit$internal$years, fit$internal$extra_years)
+  
   if (missing(taxa)) {
     taxa <- fit$internal$taxa
   } else if (!all(taxa %in% fit$internal$taxa)) {
@@ -144,7 +146,7 @@ plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj =
   
   # Estimated biomass, adjusted using catchability
   if (isTRUE(q_adj)) {
-    qmat <- outer(rep(1, length(fit$internal$years)), exp(fit$internal$parhat$logq_i))
+    qmat <- outer(rep(1, length(years)), exp(fit$internal$parhat$logq_i))
     qmat[qmat == 1] <- NA
     B_ti[["est_q"]] = fit$derived$Est$B_ti * qmat
   }
@@ -153,7 +155,7 @@ plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj =
   B_ti <- B_ti |> 
     lapply(as.data.frame) |> 
     lapply(function(x) {colnames(x) <- fit$internal$taxa; x}) |> 
-    lapply(function(x) {x$year <- fit$internal$years; x}) |>  
+    lapply(function(x) {x$year <- years; x}) |>  
     lapply(reshape, direction = "long", varying = fit$internal$taxa,
       v.names = "biomass", times = fit$internal$taxa, timevar = "Taxon"
     ) 

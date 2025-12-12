@@ -31,6 +31,8 @@ ecostate(
   covariates = NULL,
   log_prior = function(p) 0,
   settings = stanza_settings(taxa = taxa),
+  future = list(extra_years = c(), Frate = matrix(nrow = 0, ncol = 0), covariates =
+    matrix(nrow = 0, ncol = 0)),
   control = ecostate_control()
 )
 }
@@ -123,8 +125,9 @@ where 1 indicates a lagged effect, \code{rho_i} is a user-provided parameter nam
 path notation.
 \code{\link[dsem]{make_dsem_ram}} for introduction to DSEM path notation.}
 
-\item{covariates}{Matrix of covariates (with one row per year) for use in dynamic
-structural equation model on process errors.}
+\item{covariates}{Matrix of covariates for use in dynamic structural equation m
+model on process errors, with rownames for \code{years} and colnames for
+covariates.}
 
 \item{log_prior}{A list of sampling statements representing parameter priors, or a
 user-provided function that takes as input the list of
@@ -137,6 +140,16 @@ for the first \code{taxa} with logmean of zero and logsd of 0.1. See \code{\link
 
 \item{settings}{Output from \code{\link[=stanza_settings]{stanza_settings()}}, used to define age-structured
 dynamics (called stanza-groups).}
+
+\item{future}{List with elements "extra_years", "Frate", and "covariates"
+specifying settings for projecting the model forward in time. Rownames for
+\code{future$Frate} and \code{future$covariates} matrices should correspond to years in
+\code{future$extra_years}, with colnames for \code{future$Frate} corresponding to taxa and
+colnames for \code{future$covariates} corresponding to those of the \code{covariates}.
+Missing covariates will be estimated conditional on those provided; missing F rates will be
+assumed to be zero. Only necessary if interested in exploring future fishing and/or covariate
+scenarios; for projecting under equilibrium the model can simply be run while extending
+the \code{years} argument above.}
 
 \item{control}{Output from \code{\link[=ecostate_control]{ecostate_control()}}, used to define user
 settings.}

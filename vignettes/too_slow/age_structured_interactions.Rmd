@@ -157,7 +157,7 @@ out = ecostate(
     STEPS_PER_YEAR = STEPS_PER_YEAR,
     comp_weight = "multinom",
     Leading = Leading,
-    Wmatslope = Wmatslope)
+    Wmatslope = Wmatslope )
 )
 ```
 
@@ -222,7 +222,7 @@ out = ecostate(
     STEPS_PER_YEAR = STEPS_PER_YEAR,
     comp_weight = "multinom",
     Leading = Leading,
-    Wmatslope = Wmatslope)
+    Wmatslope = Wmatslope )
 )
 ```
 

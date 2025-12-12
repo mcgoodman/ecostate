@@ -53,7 +53,7 @@ covariates <- structure(
     0.7, 0.702, 0.544, 0.722, 0.615, 0.335, 0.355, 0.27, 0.475, 0.055, 
     0.187, 0.535, 0.295, 0.475, 0.423), 
   dim = c(42L, 1L), 
-  dimnames = list(NULL, "cold_pool")
+  dimnames = list(years, "cold_pool")
   )
 
 # Other values

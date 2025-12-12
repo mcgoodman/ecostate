@@ -1,5 +1,4 @@
 
-
 @article{lucey_conducting_2020,
 	title = {Conducting reproducible ecosystem modeling using the open source mass balance model {Rpath}},
 	volume = {427},
@@ -13,10 +12,9 @@
 	author = {Lucey, Sean M. and Gaichas, Sarah K. and Aydin, Kerim Y.},
 	month = jul,
 	year = {2020},
-	keywords = {R, Ecosim, Ecopath, Mass balance, Reproducibility, Rpath},
+	keywords = {Ecopath, Ecosim, Mass balance, R, Reproducibility, Rpath},
 	pages = {109057},
 }
-
 
 @article{polovina_model_1984,
 	title = {Model of a coral reef ecosystem},
@@ -36,6 +34,23 @@
 	pages = {1--11},
 }
 
+@article{walters_structuring_1997,
+	title = {Structuring dynamic models of exploited ecosystems from trophic mass-balance assessments},
+	volume = {7},
+	issn = {1573-5184},
+	url = {https://doi.org/10.1023/A:1018479526149},
+	doi = {10.1023/A:1018479526149},
+	abstract = {The linear equations that describe trophic fluxes in mass-balance, equilibrium assessments of ecosystems (such as in the ECOPATH approach) can be re-expressed as differential equations defining trophic interactions as dynamic relationships varying with biomasses and harvest regimes. Time patterns of biomass predicted by these differential equations, and equilibrium system responses under different exploitation regimes, are found by setting the differential equations equal to zero and solving for biomasses at different levels of fishing mortality. Incorporation of our approach as the ECOSIM routine into the well-documented ECOPATH software will enable a wide range of potential users to conduct fisheries policy analyses that explicitly account for ecosystem trophic interactions, without requiring the users to engage in complex modelling or information gathering much beyond that required for ECOPATH. While the ECOSIM predictions can be expected to fail under fishing regimes very different from those leading to the ECOPATH input data, ECOSIM will at least indicate likely directions of biomass change in various trophic groups under incremental experimental policies aimed at improving overall ecosystem management. That is, ECOSIM can be a valuable tool for design of ecosystem-scale adaptive management experiments},
+	language = {en},
+	number = {2},
+	urldate = {2024-06-11},
+	journal = {Reviews in Fish Biology and Fisheries},
+	author = {Walters, CARL and Christensen, VILLY and Pauly, DANIEL},
+	month = jun,
+	year = {1997},
+	keywords = {Adaptive Management, Dynamic Relationship, Ecosystem Management, Policy Analysis, Potential User},
+	pages = {139--172},
+}
 
 @article{walters_representing_2000,
 	title = {Representing {Density} {Dependent} {Consequences} of {Life} {History} {Strategies} in {Aquatic} {Ecosystems}: {EcoSim} {II}},
@@ -54,33 +69,26 @@
 	year = {2000},
 	keywords = {Key words: trophic interactions; cascades; risk-sensitive foraging; ecosystem management.},
 	pages = {70--83},
-	file = {Full Text PDF:C\:\\Users\\james\\Zotero\\storage\\KZKF5GNQ\\Walters et al. - 2000 - Representing Density Dependent Consequences of Life History Strategies in Aquatic Ecosystems EcoSim.pdf:application/pdf},
+	file = {Full Text PDF:C\:\\Users\\James.Thorson\\Zotero\\storage\\KZKF5GNQ\\Walters et al. - 2000 - Representing Density Dependent Consequences of Life History Strategies in Aquatic Ecosystems EcoSim.pdf:application/pdf},
 }
 
-
-@article{walters_structuring_1997,
-	title = {Structuring dynamic models of exploited ecosystems from trophic mass-balance assessments},
-	volume = {7},
-	issn = {1573-5184},
-	url = {https://doi.org/10.1023/A:1018479526149},
-	doi = {10.1023/A:1018479526149},
-	abstract = {The linear equations that describe trophic fluxes in mass-balance, equilibrium assessments of ecosystems (such as in the ECOPATH approach) can be re-expressed as differential equations defining trophic interactions as dynamic relationships varying with biomasses and harvest regimes. Time patterns of biomass predicted by these differential equations, and equilibrium system responses under different exploitation regimes, are found by setting the differential equations equal to zero and solving for biomasses at different levels of fishing mortality. Incorporation of our approach as the ECOSIM routine into the well-documented ECOPATH software will enable a wide range of potential users to conduct fisheries policy analyses that explicitly account for ecosystem trophic interactions, without requiring the users to engage in complex modelling or information gathering much beyond that required for ECOPATH. While the ECOSIM predictions can be expected to fail under fishing regimes very different from those leading to the ECOPATH input data, ECOSIM will at least indicate likely directions of biomass change in various trophic groups under incremental experimental policies aimed at improving overall ecosystem management. That is, ECOSIM can be a valuable tool for design of ecosystem-scale adaptive management experiments},
+@article{thorson_bottom-up_nodate,
+	title = {Bottom-up interactions in state-space age-structured models  using mass-balance dynamics},
+	copyright = {CC-BY Attribution-NonCommercial-ShareAlike 4.0 International},
+	url = {https://ecoevorxiv.org/repository/view/8411/},
+	abstract = {Age-structured stock assessment models are used worldwide to predict the likely impact of changing harvest on future fisheries yield. However, age-structured models ignore the impacts of predator consumption on prey survival (top-down impacts) and prey availability on predator growth (bottom-up impacts), whereas multispecies statistical catch-at-age models often incorporate top-down but not bottom-up impacts. Here, we address this gap by demonstrating a generic approach for including bottom-up interactions in an age-structured statistical model by linking individual growth to population-scale consumption. We specifically extend Ecostate, a recent model that adapts Ecopath/Ecosim dynamics to jointly estimate biological and fishery parameters as well as unexplained process errors. We first add age-structured dynamics for select species using stanzas, i.e., an age-range over which age-structured productivity and consumption match mass-balance constraints. We then incorporate likelihood components representing fit to age-composition and empirical weight-at-age data while also estimating residual variation in larval survival (recruitment deviations) and consumption (weight-at-age deviations). To demonstrate, we fit to abundance-index and age-composition data for two commercial species (Alaska pollock and sablefish) in the Gulf of Alaska, including mass-balance dynamics for its primary energetic supply, and not fitting weight-at-age data so that it can be used for out-of-sample evaluation of model performance. We show that the model can be viewed as a multispecies age-structured model (e.g., estimating adult mortality rates, survey catchability and selectivity, and biomass while tracking cohorts) and as a mass-balance ecosystem model (e.g., estimate trophic position and weight-at-age based on forage consumption). The predicted weight-at-age is weakly correlated with independent measurements for pollock and sablefish, but were improved when we incorporated forage biomass indices. We conclude that bottom-up interactions can be added to age-structured stock assessment models, and can address new questions regarding forage availability on weight-at-age for use in stock assessments.},
 	language = {en},
-	number = {2},
-	urldate = {2024-06-11},
-	journal = {Reviews in Fish Biology and Fisheries},
-	author = {Walters, Carl and Christensen, Villy and Pauly, Daniel},
-	month = jun,
-	year = {1997},
-	keywords = {Adaptive Management, Dynamic Relationship, Ecosystem Management, Policy Analysis, Potential User},
-	pages = {139--172},
+	urldate = {2025-01-21},
+	journal = {Fish and Fisheries},
+	author = {Thorson, James T. and Aydin, Kerim H. and Cheng, Matt and Dias, Beatriz S. and Kimmel, David G. and Kristensen, Kasper},
+	note = {Publisher: EcoEvoRxiv},
+	file = {Full Text PDF:C\:\\Users\\James.Thorson\\Zotero\\storage\\LIZH8EIA\\Thorson et al. - 2025 - Bottom-up interactions in age-structured stock assessment and state-space mass-balance modelling.pdf:application/pdf},
 }
-
-
 
 @article{thorson_benefits_2025,
 	title = {The {Benefits} of {Hierarchical} {Ecosystem} {Models}: {Demonstration} {Using} {EcoState}, a {New} {State}-{Space} {Mass}-{Balance} {Model}},
 	volume = {26},
+	copyright = {© 2024 The Author(s). Fish and Fisheries published by John Wiley \& Sons Ltd. This article has been contributed to by U.S. Government employees and their work is in the public domain in the USA.},
 	issn = {1467-2979},
 	shorttitle = {The {Benefits} of {Hierarchical} {Ecosystem} {Models}},
 	url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/faf.12874},
@@ -94,4 +102,5 @@
 	note = {\_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1111/faf.12874},
 	keywords = {Alaska pollock, eastern Bering Sea, Ecopath with Ecosim, mass-balance model, process errors, state-space model},
 	pages = {203--218},
+	file = {Full Text PDF:C\:\\Users\\James.Thorson\\Zotero\\storage\\3YGN9KXZ\\Thorson et al. - 2025 - The Benefits of Hierarchical Ecosystem Models Demonstration Using EcoState, a New State-Space Mass-.pdf:application/pdf;Snapshot:C\:\\Users\\James.Thorson\\Zotero\\storage\\6R7TCQ7N\\faf.html:text/html;Snapshot:C\:\\Users\\James.Thorson\\Zotero\\storage\\DFJU8E5Y\\faf.html:text/html},
 }

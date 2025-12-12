@@ -61,8 +61,9 @@
 #'        0 is a starting value. See \code{\link[dsem]{make_dsem_ram}} for an introduction to DSEM 
 #'        path notation.
 #'        \code{\link[dsem]{make_dsem_ram}} for introduction to DSEM path notation.
-#' @param covariates Matrix of covariates (with one row per year) for use in dynamic 
-#'        structural equation model on process errors.
+#' @param covariates Matrix of covariates for use in dynamic structural equation m
+#'        model on process errors, with rownames for \code{years} and colnames for 
+#'        covariates.
 #' @param fit_PB Character-vector listing \code{taxa} for which equilibrium
 #'        production per biomass is estimated.  Note that it is likely
 #'        a good idea to include a prior for any species for which this is estimated.
@@ -83,6 +84,15 @@
 #'        settings.
 #' @param settings Output from [stanza_settings()], used to define age-structured
 #'        dynamics (called stanza-groups).
+#' @param future List with elements "extra_years", "Frate", and "covariates"
+#'        specifying settings for projecting the model forward in time. Rownames for
+#'        \code{future$Frate} and \code{future$covariates} matrices should correspond to years in 
+#'        \code{future$extra_years}, with colnames for \code{future$Frate} corresponding to taxa and
+#'        colnames for \code{future$covariates} corresponding to those of the \code{covariates}. 
+#'        Missing covariates will be estimated conditional on those provided; missing F rates will be
+#'        assumed to be zero. Only necessary if interested in exploring future fishing and/or covariate 
+#'        scenarios; for projecting under equilibrium the model can simply be run while extending 
+#'        the \code{years} argument above.
 #'
 #' @importFrom TMB config
 #' @importFrom checkmate assertDouble assertFactor assertCharacter assertList
@@ -155,10 +165,11 @@ function( taxa,
           covariates = NULL,
           log_prior = function(p) 0,
           settings = stanza_settings(taxa=taxa),
+          future = list(extra_years = c(), Frate = matrix(nrow = 0, ncol = 0), covariates = matrix(nrow = 0, ncol = 0)),
           control = ecostate_control()){
   # importFrom RTMB MakeADFun REPORT ADREPORT sdreport getAll
   # importFrom Matrix Matrix Diagonal sparseMatrix
-
+  
   # Necessary in packages
   "c" <- ADoverload("c")
   "[<-" <- ADoverload("[<-")
@@ -170,16 +181,52 @@ function( taxa,
   }
   if( any(biomass$Mass==0) ) stop("`biomass$Mass` cannot include zeros, given the assumed lognormal distribution")
   if( any(catch$Mass==0) ) stop("`catch$Mass` cannot include zeros, given the assumed lognormal distribution")
-
+  
   # Set up inputs for SEM
   use_sem <- nchar(trimws(sem)) > 0
   if (isTRUE(use_sem)) {
+    
     sem_settings <- parse_ecostate_sem(
       sem = sem, covariates = covariates, taxa = taxa, years = years, fit_eps = fit_eps, fit_nu = fit_nu, 
       settings = settings, control = control
     )
+    
+    covariates <- sem_settings$covariates
+    
   } else {
+    
     sem_settings <- list(model = sem)
+    
+  }
+  
+  # Settings for future projection
+  if (length(future$extra_years)) {
+    
+    future$extra_years <- setdiff(future$extra_years, years)
+    years_all <- union(years, future$extra_years)
+    
+    future$covariates <- tapply(
+      c(future$covariates), FUN=mean, 
+      INDEX = list(
+        factor(rep(rownames(future$covariates), ncol(future$covariates)), levels = future$extra_years),
+        factor(rep(colnames(future$covariates), each = nrow(future$covariates)), levels = colnames(covariates)) 
+      )
+    )
+    
+    future$Frate <- tapply(
+      c(future$Frate), FUN=mean, 
+      INDEX = list(
+        factor(rep(rownames(future$Frate), ncol(future$Frate)), levels = future$extra_years),
+        factor(rep(colnames(future$Frate), each = nrow(future$Frate)), levels = taxa) 
+      )
+    )
+    
+    future$Frate[is.na(future$Frate)] <- 0
+      
+  } else {
+    
+    years_all <- years
+    
   }
   
   # Set tmbad.sparse_hessian_compress
@@ -256,7 +303,7 @@ function( taxa,
   
   # Convert long-form `catch` to wide-form Cobs_ti
   Cobs_ti = tapply( catch[,'Mass', drop = TRUE], FUN=mean, INDEX = list(
-                    factor(catch[,'Year', drop = TRUE], levels=years),
+                    factor(catch[,'Year', drop = TRUE], levels=years_all),
                     factor(catch[,'Taxon', drop = TRUE], levels=taxa) )
                   )
   if(any(!is.na(Cobs_ti[1,]))) message("Fixing catch=NA in first year as required")
@@ -264,7 +311,7 @@ function( taxa,
   
   # Convert long-form `biomass` to wide-form Bobs_ti
   Bobs_ti = tapply( biomass[,'Mass', drop = TRUE], FUN=mean, INDEX = list(
-                    factor(biomass[,'Year', drop = TRUE], levels=years),
+                    factor(biomass[,'Year', drop = TRUE], levels=years_all),
                     factor(biomass[,'Taxon', drop = TRUE], levels=taxa) )
                   )
   
@@ -350,12 +397,12 @@ function( taxa,
             epsilon_ti = array( 0, dim=c(0,n_species) ),
             alpha_ti = array( 0, dim=c(0,n_species) ),
             nu_ti = array( 0, dim=c(0,n_species) ),
-            nu_tij = array(0, dim = c(nrow(Bobs_ti), n_species, n_species)),
+            nu_tij = array(0, dim = c(length(years_all), n_species, n_species)),
             phi_tg2 = array( 0, dim=c(0,settings$n_g2) ),
             beta = if (use_sem && length(sem_settings$beta) > 0) sem_settings$beta else numeric(0),
             mu = if (!is.null(covariates)) setNames(rep(0, ncol(covariates)), colnames(covariates)) else numeric(0),
             covariates = numeric(0),
-            logF_ti = array( log(0.01), dim=c(nrow(Bobs_ti),n_species) ),
+            logF_ti = array( log(0.01), dim=c(length(years_all),n_species) ),
             logq_i = setNames(rep( log(1), n_species), taxa),
             s50_z = setNames(rep(1, n_selex), names(Nobs_ta_g2)),
             srate_z = setNames(rep(1, n_selex), names(Nobs_ta_g2)),
@@ -388,7 +435,16 @@ function( taxa,
   # Process error SDs
   if (use_sem) {
     
-    if(!is.null(covariates)) map$mu = factor(seq_along(p$mu))
+    if(!is.null(covariates)) {
+      if (isFALSE(control$estimate_mu)) {
+        map$mu = factor(rep(NA, length(p$mu)))
+      } else if (!isTRUE(control$estimate_mu)) {
+        map$mu = factor(ifelse(names(p$mu) %in% control$estimate_mu, seq_along(p$mu), NA))
+      } else {
+        map$mu = factor(seq_along(p$mu))
+      }
+    }
+    
     if(length(sem_settings$beta) > 0) map$beta = factor(seq_along(p$beta))
     
     # Map off process error SDs (redundant with SEM SD parameters)
@@ -413,8 +469,9 @@ function( taxa,
   }
   
   # Catches
-  map$logF_ti = factor( ifelse(is.na(Cobs_ti), NA, seq_len(prod(dim(Cobs_ti)))) )
-  p$logF_ti[] = ifelse(is.na(Cobs_ti), -Inf, log(0.01))
+  map$logF_ti = factor( ifelse(is.na(Cobs_ti[as.character(years_all),]), NA, seq_len(prod(dim(Cobs_ti[as.character(years_all),])))) )
+  p$logF_ti[] = ifelse(is.na(Cobs_ti[as.character(years_all),]), -Inf, log(0.01))
+  dimnames(p$logF_ti) <- list(years_all, taxa)
   
   # Catchability
   map$logq_i = factor( ifelse(taxa %in% fit_Q, seq_len(n_species), NA) )
@@ -422,11 +479,35 @@ function( taxa,
   # Initial biomass-ratio ... turn off if no early biomass observations
   map$delta_i = factor( ifelse(taxa %in% fit_B0, seq_along(p$delta_i), NA) )
   
+  # Future covariates and fishing mortality rate
+  if (length(future$extra_years)) {
+    
+    # Expand covariates matrix
+    covariates <- rbind(
+      covariates, 
+      matrix(NA, nrow = length(future$extra_years), ncol = ncol(sem_settings$covariates), 
+             dimnames = list(future$extra_years, colnames(sem_settings$covariates)))
+    )
+    
+    # Add in fixed future covariates
+    for (i in seq_along(colnames(future$covariates))) {
+      covariates[rownames(future$covariates), colnames(future$covariates)[i]] <- 
+        future$covariates[,colnames(future$covariates)[i]]
+    }
+    
+    # Future fishing mortality rate
+    for (i in seq_along(colnames(future$Frate))) {
+      p$logF_ti[rownames(future$Frate), colnames(future$Frate)[i]] <- 
+        log(future$Frate[,colnames(future$Frate)[i]])
+    }
+    
+  }
+  
   # Process errors
   if (use_sem) {
     
     # Variation in biomass
-    p$epsilon_ti = array(0, dim=c(nrow(Bobs_ti), n_species) )
+    p$epsilon_ti = array(0, dim=c(length(years_all), n_species) )
     map$epsilon_ti = array(seq_len(prod(dim(p$epsilon_ti))), dim=dim(p$epsilon_ti))
     if(any(grepl("eps_", sem_settings$proc_vars))) {
       map$epsilon_ti[,-as.integer(na.omit(match(gsub("eps_", "", sem_settings$proc_vars), taxa)))] <- NA
@@ -436,7 +517,7 @@ function( taxa,
     map$epsilon_ti = factor(map$epsilon_ti)
     
     # Variation in consumption by predator
-    p$nu_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+    p$nu_ti = array( 0, dim=c(length(years_all),n_species) )
     map$nu_ti = array( seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
     if(any(grepl("nu_", sem_settings$proc_vars) & !(grepl(":", sem_settings$proc_vars)))) {
       map$nu_ti[,-as.integer(na.omit(match(gsub("nu_", "", sem_settings$proc_vars), taxa)))] <- NA
@@ -458,7 +539,7 @@ function( taxa,
     map$nu_tij = factor(map$nu_tij)
     
     # Variation in recruitment
-    p$phi_tg2 = array( 0, dim=c(nrow(Bobs_ti),settings$n_g2) )
+    p$phi_tg2 = array( 0, dim=c(length(years_all),settings$n_g2) )
     map$phi_tg2 = array( seq_len(prod(dim(p$phi_tg2))), dim=dim(p$phi_tg2))
     if(any(grepl("phi_", sem_settings$proc_vars))) {
       map$phi_tg2[,-as.integer(na.omit(match(gsub("phi_", "", sem_settings$proc_vars), settings$unique_stanza_groups)))] <- NA
@@ -478,7 +559,7 @@ function( taxa,
   } else {
     
     if( control$process_error == "epsilon" ){
-      p$epsilon_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+      p$epsilon_ti = array( 0, dim=c(length(years_all),n_species) )
       map$epsilon_ti = array( seq_len(prod(dim(p$epsilon_ti))), dim=dim(p$epsilon_ti))
       for(i in seq_len(n_species)){
         if( is.na(p$logtau_i[i]) ){
@@ -488,7 +569,7 @@ function( taxa,
       }
       map$epsilon_ti = factor(map$epsilon_ti)
     }else{
-      p$alpha_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+      p$alpha_ti = array( 0, dim=c(length(years_all),n_species) )
       map$alpha_ti = array( seq_len(prod(dim(p$alpha_ti))), dim=dim(p$alpha_ti))
       for(i in seq_len(n_species)){
         if( is.na(p$logtau_i[i]) ){
@@ -499,7 +580,7 @@ function( taxa,
       map$alpha_ti = factor(map$alpha_ti)
     }
     # Variation in consumption
-    p$nu_ti = array( 0, dim=c(nrow(Bobs_ti),n_species) )
+    p$nu_ti = array( 0, dim=c(length(years_all),n_species) )
     map$nu_ti = array( seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
     map$nu_tij =  factor(rep(NA, length(c(p$nu_tij))))
     for(i in seq_len(n_species)){
@@ -510,7 +591,7 @@ function( taxa,
     }
     map$nu_ti = factor(map$nu_ti)
     # Variation in recruitment
-    p$phi_tg2 = array( 0, dim=c(nrow(Bobs_ti),settings$n_g2) )
+    p$phi_tg2 = array( 0, dim=c(length(years_all),settings$n_g2) )
     map$phi_tg2 = array( seq_len(prod(dim(p$phi_tg2))), dim=dim(p$phi_tg2))
     for(g2 in seq_len(settings$n_g2)){
       if( is.na(p$logpsi_g2[g2]) ){
@@ -523,9 +604,10 @@ function( taxa,
   }
   
   # Set names
-  colnames(p$epsilon_ti) = colnames(p$alpha_ti) = colnames(p$nu_ti) = colnames(p$logF_ti) = taxa
-  colnames(p$phi_tg2) = settings$unique_stanza_groups
-  dimnames(p$nu_tij) <- list(year = years, predator = taxa, prey = taxa)
+  dimnames(p$epsilon_ti) <- dimnames(p$nu_ti) <- list(years_all, taxa)
+  if (control$process_error == "alpha") dimnames(p$alpha_ti) <- list(years_all, taxa)
+  dimnames(p$phi_tg2) <- list(years_all, settings$unique_stanza_groups)
+  dimnames(p$nu_tij) <- list(year = years_all, predator = taxa, prey = taxa)
 
   # Measurement errors
   p$ln_sdB = log(0.1)
@@ -648,7 +730,8 @@ function( taxa,
                                 log_prior = log_prior,
                                 #DC_ij = DC_ij,
                                 stanza_data = stanza_data, 
-                                sem = sem_settings$model),
+                                sem = sem_settings$model, 
+                                future = future),
                     parameters = p,
                     map = map,
                     random = control$random,
@@ -718,12 +801,13 @@ function( taxa,
                 control = control,
                 fit_eps = fit_eps,
                 fit_nu = fit_nu,
-                sem, 
+                sem = sem_settings$model, 
                 settings = settings,
                 log_prior = log_prior,
                 stanza_data = stanza_data,
                 #DC_ij = DC_ij,
                 simulate_random = simulate_random,
+                future = future,
                 simulate_data = TRUE )
   }
 
@@ -815,6 +899,7 @@ function( taxa,
     hessian.fixed = hessian.fixed,
     taxa = taxa,
     years = years,
+    extra_years = future$extra_years,
     type_i = type_i
   )
   out = list(
@@ -892,6 +977,10 @@ function( taxa,
 #'        passed to \code{\link[RTMB]{MakeADFun}}
 #' @param n_steps number of steps used in the ODE solver for biomass dynamics
 #' @param inverse_method whether to use pseudoinverse or standard inverse
+#' @param estimate_mu Either TRUE (estimate all covariate means), FALSE (fix all
+#'        covariate means at zero), or a character vector (estimate a subset of
+#'        covariate means). Applicable if using centered / scaled covariates whose
+#'        means are known a-priori to be zero.
 #'
 #' @return
 #' An S3 object of class "ecostate_control" that specifies detailed model settings,
@@ -920,6 +1009,7 @@ function( nlminb_loops = 1,
           scale_solver = c("joint", "simple"),
           inverse_method = c("Standard", "Penrose_moore"),
           tmbad.sparse_hessian_compress = 1,
+          estimate_mu = TRUE,
           #use_gradient = TRUE,
           start_tau = 0.001 ){
 
@@ -954,6 +1044,7 @@ function( nlminb_loops = 1,
     process_error = process_error,
     tmbad.sparse_hessian_compress = tmbad.sparse_hessian_compress,
     use_gradient = TRUE,
+    estimate_mu = estimate_mu,
     start_tau = start_tau
   ), class = "ecostate_control" )
 }

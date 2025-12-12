@@ -23,8 +23,12 @@ parse_ecostate_sem <- function(sem, covariates, taxa, years, fit_eps, fit_nu, se
   
   if (!is.null(covariates)) {
     
-    if (isFALSE(nrow(covariates) == length(years))) {
-      stop("matrix of SEM covariates must have a row for each year")
+    if (is.null(rownames(covariates))) {
+      stop("matrix of SEM covariates must have rownames corresponding to years")
+    }
+    
+    if (!any(rownames(covariates) %in% as.character(years))) {
+      stop("No rows in covariates correspond to provided years")
     }
     
     if (isFALSE(ncol(covariates) == length(unique(colnames(covariates))))) {
@@ -36,6 +40,7 @@ parse_ecostate_sem <- function(sem, covariates, taxa, years, fit_eps, fit_nu, se
   }
   
   sem <- read_model(sem, times = years, variables = sem_vars, quiet = TRUE)
+  sem_vars <- unique(c(sem$first, sem$second))
   
   if (any(grepl(" ", taxa))) {
     stop("If using SEM, taxa (and stanza) names must not have spaces")
@@ -58,8 +63,18 @@ parse_ecostate_sem <- function(sem, covariates, taxa, years, fit_eps, fit_nu, se
     stop("All two-headed arrows should have lag=0")
   }
   
-  if (!all(c(sem$first, sem$second) %in% sem_vars)) {
+  if (!all(c(sem$first, sem$second) %in% c(proc_vars, colnames(covariates)))) {
     stop("Some variable(s) in `sem` are not in `covariates`, or process errors are not correctly denoted")
+  }
+  
+  # Format covariates matrix
+  if (!is.null(covariates)) {
+    x_vars <- sem_vars[!(sem_vars %in% proc_vars)] 
+    x_out <- array(NA_real_, dim = c(length(years), length(x_vars)), dimnames = list(years, x_vars))
+    for (i in seq_along(x_vars)) {
+      x_out[,x_vars[i]] <- covariates[match(years, rownames(covariates)),x_vars[i]]
+    }
+    covariates <- x_out
   }
   
   # Unique parameters to be estimated
@@ -68,6 +83,6 @@ parse_ecostate_sem <- function(sem, covariates, taxa, years, fit_eps, fit_nu, se
   beta[is.na(beta)] <- sem$start[is.na(sem$start)] <- 0.1
   beta <- setNames(beta, unique(as.character(na.omit(sem$name))))
   
-  return(list(model = sem, beta = beta, proc_vars = proc_vars))
+  return(list(model = sem, beta = beta, proc_vars = proc_vars, covariates = covariates))
   
 }
