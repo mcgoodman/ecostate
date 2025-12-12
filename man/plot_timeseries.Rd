@@ -4,10 +4,10 @@
 \alias{plot_timeseries}
 \title{Plot biomass time series from fitted ecostate model}
 \usage{
-plot_timeseries(fit, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE)
+plot_timeseries(model, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE)
 }
 \arguments{
-\item{fit}{Fitted model object returned by \code{ecostate}}
+\item{model}{Fitted model object returned by \code{ecostate}}
 
 \item{taxa}{Taxon names to plot biomass for. If missing, defaults to all modeled taxa.}
 

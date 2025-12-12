@@ -106,9 +106,9 @@ function( Q_ij,
   return(invisible(p))
 }
 
-#' Plot biomass time series from fitted ecostate model
+#' @title Plot biomass time series from fitted ecostate model
 #'
-#' @param fit Fitted model object returned by `ecostate`
+#' @param model Fitted model object returned by `ecostate`
 #' @param taxa Taxon names to plot biomass for. If missing, defaults to all modeled taxa.
 #' @param observed Plot survey biomass for available taxa? Defaults to TRUE.
 #' @param interval Coverage of plotted confidence bands. Defaults to 0.95 (95%), omitted if FALSE.
@@ -120,24 +120,24 @@ function( Q_ij,
 #'
 #' @return invisibly return \code{ggplot} object for biomass time series
 #' @export
-plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE) {
+plot_timeseries <- function(model, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE) {
   
-  years <- union(fit$internal$years, fit$internal$extra_years)
+  years <- union(model$internal$years, model$internal$extra_years)
   
   if (missing(taxa)) {
-    taxa <- fit$internal$taxa
-  } else if (!all(taxa %in% fit$internal$taxa)) {
-    stop(paste("taxa not in model:", paste(taxa[!(taxa %in% fit$internal$taxa)], collapse = ", ")))
+    taxa <- model$internal$taxa
+  } else if (!all(taxa %in% model$internal$taxa)) {
+    stop(paste("taxa not in model:", paste(taxa[!(taxa %in% model$internal$taxa)], collapse = ", ")))
   }
   
   # Estimated biomass
-  if (is.null(fit$derived$Est$B_ti)) stop("No derived biomass estimates to plot")
-  B_ti <- list(est = fit$derived$Est$B_ti)
+  if (is.null(model$derived$Est$B_ti)) stop("No derived biomass estimates to plot")
+  B_ti <- list(est = model$derived$Est$B_ti)
   
   # Standard error
   if (!isFALSE(interval)) {
-    if (!all(is.na(fit$derived$SE$B_ti))) {
-      B_ti[["se"]] <- fit$derived$SE$B_ti
+    if (!all(is.na(model$derived$SE$B_ti))) {
+      B_ti[["se"]] <- model$derived$SE$B_ti
     } else {
       message("`interval` is ignored when standard errors of derived quantities are missing")
       interval <- FALSE
@@ -145,22 +145,22 @@ plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj =
   }
   
   # Observed (survey) biomass
-  if (isTRUE(observed)) B_ti[["observed"]] <- fit$internal$Bobs_ti
+  if (isTRUE(observed)) B_ti[["observed"]] <- model$internal$Bobs_ti
   
   # Estimated biomass, adjusted using catchability
   if (isTRUE(q_adj)) {
-    qmat <- outer(rep(1, length(years)), exp(fit$internal$parhat$logq_i))
+    qmat <- outer(rep(1, length(years)), exp(model$internal$parhat$logq_i))
     qmat[qmat == 1] <- NA
-    B_ti[["est_q"]] = fit$derived$Est$B_ti * qmat
+    B_ti[["est_q"]] = model$derived$Est$B_ti * qmat
   }
   
   # Convert all to long format
   B_ti <- B_ti |> 
     lapply(as.data.frame) |> 
-    lapply(function(x) {colnames(x) <- fit$internal$taxa; x}) |> 
+    lapply(function(x) {colnames(x) <- model$internal$taxa; x}) |> 
     lapply(function(x) {x$year <- years; x}) |>  
-    lapply(reshape, direction = "long", varying = fit$internal$taxa,
-      v.names = "biomass", times = fit$internal$taxa, timevar = "Taxon"
+    lapply(reshape, direction = "long", varying = model$internal$taxa,
+      v.names = "biomass", times = model$internal$taxa, timevar = "Taxon"
     ) 
   
   # Join data frames
@@ -207,6 +207,130 @@ plot_timeseries <- function(fit, taxa, observed = TRUE, interval = 0.95, q_adj =
   
   # Set colors
   p <- p + ggplot2::scale_color_manual(values = colors)
+  
+  print(p)
+  return(invisible(p))
+  
+}
+
+
+#' @title Plot fits to age composition data
+#'
+#' @param model Fitted model returned by `ecostate`
+#' @param stgroup Stanza group to plot age composition fits for. Must be length 1.
+#'        Defaults to the first stanza group in \code{settings$unique_stanza_groups}.
+#' @param years Years to plot. Defaults to all years with age composition data
+#' @param track_cohorts Whether to color observed agecomp data by cohort. Defaults to TRUE
+#' @param cutoff Minimum proportion for plotting an age bin. Specifying a cutoff may 
+#'        reduce the number of cohorts and make cohort colors easier to discern.
+#'
+#' @importFrom stats reshape
+#' @importFrom ggplot2 ggplot aes .data
+#'
+#' @returns A ggplot object
+#' @export
+plot_agecomp <- function(model, stgroup, years, track_cohorts = TRUE, cutoff = 0) {
+  
+  if (missing(stgroup)) stgroup <- model$internal$settings$unique_stanza_groups[1]
+  
+  obs <- model$internal$Nobs_ta_g2[[stgroup]]
+  if (is.null(obs)) stop("No age composition data available for this stanza group")
+  if (missing(years)) years <- as.integer(rownames(obs))
+  
+  # Convert to proportions
+  est <- t(apply(model$rep$Nexp_ta_g2[[stgroup]], 1, function(x) x/sum(x, na.rm = TRUE)))
+  est <- as.data.frame(est)
+  est$year <- as.integer(rownames(est))
+  
+  est <- reshape(
+    est, direction = "long", 
+    varying = colnames(est)[colnames(est) != "year"], 
+    v.names = "estimated", timevar = "age", idvar = "year"
+  )
+  
+  # Convert to proportions
+  obs <- t(apply(obs, 1, function(x) x/sum(x, na.rm = TRUE)))
+  
+  obs <- as.data.frame(obs)
+  obs$year <- as.integer(rownames(obs))
+  
+  obs <- reshape(
+    obs, direction = "long",
+    varying = colnames(obs)[colnames(obs) != "year"], 
+    v.names = "observed", timevar = "age", idvar = "year"
+  )
+  
+  acomp <- merge(est, obs, by = c("year", "age"))
+  
+  # Track cohorts
+  if (isTRUE(track_cohorts)) {
+    
+    cohorts <- outer(
+      seq_len(nrow(model$rep$Nexp_ta_g2[[stgroup]])), 
+      seq_len(ncol(model$rep$Nexp_ta_g2[[stgroup]])), 
+      FUN = "-"
+    )
+    
+    cohorts[] <- as.integer(as.factor(cohorts[]))
+    
+    dimnames(cohorts) <- dimnames(model$rep$Nexp_ta_g2[[stgroup]])
+    
+    cohorts <- as.data.frame(cohorts)
+    cohorts$year <- as.integer(rownames(cohorts))
+    
+    cohorts <- reshape(
+      cohorts, direction = "long",
+      varying = colnames(cohorts)[colnames(cohorts) != "year"], 
+      v.names = "cohort", timevar = "age", idvar = "year"
+    )
+    
+    acomp <- merge(acomp, cohorts, by = c("year", "age"))
+    
+  }
+  
+  acomp <- acomp[acomp$year %in% years,]
+  
+  acomp$observed[acomp$observed < cutoff] <- NA
+  
+  p <- acomp |> ggplot2::ggplot(ggplot2::aes(.data$age, .data$observed))
+  
+  if (isTRUE(track_cohorts)) {
+    
+    # Copy of viridis::turbo palette to reduce dependencies
+    pal <- grDevices::colorRampPalette(c(
+      "#30123BFF", "#4454C4FF", "#4490FEFF", "#1FC8DEFF", "#29EFA2FF", "#7DFF56FF", 
+      "#C1F334FF", "#F1CA3AFF", "#FE922AFF", "#EA4F0DFF", "#BE2102FF", "#7A0403FF"
+     ))
+    
+    colors <- pal(length(unique(acomp$cohort)))
+    
+    colors_dark <- vapply(
+      colors, \(x) grDevices::colorRampPalette(c(x, "black"))(5)[3], 
+      character(1), USE.NAMES = FALSE
+    )
+    
+    p <- p + 
+      ggplot2::geom_bar(
+        ggplot2::aes(fill = factor(.data$cohort), color = factor(.data$cohort)), 
+        stat = "identity", show.legend = FALSE, na.rm = TRUE, width = 1
+      ) + 
+      ggplot2::scale_fill_manual(values = colors) + 
+      ggplot2::scale_color_manual(values = colors_dark)
+    
+  } else {
+    
+    p <- p + ggplot2::geom_bar(
+      stat = "identity", show.legend = FALSE, width = 1, 
+      na.rm = TRUE, fill = "grey40", color = "grey20"
+    )
+    
+  }
+  
+  p <- p + 
+    ggplot2::geom_line(ggplot2::aes(y = .data$estimated)) +
+    ggplot2::geom_point(ggplot2::aes(y = .data$estimated)) + 
+    ggplot2::facet_wrap(~.data$year, dir = "v") + 
+    ggplot2::ylab("proportion")
   
   print(p)
   return(invisible(p))
