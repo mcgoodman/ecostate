@@ -198,6 +198,7 @@ function( taxa,
   } else {
     
     sem_settings <- list(model = sem)
+    covariates <- array(dim = c(length(years), 0), dimnames = list(years, NULL))
     
   }
   
@@ -224,6 +225,16 @@ function( taxa,
     )
     
     future$Frate[is.na(future$Frate)] <- 0
+    
+    if (any(catch$Year %in% future$extra_years)) {
+      message("ignoring catches in projection period")
+      catch <- catch[catch$Year %in% years, ]
+    }
+    
+    if (any(biomass$Year %in% future$extra_years)) {
+      message("ignoring observed biomass in projection period")
+      biomass <- biomass[biomass$Year %in% years, ]
+    }
       
   } else {
     
@@ -401,8 +412,8 @@ function( taxa,
             nu_tij = array(0, dim = c(length(years_all), n_species, n_species)),
             phi_tg2 = array( 0, dim=c(0,settings$n_g2) ),
             beta = if (use_sem && length(sem_settings$beta) > 0) sem_settings$beta else numeric(0),
-            mu = if (!is.null(covariates)) setNames(rep(0, ncol(covariates)), colnames(covariates)) else numeric(0),
-            covariates = numeric(0),
+            mu = if (ncol(covariates)) setNames(rep(0, ncol(covariates)), colnames(covariates)) else numeric(0),
+            covariates = covariates,
             logF_ti = array( log(0.01), dim=c(length(years_all),n_species) ),
             logq_i = setNames(rep( log(1), n_species), taxa),
             s50_z = setNames(rep(1, n_selex), names(Nobs_ta_g2)),
@@ -436,7 +447,7 @@ function( taxa,
   # Process error SDs
   if (use_sem) {
     
-    if(!is.null(covariates)) {
+    if(ncol(covariates)) {
       if (isFALSE(control$estimate_mu)) {
         map$mu = factor(rep(NA, length(p$mu)))
       } else if (!isTRUE(control$estimate_mu)) {
@@ -486,8 +497,8 @@ function( taxa,
     # Expand covariates matrix
     covariates <- rbind(
       covariates, 
-      matrix(NA, nrow = length(future$extra_years), ncol = ncol(sem_settings$covariates), 
-             dimnames = list(future$extra_years, colnames(sem_settings$covariates)))
+      matrix(NA, nrow = length(future$extra_years), ncol = ncol(covariates), 
+             dimnames = list(future$extra_years, colnames(covariates)))
     )
     
     # Add in fixed future covariates
@@ -551,7 +562,7 @@ function( taxa,
     
     # Covariates
     # Treat as fixed unless there are NAs, in which case, estimate missing values
-    if (!is.null(covariates)) {
+    if (ncol(covariates)) {
       p$covariates <- as.matrix(covariates)
       p$covariates[is.na(p$covariates)] <- 0
       map$covariates <- factor(c(ifelse(!is.na(covariates), NA, seq_along(covariates))))
