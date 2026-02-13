@@ -114,7 +114,7 @@ function( p,
   TL_ti = dBdt0_ti = M_ti = m_ti = G_ti = g_ti = M2_ti = m2_ti = Bmean_ti = Chat_ti = B_ti = Bhat_ti = matrix( NA, ncol=n_species, nrow = length(years_all) )
   loglik1_ti = loglik2_ti = loglik3_ti = loglik4_ti = matrix( 0, ncol = n_species, nrow = length(years_all) )  # Missing = 0
   loglik5_tg2 = loglik6_tg2 = loglik7_tg2 = matrix( 0, nrow=nrow(Bobs_ti), ncol=length(settings$unique_stanza_groups) )
-  loglik8_sem = loglik9_fut = 0
+  loglik8_sem = loglik9_fut = dev_penalty = 0
   Q_tij = array( NA, dim=c(length(years_all),n_species,n_species) )
   Nexp_ta_g2 = Nobs_ta_g2
   Wexp_ta_g2 = Wobs_ta_g2
@@ -199,6 +199,8 @@ function( p,
     # Evaluate GMRF likelihood excluding projection years
     loglik8_sem <- dgmrf(Xvec, mu = rep(0, length(Xvec)), Q = Q, log = TRUE)
     
+    if (isTRUE(control$dev_penalty)) dev_penalty <- dev_penalty + sum(apply(Xit[as.character(years),], 2, sum)^2)
+    
     # Derive future expected process errors
     if (use_prjn) {
       
@@ -268,6 +270,14 @@ function( p,
       }
     }
   } else {
+    
+    if (isTRUE(control$dev_penalty)) {
+      dev_penalty <- dev_penalty + 
+        sum(apply(epsilon_ti[as.character(years),], 2, sum)^2) + 
+        sum(apply(p$nu_ti[as.character(years),], 2, sum)^2) + 
+        sum(apply(p$phi_tg2[as.character(years),], 2, sum)^2)
+    }
+    
     for( i in seq_len(n_species) ){
       for( t in seq_len(nrow(Bobs_ti)) ){
         if( (taxa %in% fit_eps)[i] ){
@@ -538,7 +548,8 @@ function( p,
   log_prior_value = evaluate_prior(log_prior, p)
 
   # Remove NAs to deal with missing values in Bobs_ti and Cobs_ti
-  jnll = jnll - ( sum(loglik1_ti) + sum(loglik2_ti) + sum(loglik3_ti) + sum(loglik4_ti) + sum(loglik5_tg2,na.rm=TRUE) + sum(loglik6_tg2) + sum(loglik7_tg2) + loglik8_sem + loglik9_fut + sum(log_prior_value,na.rm=TRUE) )
+  jnll = jnll - ( sum(loglik1_ti) + sum(loglik2_ti) + sum(loglik3_ti) + sum(loglik4_ti) + sum(loglik5_tg2,na.rm=TRUE) + sum(loglik6_tg2) + sum(loglik7_tg2) + 
+                    loglik8_sem + loglik9_fut + sum(log_prior_value,na.rm=TRUE)) + dev_penalty
   
   ###############
   # Derived
@@ -644,6 +655,7 @@ function( p,
   REPORT( loglik8_sem )
   REPORT( loglik9_fut )
   REPORT( log_prior_value )
+  REPORT( dev_penalty )
   REPORT( jnll )
   REPORT( TL_ti )
   REPORT( Y_tzz_g2 )

@@ -993,6 +993,13 @@ function( taxa,
 #'        covariate means at zero), or a character vector (estimate a subset of
 #'        covariate means). Applicable if using centered / scaled covariates whose
 #'        means are known a-priori to be zero.
+#' @param dev_penalty If TRUE, the squared sum of each process error vector is added
+#'        to likelihood to penalize process errors with non-zero means, mimicking recdev
+#'        option 4 in Stock Synthesis. Applies only to the main model period; errors for
+#'        extra years supplied via the `future` argument are excluded. An equivalent penalty
+#'        can be added to specific error vectors by supplying `log_prior` with a function, where
+#'        e.g. `p <- p + sum(epsilon_ti[,"cod"])^2` would penalize biomass deviates for a single 
+#'        species named "cod"
 #'
 #' @return
 #' An S3 object of class "ecostate_control" that specifies detailed model settings,
@@ -1022,8 +1029,10 @@ function( nlminb_loops = 1,
           inverse_method = c("Standard", "Penrose_moore"),
           tmbad.sparse_hessian_compress = 1,
           estimate_mu = TRUE,
+          dev_penalty = FALSE,
           #use_gradient = TRUE,
-          start_tau = 0.001 ){
+          start_tau = 0.001
+          ){
 
   #
   integration_method = match.arg(integration_method)
@@ -1057,6 +1066,7 @@ function( nlminb_loops = 1,
     tmbad.sparse_hessian_compress = tmbad.sparse_hessian_compress,
     use_gradient = TRUE,
     estimate_mu = estimate_mu,
+    dev_penalty = dev_penalty,
     start_tau = start_tau
   ), class = "ecostate_control" )
 }
