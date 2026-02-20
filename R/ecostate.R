@@ -998,8 +998,8 @@ function( taxa,
 #'        option 4 in Stock Synthesis. Applies only to the main model period; errors for
 #'        extra years supplied via the `future` argument are excluded. An equivalent penalty
 #'        can be added to specific error vectors by supplying `log_prior` with a function, where
-#'        e.g. `p <- p + sum(epsilon_ti[,"cod"])^2` would penalize biomass deviates for a single 
-#'        species named "cod"
+#'        e.g. `function(p) { logp <- logp - sum(p$epsilon_ti[,"cod"])^2 }` would penalize 
+#'        biomass deviates for a single species named "cod"
 #'
 #' @return
 #' An S3 object of class "ecostate_control" that specifies detailed model settings,

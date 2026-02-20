@@ -115,8 +115,8 @@ to likelihood to penalize process errors with non-zero means, mimicking recdev
 option 4 in Stock Synthesis. Applies only to the main model period; errors for
 extra years supplied via the \code{future} argument are excluded. An equivalent penalty
 can be added to specific error vectors by supplying \code{log_prior} with a function, where
-e.g. \code{p <- p + sum(epsilon_ti[,"cod"])^2} would penalize biomass deviates for a single
-species named "cod"}
+e.g. \code{function(p) { logp <- logp - sum(p$epsilon_ti[,"cod"])^2 }} would penalize
+biomass deviates for a single species named "cod"}
 
 \item{start_tau}{Starting value for the standard deviation of process errors}
 }
