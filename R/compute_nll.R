@@ -199,7 +199,7 @@ function( p,
     # Evaluate GMRF likelihood excluding projection years
     loglik8_sem <- dgmrf(Xvec, mu = rep(0, length(Xvec)), Q = Q, log = TRUE)
     
-    if (isTRUE(control$dev_penalty)) dev_penalty <- dev_penalty + sum(apply(Xit[as.character(years),], 2, sum)^2)
+    if (isTRUE(control$dev_penalty)) dev_penalty <- dev_penalty + sum(apply(Xit[as.character(years), , drop = FALSE], 2, sum)^2)
     
     # Derive future expected process errors
     if (use_prjn) {
@@ -662,6 +662,7 @@ function( p,
   REPORT( stanza_data )
   REPORT( Nexp_ta_g2 )
   REPORT( Wexp_ta_g2 )
+  if (use_sem) REPORT( Xit )
 
   if( settings$n_g2 >0 ){
     R0_g2 = p$baseR0_g2
