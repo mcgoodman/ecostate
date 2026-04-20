@@ -18,7 +18,10 @@
 #' @param yloc y-axis location (overrides calculation using \code{ytracer_i})
 #' @param rescale whether to rescale flow and biomass as ratio relative to lowest value
 #'        such that values are relative rather than absolute units
+#' @param ... additional arguments to \code{ggnetwork::ggnetwork()}
 #'
+#' @importFrom ggplot2 .data
+#' 
 #' @details
 #' Trophic level \eqn{l_i} for each predator \eqn{i} is defined as:
 #'
@@ -31,6 +34,39 @@
 #' @return
 #' invisibly return \code{ggplot} object for foodweb
 #'
+#' @examples
+#' \dontrun{
+#' # Load data
+#' data(eastern_bering_sea)
+#' 
+#' # Simple model estimating only Pollock biomass
+#' model <- with(eastern_bering_sea, ecostate(
+#'   taxa = taxa, 
+#'   years = years, 
+#'   catch = Catch, 
+#'   biomass = Survey, 
+#'   type = type_i, 
+#'   fit_B = "Pollock",
+#'   B = B_i, 
+#'   PB = P_over_B, 
+#'   QB = Q_over_B,
+#'   EE = EE_i, 
+#'   DC = Diet_proportions,
+#'   U = U_i, 
+#'   X = X_ij
+#' ))
+#' 
+#' # Plot using consumption at equilibrium Qe_ij
+#' # X-axis is proportion of production from Krill (pelagic production)
+#' plot_foodweb(
+#'   model$rep$out_initial$Qe_ij, 
+#'   xtracer_i = ifelse(eastern_bering_sea$taxa == "Krill", 1, 0), 
+#'   B_i = model$rep$out_initial$B_i, 
+#'   type_i = eastern_bering_sea$type_i,
+#'   taxa_labels = eastern_bering_sea$taxa
+#' )
+#' }
+#'
 #' @export
 plot_foodweb <-
 function( Q_ij,
@@ -41,7 +77,8 @@ function( Q_ij,
           taxa_labels = letters[seq_len(nrow(Q_ij))],
           xloc,
           yloc,
-          rescale = TRUE ){
+          rescale = TRUE,
+          ... ){
 
   #
   if(missing(yloc)){
@@ -81,7 +118,8 @@ function( Q_ij,
 
   g = ggnetwork::ggnetwork( x = graph, 
                  layout = layout,
-                 scale = FALSE )
+                 scale = FALSE, 
+                ...)
   #g = ggnetwork::ggnetwork( Q_ij, 
   #                          layout = layout,
   #                          weighted = TRUE )
@@ -96,12 +134,10 @@ function( Q_ij,
   g$mass[which(is.na(g$flow))] = B_i
   if(rescale==TRUE) g$mass = g$mass / min(g$mass,na.rm=TRUE)
 
-  # https://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
-  x = y = xend = yend = name = flow = mass = NULL
-  p = ggplot2::ggplot(g, ggplot2::aes(x=x, y=y, xend=xend, yend=yend) ) +
-    ggnetwork::geom_edges( ggplot2::aes(colour=log(flow)) ) +  #
-    ggnetwork::geom_nodes( ggplot2::aes(size=log(mass) ) ) +  #
-    ggnetwork::geom_nodetext( ggplot2::aes(label=name), fontface="bold", col="red")  #
+  p = ggplot2::ggplot(g, ggplot2::aes(x=.data$x, y=.data$y, xend=.data$xend, yend=.data$yend) ) +
+    ggnetwork::geom_edges( ggplot2::aes(colour=log(.data$flow)) ) +  #
+    ggnetwork::geom_nodes( ggplot2::aes(size=log(.data$mass) ) ) +  #
+    ggnetwork::geom_nodetext( ggplot2::aes(label=.data$name), fontface="bold", col="red")  #
   print(p)
   return(invisible(p))
 }

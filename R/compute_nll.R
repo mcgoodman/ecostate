@@ -20,7 +20,8 @@
 #'        objective function, as used in the ecostate simulator routine
 #' @param simulate_random Whether to simulate new values of random effects.
 #'        Only applies when \code{simulate_data==TRUE}
-#'
+#' 
+#' @importFrom RTMB REPORT ADREPORT
 #'
 #' @details
 #' Given a list of parameters, calculates the joint negative log-likelihood,
@@ -60,8 +61,8 @@ function( p,
           simulate_random = FALSE ) {
   
   # Necessary in packages
-  "c" <- ADoverload("c")
-  "[<-" <- ADoverload("[<-")
+  "c" <- RTMB::ADoverload("c")
+  "[<-" <- RTMB::ADoverload("[<-")
 
   n_steps = control$n_steps
   F_type = control$F_type
@@ -197,7 +198,7 @@ function( p,
     Xvec <- c(Xit[as.character(years),])
     
     # Evaluate GMRF likelihood excluding projection years
-    loglik8_sem <- dgmrf(Xvec, mu = rep(0, length(Xvec)), Q = Q, log = TRUE)
+    loglik8_sem <- RTMB::dgmrf(Xvec, mu = rep(0, length(Xvec)), Q = Q, log = TRUE)
     
     if (isTRUE(control$dev_penalty)) dev_penalty <- dev_penalty + sum(apply(Xit[as.character(years), , drop = FALSE], 2, sum)^2)
     
@@ -235,7 +236,7 @@ function( p,
       }
       
       # Evaluate log-density of future non-fixed values around their means
-      loglik9_fut <- dgmrf(c(Xit[-X_fixed]), mu = c(Xit_cond[-X_fixed]), Q = GMRF_prjn$Q_uu, log = TRUE)
+      loglik9_fut <- RTMB::dgmrf(c(Xit[-X_fixed]), mu = c(Xit_cond[-X_fixed]), Q = GMRF_prjn$Q_uu, log = TRUE)
       
     }
     
@@ -472,7 +473,7 @@ function( p,
     g2 = match( names(Nobs_ta_g2)[index], settings$unique_stanza_groups )
     Xg2_zz = stanza_data$X_zz_g2[[g2]]
     Yg2_tzz = Y_tzz_g2[[g2]]
-    selex_a = plogis( (Xg2_zz[,'AGE'] - p$s50_z[index])/p$srate_z[index] )
+    selex_a = RTMB::plogis( (Xg2_zz[,'AGE'] - p$s50_z[index])/p$srate_z[index] )
     for( index2 in seq_len(nrow(Nobs_ta_g2[[index]])) ){
       t = match( rownames(Nobs_ta_g2[[index]])[index2], years )
       # Comps are average-year abundance (smears cohorts across adjacent years)

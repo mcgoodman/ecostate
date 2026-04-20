@@ -173,8 +173,8 @@ function( taxa,
   # importFrom Matrix Matrix Diagonal sparseMatrix
   
   # Necessary in packages
-  "c" <- ADoverload("c")
-  "[<-" <- ADoverload("[<-")
+  "c" <- RTMB::ADoverload("c")
+  "[<-" <- RTMB::ADoverload("[<-")
 
   #
   start_time = Sys.time()
@@ -274,6 +274,11 @@ function( taxa,
   
   type_i = type[taxa]
   
+  # Indicators 
+  which_primary = which( type_i=="auto" )
+  which_detritus = which( type_i=="detritus" )
+  which_multigroup = match( settings$multigroup_taxa, settings$taxa )
+
   # Deal with V
   if(missing(X)){
     X_ij = array(2, dim=c(n_species,n_species), dimnames=list(taxa,taxa))
@@ -292,10 +297,6 @@ function( taxa,
   assertDouble( U_i, len=n_species, any.missing=FALSE, upper=1 )      # GE = 1-U-A and A>=0 so GE <= 1-U so GE+U <= 1
 
   #noB_i = rep(0,n_species)
-  # Indicators 
-  which_primary = which( type_i=="auto" )
-  which_detritus = which( type_i=="detritus" )
-  which_multigroup = match( settings$multigroup_taxa, settings$taxa )
   noB_i = ifelse( is.na(logB_i), 1, 0 )
   noB_i[which_multigroup] = 0
 
@@ -424,7 +425,7 @@ function( taxa,
             ln_sdW_z = setNames(rep(0, n_weight), names(Wobs_ta_g2)),
             SpawnX_g2 = stanza_data$stanzainfo_g2z[,'SpawnX'],
             log_K_g2 = log(stanza_data$stanzainfo_g2z[,'K']),
-            logit_d_g2 = qlogis(stanza_data$stanzainfo_g2z[,'d']),
+            logit_d_g2 = RTMB::qlogis(stanza_data$stanzainfo_g2z[,'d']),
             Wmat_g2 = stanza_data$stanzainfo_g2z[,'Wmat']
   )      # , PB_i=PB_i
   
@@ -724,7 +725,7 @@ function( taxa,
   #cmb <- function(f, d) function(p) f(p, d) ## Helper to make closure
   cmb <- function(f, ...) function(p) f(p, ...) ## Helper to make closure
   
-  obj <- MakeADFun( func = cmb( compute_nll,
+  obj <- RTMB::MakeADFun( func = cmb( compute_nll,
                                 Bobs_ti = Bobs_ti,
                                 Cobs_ti = Cobs_ti,
                                 Nobs_ta_g2 = Nobs_ta_g2,
@@ -835,7 +836,7 @@ function( taxa,
     #                  fn = obj$fn, 
     #                  gr = obj$gr )
     hessian.fixed = get_hessian(obj=obj, par=opt$par)
-    sdrep = sdreport( obj,
+    sdrep = RTMB::sdreport( obj,
                       par.fixed = opt$par,
                       hessian.fixed = hessian.fixed,
                       getJointPrecision = control$getJointPrecision )
