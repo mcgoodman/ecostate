@@ -606,6 +606,7 @@ function( p,
   #REPORT( W_ta_g2 )
 
   # Allow for ADREPORT
+  EE_i <- out_initial$EE_i
   Wmat_g2 = p$Wmat_g2
   X_ij = 1 + exp(p$Xprime_ij)
   REPORT( Wmat_g2 )
