@@ -228,15 +228,37 @@ function( p,
         what = "predict"
       )
       
-      Xit_cond[-X_fixed] <- GMRF_prjn$mean
+      # Cholesky decomposition of conditional precision matrix to simulate deviations with realization uncertainty
+      U_uu <- chol(as.matrix(GMRF_prjn$Q_uu))
+      dev_fut <- solve(U_uu, p$z_fut)
       
-      # Add back in estimated covariate means
+      # Derived future process error values (conditional mean + deviation)
+      Xit_cond[-X_fixed] <- GMRF_prjn$mean + dev_fut
+      Xit[-X_fixed] <- GMRF_prjn$mean + dev_fut
+      
+      # Add back in estimated covariate means for covariates matrix reporting
       if (!is.null(dim(p$covariates))) {
-        Xit_cond[as.character(extra_years),colnames(p$covariates)] <- sweep(Xit_cond[as.character(extra_years),colnames(p$covariates), drop = FALSE], 2, p_t$mu, FUN = "+")
+        Xit_cond[as.character(extra_years), colnames(p$covariates)] <- sweep(Xit_cond[as.character(extra_years), colnames(p$covariates), drop = FALSE], 2, p_t$mu, FUN = "+")
       }
       
-      # Evaluate log-density of future non-fixed values around their means
-      loglik9_fut <- RTMB::dgmrf(c(Xit[-X_fixed]), mu = c(Xit_cond[-X_fixed]), Q = GMRF_prjn$Q_uu, log = TRUE)
+      # Evaluate log-density of the standard normal innovations z_fut
+      loglik9_fut <- sum(dnorm(p$z_fut, 0, 1, log = TRUE))
+      
+      # Copy derived future values back to epsilon_ti, p$nu_ti, p$nu_tij, p$phi_tg2
+      for (i in seq_len(ncol(Xit))) {
+        if (gsub("eps_", "", colnames(Xit)[i]) %in% taxa) {
+          epsilon_ti[, which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))] <- Xit[,i]
+        } else if (grepl("nu_", colnames(Xit)[i])) {
+          if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
+            p$nu_ti[, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit[,i]
+          } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
+            pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
+            p$nu_tij[, pred_prey[1], pred_prey[2]] <- Xit[,i]
+          } 
+        } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
+          p$phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit[,i]
+        }
+      }
       
     }
     

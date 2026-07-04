@@ -230,3 +230,42 @@ test_that(
     
   }
 )
+
+test_that(
+  "SEM works with future projections and derived process errors", {
+    
+    sem <- "
+      cold_pool -> eps_Pollock, 1, beta_cp_plk, 1,
+      eps_Pollock <-> eps_Pollock, 0, tau_plk, 1
+    "
+    
+    # Future projection setup
+    extra_years <- 2023:2025
+    fut_cov <- matrix(0.5, nrow = 3, ncol = 1, dimnames = list(extra_years, "cold_pool"))
+    
+    # Run ecostate with future projection
+    dgmrf_proj <- ecostate(
+      taxa = taxa, years = years, catch = ebs$Catch, biomass = ebs$Survey, 
+      PB = ebs$P_over_B, QB = ebs$Q_over_B, B = B, DC = ebs$Diet_proportions, 
+      EE = EE, X = X, type = type, U = U, fit_B0 = "Pollock",
+      control = ecostate_control(nlminb_loops = 0, getsd = TRUE), 
+      sem = sem, covariates = covariates,
+      future = list(extra_years = extra_years, Frate = matrix(0, nrow = 3, ncol = length(taxa), dimnames = list(extra_years, taxa)), covariates = fut_cov)
+    )
+    
+    # 1. Verify that z_fut is present in the parameter list and mapped correctly
+    expect_true("z_fut" %in% names(dgmrf_proj$tmb_inputs$p))
+    expect_equal(length(dgmrf_proj$tmb_inputs$p$z_fut), 2) # 2 actual projection years (2024, 2025), eps_Pollock is only variable, so 2 elements
+    expect_equal(dgmrf_proj$tmb_inputs$map$z_fut, factor(1:2))
+    
+    # 2. Verify that future process error parameters are mapped to NA (derived quantities)
+    map_matrix <- array(dgmrf_proj$tmb_inputs$map$epsilon_ti, dim = dim(dgmrf_proj$tmb_inputs$p$epsilon_ti), dimnames = dimnames(dgmrf_proj$tmb_inputs$p$epsilon_ti))
+    actual_extra <- setdiff(extra_years, years)
+    expect_true(all(is.na(map_matrix[as.character(actual_extra), "Pollock"])))
+    
+    # 3. Verify that the Hessian/uncertainty on derived quantities can be calculated and we get non-zero standard errors
+    expect_true("sdrep" %in% names(dgmrf_proj))
+    expect_false(any(is.na(dgmrf_proj$sdrep$sd)))
+    
+  }
+)

@@ -519,6 +519,8 @@ function( taxa,
   # Process errors
   if (use_sem) {
     
+    which_extra <- which(years_all %in% future$extra_years)
+    
     # Variation in biomass
     p$epsilon_ti = array(0, dim=c(length(years_all), n_species) )
     map$epsilon_ti = array(seq_len(prod(dim(p$epsilon_ti))), dim=dim(p$epsilon_ti))
@@ -526,6 +528,9 @@ function( taxa,
       map$epsilon_ti[,-as.integer(na.omit(match(gsub("eps_", "", sem_settings$proc_vars), taxa)))] <- NA
     } else {
       map$epsilon_ti[,] <- NA
+    }
+    if (length(which_extra) > 0) {
+      map$epsilon_ti[which_extra, ] <- NA
     }
     map$epsilon_ti = factor(map$epsilon_ti)
     
@@ -536,6 +541,9 @@ function( taxa,
       map$nu_ti[,-as.integer(na.omit(match(gsub("nu_", "", sem_settings$proc_vars), taxa)))] <- NA
     } else {
       map$nu_ti[,] <- NA
+    }
+    if (length(which_extra) > 0) {
+      map$nu_ti[which_extra, ] <- NA
     }
     map$nu_ti = factor(map$nu_ti)
     
@@ -549,6 +557,9 @@ function( taxa,
         map$nu_tij[, which_pred[i], which_prey[i]] <- array(seq_len(prod(dim(p$nu_tij))), dim = dim(p$nu_tij))[, which_pred[i], which_prey[i]]
       }
     }
+    if (length(which_extra) > 0) {
+      map$nu_tij[which_extra, , ] <- NA
+    }
     map$nu_tij = factor(map$nu_tij)
     
     # Variation in recruitment
@@ -558,6 +569,9 @@ function( taxa,
       map$phi_tg2[,-as.integer(na.omit(match(gsub("phi_", "", sem_settings$proc_vars), settings$unique_stanza_groups)))] <- NA
     } else {
       map$phi_tg2[,] <- NA
+    }
+    if (length(which_extra) > 0) {
+      map$phi_tg2[which_extra, ] <- NA
     }
     map$phi_tg2 = factor(map$phi_tg2)
     
@@ -631,6 +645,38 @@ function( taxa,
   # Fix biomass for primary producers .... seems to be stiff if trying to fix more than one variable
   map$logB_i = factor( ifelse(taxa %in% fit_B, seq_len(n_species), NA) )
   map$EE_i = factor( ifelse(taxa %in% fit_EE, seq_len(n_species), NA) )
+  
+  # Set z_fut parameter for derived future process errors (DSEM)
+  n_z_fut <- 0
+  if (use_sem && length(future$extra_years) > 0) {
+    variables <- unique(c(sem_settings$model$first, sem_settings$model$second))
+    Xit_cond <- matrix(NA, nrow = length(years_all), ncol = length(variables), 
+                       dimnames = list(years_all, variables))
+    Xit_cond[as.character(future$extra_years), ] <- NA
+    if (!is.null(future$covariates) && ncol(future$covariates) > 0) {
+      common_cols <- intersect(colnames(future$covariates), colnames(Xit_cond))
+      for (col in common_cols) {
+        non_na_years <- rownames(future$covariates)[!is.na(future$covariates[, col])]
+        non_na_years <- intersect(non_na_years, as.character(future$extra_years))
+        if (length(non_na_years) > 0) {
+          Xit_cond[non_na_years, col] <- 0
+        }
+      }
+    }
+    n_z_fut <- sum(is.na(Xit_cond[as.character(future$extra_years), , drop=FALSE]))
+  }
+  
+  p$z_fut <- rep(0, n_z_fut)
+  if (n_z_fut > 0) {
+    map$z_fut <- factor(seq_len(n_z_fut))
+  } else {
+    map$z_fut <- factor(numeric(0))
+  }
+
+  # If using marginal likelihood and projecting using DSEM, treat z_fut as random
+  if (n_z_fut > 0 && !all(is.na(map$z_fut)) && length(control$random) > 0) {
+    control$random <- union(control$random, "z_fut")
+  }
   
   # User-supplied parameters
   if( !is.null(control$tmb_par) ){
@@ -1140,12 +1186,19 @@ function( x,
 #'
 #' @export
 logLik.ecostate <- function(object, ...) {
-  val = -1 * object$opt$objective
+
+  val = -1 * object$opt$objective 
   df = length( object$opt$par )
+
+  # Exclude future projection in log likelihood
+  val = val - object$rep$loglik9_fut
+  df <- df - sum(names(object$opt$par) == "z_fut")  
+
   out = structure( val,
              df = df,
              class = "logLik")
   return(out)
+
 }
 
 #' @title Print fitted ecostate object
