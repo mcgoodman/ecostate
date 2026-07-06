@@ -75,12 +75,35 @@ function( p,
   extra_years <- future$extra_years
   years_all <- union(years, extra_years)
   
-  # Extract epsilon_ti (local copy be modified later)
+  # Extract process errors - creates copies that can be modified without retaping
   epsilon_ti = p$epsilon_ti
   if(control$process_error=="alpha"){
     epsilon_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )
   }
+  phi_tg2 = p$phi_tg2
+  nu_ti = p$nu_ti
+  nu_tij = p$nu_tij
   
+  # Expand out process error blocks if projecting using DSEM
+  use_sem <- class(sem) == "data.frame"
+  if (use_sem & use_prjn) {
+
+    epsilon_ti <- rbind(epsilon_ti, 
+      matrix( 0, length(extra_years), ncol(epsilon_ti), dimnames = list(extra_years, colnames(epsilon_ti)))
+    )
+
+    phi_tg2 <- rbind(phi_tg2, 
+      matrix( 0, length(extra_years), ncol(phi_tg2), dimnames = list(extra_years, colnames(phi_tg2)))
+    )
+
+    nu_ti <- rbind(nu_ti, 
+      matrix( 0, length(extra_years), ncol(nu_ti), dimnames = list(extra_years, colnames(nu_ti)))
+    )
+
+    nu_tij <- array(0, dim = c(length(years_all), dim(nu_tij)[2:3]), dimnames = c(list(year = years_all), dimnames(nu_tij)[2:3]))
+    nu_tij[as.character(years),,] <- p$nu_tij
+  }
+
   # Compute stanza stuff
   p = add_stanza_params( p,
                    stanza_data = stanza_data,
@@ -158,7 +181,6 @@ function( p,
   #Y_tzz[1,,] = Y_zz
 
   # Hyperdistribution for random effects
-  use_sem <- class(sem) == "data.frame"
   if (use_sem) {
     
     # SEM precision matrix
@@ -172,8 +194,8 @@ function( p,
     
     # Fill in covariate columns, subtract covariate means
     if (!is.null(dim(p$covariates))) {
-      Xit[,colnames(p$covariates)] <- p$covariates
-      Xit[,colnames(p$covariates)] <- sweep(Xit[,colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
+      Xit[as.character(years), colnames(p$covariates)] <- p$covariates
+      Xit[as.character(years), colnames(p$covariates)] <- sweep(Xit[as.character(years), colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
     }
     
     # Pull out epsilon, nu, phi values from epsilon_ti, nu_ti, phi_tg2 matrices
@@ -183,13 +205,13 @@ function( p,
         Xit[,i] <- epsilon_ti[,which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))]
       } else if (grepl("nu_", colnames(Xit)[i])) {
         if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
-          Xit[,i] <- p$nu_ti[,which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))]
+          Xit[,i] <- nu_ti[,which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))]
         } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
           pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
-          Xit[,i] <- p$nu_tij[, pred_prey[1], pred_prey[2]]
+          Xit[,i] <- nu_tij[, pred_prey[1], pred_prey[2]]
         } 
       } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
-        Xit[,i] <- p$phi_tg2[,which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))]
+        Xit[,i] <- phi_tg2[,which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))]
       }
       
     }
@@ -212,7 +234,7 @@ function( p,
       Xit_cond[as.character(extra_years), ] <- NA
       
       if (!is.null(dim(p$covariates))) {
-        Xit_cond[as.character(extra_years), colnames(future$covariates)] <- future$covariates
+        Xit[as.character(extra_years), colnames(future$covariates)] <- Xit_cond[as.character(extra_years), colnames(future$covariates)] <- future$covariates
         Xit_cond[as.character(extra_years), colnames(p$covariates)] <- sweep(Xit_cond[as.character(extra_years), colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
       }
       
@@ -244,19 +266,19 @@ function( p,
       # Evaluate log-density of the standard normal innovations z_fut
       loglik9_fut <- sum(dnorm(p$z_fut, 0, 1, log = TRUE))
       
-      # Copy derived future values back to epsilon_ti, p$nu_ti, p$nu_tij, p$phi_tg2
+      # Copy derived future values back to epsilon_ti, nu_ti, nu_tij, phi_tg2
       for (i in seq_len(ncol(Xit))) {
         if (gsub("eps_", "", colnames(Xit)[i]) %in% taxa) {
           epsilon_ti[, which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))] <- Xit[,i]
         } else if (grepl("nu_", colnames(Xit)[i])) {
           if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
-            p$nu_ti[, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit[,i]
+            nu_ti[, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit[,i]
           } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
             pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
-            p$nu_tij[, pred_prey[1], pred_prey[2]] <- Xit[,i]
+            nu_tij[, pred_prey[1], pred_prey[2]] <- Xit[,i]
           } 
         } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
-          p$phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit[,i]
+          phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit[,i]
         }
       }
       
@@ -280,13 +302,13 @@ function( p,
           epsilon_ti[, which(taxa %in% gsub("eps_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
         } else if (grepl("nu_", colnames(Xit)[i])) {
           if (gsub("nu_", "", colnames(Xit)[i]) %in% taxa) {
-            p$nu_ti[, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
+            nu_ti[, which(taxa %in% gsub("nu_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
           } else if (all(strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]] %in% taxa)) {
             pred_prey <- strsplit(gsub("nu_", "", colnames(Xit)[i]), ":")[[1]]
-            p$nu_tij[, pred_prey[1], pred_prey[2]] <- Xit_sim[,i]
+            nu_tij[, pred_prey[1], pred_prey[2]] <- Xit_sim[,i]
           } 
         } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
-          p$phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
+          phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit_sim[,i]
         } else if (colnames(Xit)[i] %in% colnames(p$covariates)) {
           p$covariates[,which(colnames(p$covariates) == colnames(Xit)[i])] <- Xit_sim[,i]
         }
@@ -297,8 +319,8 @@ function( p,
     if (isTRUE(control$dev_penalty)) {
       dev_penalty <- dev_penalty + 
         sum(apply(epsilon_ti[as.character(years),], 2, sum)^2) + 
-        sum(apply(p$nu_ti[as.character(years),], 2, sum)^2) + 
-        sum(apply(p$phi_tg2[as.character(years),], 2, sum)^2)
+        sum(apply(nu_ti[as.character(years),], 2, sum)^2) + 
+        sum(apply(phi_tg2[as.character(years),], 2, sum)^2)
     }
     
     for( i in seq_len(n_species) ){
@@ -310,18 +332,18 @@ function( p,
           }
         }
         if( (taxa %in% fit_nu)[i] ){
-          loglik4_ti[t,i] = dnorm( p$nu_ti[t,i], 0, exp(p$logsigma_i[i]), log=TRUE)
+          loglik4_ti[t,i] = dnorm( nu_ti[t,i], 0, exp(p$logsigma_i[i]), log=TRUE)
           if( isTRUE(simulate_data) & isTRUE(simulate_random) ){
-            p$nu_ti[t,i] = rnorm( n=1, mean=0, sd=exp(p$logsigma_i[i]) )
+            nu_ti[t,i] = rnorm( n=1, mean=0, sd=exp(p$logsigma_i[i]) )
           }
         }
       }}
     for( g2 in seq_len(settings$n_g2) ){
       for( t in seq_len(nrow(Bobs_ti)) ){
         if( (settings$unique_stanza_groups %in% settings$fit_phi)[g2] ){
-          loglik7_tg2[t,g2] = dnorm( p$phi_tg2[t,g2], 0, exp(p$logpsi_g2[g2]), log=TRUE)
+          loglik7_tg2[t,g2] = dnorm( phi_tg2[t,g2], 0, exp(p$logpsi_g2[g2]), log=TRUE)
           if( isTRUE(simulate_data) & isTRUE(simulate_random) ){
-            p$phi_tg2[t,g2] = rnorm( n=1, mean=0, sd=exp(p$logpsi_g2[g2]) )
+            phi_tg2[t,g2] = rnorm( n=1, mean=0, sd=exp(p$logpsi_g2[g2]) )
           }
         }
       }}
@@ -340,9 +362,9 @@ function( p,
     }else{
       p_t$epsilon_i = rep(0,n_species)
     }
-    p_t$nu_i = p$nu_ti[t,]
-    p_t$nu_ij = p$nu_tij[t,,]
-    p_t$phi_g2 = p$phi_tg2[t,]
+    p_t$nu_i = nu_ti[t,]
+    p_t$nu_ij = nu_tij[t,,]
+    p_t$phi_g2 = phi_tg2[t,]
 
     # RTMBode::ode requires y0 have names
     y0 = c(B_ti[t-1,], rep(0,n_species))
@@ -686,7 +708,8 @@ function( p,
   REPORT( stanza_data )
   REPORT( Nexp_ta_g2 )
   REPORT( Wexp_ta_g2 )
-  if (use_sem) REPORT( Xit )
+  
+  if (use_sem) REPORT(Xit)
 
   if( settings$n_g2 >0 ){
     R0_g2 = p$baseR0_g2
@@ -703,9 +726,9 @@ function( p,
 
   if( isTRUE(simulate_data) ){
     out = list( epsilon_ti = epsilon_ti,
-                nu_ti = p$nu_ti,
-                nu_tij = p$nu_tij,
-                phi_tg2 = p$phi_tg2,
+                nu_ti = nu_ti,
+                nu_tij = nu_tij,
+                phi_tg2 = phi_tg2,
                 B_ti = B_ti,
                 Cobs_ti = Cobs_ti,
                 Chat_ti = Chat_ti,

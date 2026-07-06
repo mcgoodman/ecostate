@@ -241,6 +241,17 @@ function( taxa,
     years_all <- years
     
   }
+
+  # If not using SEM, process errors for future time points are 
+  # random effects, so process error arrays have rows for all years
+  # If using SEM, process errors for future time points are derived from 
+  # standard normal random effects and conditional GMRF mean / precision, 
+  # so process error arrays have rows for only some historical years
+  if (isTRUE(use_sem)) {
+    par_years <- years
+  } else {
+    par_years <- years_all
+  }
   
   # Set tmbad.sparse_hessian_compress
   config( tmbad.sparse_hessian_compress = control$tmbad.sparse_hessian_compress, DLL="RTMB" )
@@ -410,7 +421,7 @@ function( taxa,
             epsilon_ti = array( 0, dim=c(0,n_species) ),
             alpha_ti = array( 0, dim=c(0,n_species) ),
             nu_ti = array( 0, dim=c(0,n_species) ),
-            nu_tij = array(0, dim = c(length(years_all), n_species, n_species)),
+            nu_tij = array(0, dim = c(length(par_years), n_species, n_species)),
             phi_tg2 = array( 0, dim=c(0,settings$n_g2) ),
             beta = if (use_sem && length(sem_settings$beta) > 0) sem_settings$beta else numeric(0),
             mu = if (ncol(covariates)) setNames(rep(0, ncol(covariates)), colnames(covariates)) else numeric(0),
@@ -492,21 +503,8 @@ function( taxa,
   # Initial biomass-ratio ... turn off if no early biomass observations
   map$delta_i = factor( ifelse(taxa %in% fit_B0, seq_along(p$delta_i), NA) )
   
-  # Future covariates and fishing mortality rate
+  # Future fishing mortality rate
   if (length(future$extra_years)) {
-    
-    # Expand covariates matrix
-    covariates <- rbind(
-      covariates, 
-      matrix(NA, nrow = length(future$extra_years), ncol = ncol(covariates), 
-             dimnames = list(future$extra_years, colnames(covariates)))
-    )
-    
-    # Add in fixed future covariates
-    for (i in seq_along(colnames(future$covariates))) {
-      covariates[rownames(future$covariates), colnames(future$covariates)[i]] <- 
-        future$covariates[,colnames(future$covariates)[i]]
-    }
     
     # Future fishing mortality rate
     for (i in seq_along(colnames(future$Frate))) {
@@ -517,33 +515,25 @@ function( taxa,
   }
   
   # Process errors
-  if (use_sem) {
-    
-    which_extra <- which(years_all %in% future$extra_years)
+  if (isTRUE(use_sem)) {
     
     # Variation in biomass
-    p$epsilon_ti = array(0, dim=c(length(years_all), n_species) )
+    p$epsilon_ti = array(0, dim=c(length(par_years), n_species) )
     map$epsilon_ti = array(seq_len(prod(dim(p$epsilon_ti))), dim=dim(p$epsilon_ti))
     if(any(grepl("eps_", sem_settings$proc_vars))) {
       map$epsilon_ti[,-as.integer(na.omit(match(gsub("eps_", "", sem_settings$proc_vars), taxa)))] <- NA
     } else {
       map$epsilon_ti[,] <- NA
     }
-    if (length(which_extra) > 0) {
-      map$epsilon_ti[which_extra, ] <- NA
-    }
     map$epsilon_ti = factor(map$epsilon_ti)
     
     # Variation in consumption by predator
-    p$nu_ti = array( 0, dim=c(length(years_all),n_species) )
+    p$nu_ti = array( 0, dim=c(length(par_years),n_species) )
     map$nu_ti = array( seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
     if(any(grepl("nu_", sem_settings$proc_vars) & !(grepl(":", sem_settings$proc_vars)))) {
       map$nu_ti[,-as.integer(na.omit(match(gsub("nu_", "", sem_settings$proc_vars), taxa)))] <- NA
     } else {
       map$nu_ti[,] <- NA
-    }
-    if (length(which_extra) > 0) {
-      map$nu_ti[which_extra, ] <- NA
     }
     map$nu_ti = factor(map$nu_ti)
     
@@ -557,21 +547,15 @@ function( taxa,
         map$nu_tij[, which_pred[i], which_prey[i]] <- array(seq_len(prod(dim(p$nu_tij))), dim = dim(p$nu_tij))[, which_pred[i], which_prey[i]]
       }
     }
-    if (length(which_extra) > 0) {
-      map$nu_tij[which_extra, , ] <- NA
-    }
     map$nu_tij = factor(map$nu_tij)
     
     # Variation in recruitment
-    p$phi_tg2 = array( 0, dim=c(length(years_all),settings$n_g2) )
+    p$phi_tg2 = array( 0, dim=c(length(par_years),settings$n_g2) )
     map$phi_tg2 = array( seq_len(prod(dim(p$phi_tg2))), dim=dim(p$phi_tg2))
     if(any(grepl("phi_", sem_settings$proc_vars))) {
       map$phi_tg2[,-as.integer(na.omit(match(gsub("phi_", "", sem_settings$proc_vars), settings$unique_stanza_groups)))] <- NA
     } else {
       map$phi_tg2[,] <- NA
-    }
-    if (length(which_extra) > 0) {
-      map$phi_tg2[which_extra, ] <- NA
     }
     map$phi_tg2 = factor(map$phi_tg2)
     
@@ -586,7 +570,7 @@ function( taxa,
   } else {
     
     if( control$process_error == "epsilon" ){
-      p$epsilon_ti = array( 0, dim=c(length(years_all),n_species) )
+      p$epsilon_ti = array( 0, dim=c(length(par_years),n_species) )
       map$epsilon_ti = array( seq_len(prod(dim(p$epsilon_ti))), dim=dim(p$epsilon_ti))
       for(i in seq_len(n_species)){
         if( is.na(p$logtau_i[i]) ){
@@ -596,7 +580,7 @@ function( taxa,
       }
       map$epsilon_ti = factor(map$epsilon_ti)
     }else{
-      p$alpha_ti = array( 0, dim=c(length(years_all),n_species) )
+      p$alpha_ti = array( 0, dim=c(length(par_years),n_species) )
       map$alpha_ti = array( seq_len(prod(dim(p$alpha_ti))), dim=dim(p$alpha_ti))
       for(i in seq_len(n_species)){
         if( is.na(p$logtau_i[i]) ){
@@ -607,7 +591,7 @@ function( taxa,
       map$alpha_ti = factor(map$alpha_ti)
     }
     # Variation in consumption
-    p$nu_ti = array( 0, dim=c(length(years_all),n_species) )
+    p$nu_ti = array( 0, dim=c(length(par_years),n_species) )
     map$nu_ti = array( seq_len(prod(dim(p$nu_ti))), dim=dim(p$nu_ti))
     map$nu_tij =  factor(rep(NA, length(c(p$nu_tij))))
     for(i in seq_len(n_species)){
@@ -618,7 +602,7 @@ function( taxa,
     }
     map$nu_ti = factor(map$nu_ti)
     # Variation in recruitment
-    p$phi_tg2 = array( 0, dim=c(length(years_all),settings$n_g2) )
+    p$phi_tg2 = array( 0, dim=c(length(par_years),settings$n_g2) )
     map$phi_tg2 = array( seq_len(prod(dim(p$phi_tg2))), dim=dim(p$phi_tg2))
     for(g2 in seq_len(settings$n_g2)){
       if( is.na(p$logpsi_g2[g2]) ){
@@ -631,10 +615,10 @@ function( taxa,
   }
   
   # Set names
-  dimnames(p$epsilon_ti) <- dimnames(p$nu_ti) <- list(years_all, taxa)
-  if (control$process_error == "alpha") dimnames(p$alpha_ti) <- list(years_all, taxa)
-  dimnames(p$phi_tg2) <- list(years_all, settings$unique_stanza_groups)
-  dimnames(p$nu_tij) <- list(year = years_all, predator = taxa, prey = taxa)
+  dimnames(p$epsilon_ti) <- dimnames(p$nu_ti) <- list(par_years, taxa)
+  if (control$process_error == "alpha") dimnames(p$alpha_ti) <- list(par_years, taxa)
+  dimnames(p$phi_tg2) <- list(par_years, settings$unique_stanza_groups)
+  dimnames(p$nu_tij) <- list(year = par_years, predator = taxa, prey = taxa)
 
   # Measurement errors
   p$ln_sdB = log(0.1)
