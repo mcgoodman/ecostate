@@ -236,6 +236,7 @@ function( p,
       if (!is.null(dim(p$covariates))) {
         Xit[as.character(extra_years), colnames(future$covariates)] <- Xit_cond[as.character(extra_years), colnames(future$covariates)] <- future$covariates
         Xit_cond[as.character(extra_years), colnames(p$covariates)] <- sweep(Xit_cond[as.character(extra_years), colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
+        Xit[as.character(extra_years), colnames(p$covariates)] <- sweep(Xit[as.character(extra_years), colnames(p$covariates), drop = FALSE], 2, p_t$mu) 
       }
       
       # Treat non-NA indices as fixed and condition the GMRF on them
@@ -255,13 +256,7 @@ function( p,
       dev_fut <- solve(U_uu, p$z_fut)
       
       # Derived future process error values (conditional mean + deviation)
-      Xit_cond[-X_fixed] <- GMRF_prjn$mean + dev_fut
       Xit[-X_fixed] <- GMRF_prjn$mean + dev_fut
-      
-      # Add back in estimated covariate means for covariates matrix reporting
-      if (!is.null(dim(p$covariates))) {
-        Xit_cond[as.character(extra_years), colnames(p$covariates)] <- sweep(Xit_cond[as.character(extra_years), colnames(p$covariates), drop = FALSE], 2, p_t$mu, FUN = "+")
-      }
       
       # Evaluate log-density of the standard normal innovations z_fut
       loglik9_fut <- sum(dnorm(p$z_fut, 0, 1, log = TRUE))
@@ -280,6 +275,11 @@ function( p,
         } else if (gsub("phi_", "", colnames(Xit)[i]) %in% settings$unique_stanza_groups) {
           phi_tg2[, which(settings$unique_stanza_groups %in% gsub("phi_", "", colnames(Xit)[i]))] <- Xit[,i]
         }
+      }
+      
+      # Add back in estimated covariate means for covariates matrix reporting
+      if (!is.null(dim(p$covariates))) {
+        Xit[, colnames(p$covariates)] <- sweep(Xit[, colnames(p$covariates), drop = FALSE], 2, p_t$mu, FUN = "+")
       }
       
     }

@@ -147,17 +147,20 @@ function( Q_ij,
 #' @param model Fitted model object returned by `ecostate`
 #' @param taxa Taxon names to plot biomass for. If missing, defaults to all modeled taxa.
 #' @param observed Plot survey biomass for available taxa? Defaults to TRUE.
-#' @param interval Coverage of plotted confidence bands. Defaults to 0.95 (95%), omitted if FALSE.
+#' @param interval Coverage of plotted confidence bands. Can be a numeric value between 0 and 1, 
+#'   `NA` (or `FALSE`) for no interval, or `"SE"` for a +/- 1 SE interval. Defaults to 0.95.
 #' @param q_adj Where applicable, should estimates adjusted for catchability be plotted? Useful for 
 #'   assessing fit to survey data.
+#' @param dist Distribution assumption for biomass uncertainty. Either `"lognormal"` (default) or `"normal"`.
 #'   
-#' @importFrom stats reshape qlnorm
+#' @importFrom stats reshape qlnorm qnorm
 #' @importFrom ggplot2 .data
 #'
 #' @return invisibly return \code{ggplot} object for biomass time series
 #' @export
-plot_timeseries <- function(model, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE) {
+plot_timeseries <- function(model, taxa, observed = TRUE, interval = 0.95, q_adj = TRUE, dist = c("lognormal", "normal")) {
   
+  dist <- match.arg(dist)
   years <- union(model$internal$years, model$internal$extra_years)
   
   if (missing(taxa)) {
@@ -170,13 +173,29 @@ plot_timeseries <- function(model, taxa, observed = TRUE, interval = 0.95, q_adj
   if (is.null(model$derived$Est$B_ti)) stop("No derived biomass estimates to plot")
   B_ti <- list(est = model$derived$Est$B_ti)
   
+  # Determine if we should plot confidence interval and check type
+  plot_interval <- FALSE
+  use_se <- FALSE
+  
+  if (!is.null(interval) && !(length(interval) == 1 && (is.na(interval) || isFALSE(interval)))) {
+    if (identical(interval, "SE")) {
+      plot_interval <- TRUE
+      use_se <- TRUE
+    } else if (is.numeric(interval) && length(interval) == 1) {
+      if (!(interval > 0 && interval < 1)) stop("interval must be between 0 and 1")
+      plot_interval <- TRUE
+    } else {
+      stop("interval must be a numeric value between 0 and 1, NA, or 'SE'")
+    }
+  }
+  
   # Standard error
-  if (!isFALSE(interval)) {
+  if (plot_interval) {
     if (!all(is.na(model$derived$SE$B_ti))) {
       B_ti[["se"]] <- model$derived$SE$B_ti
     } else {
       message("`interval` is ignored when standard errors of derived quantities are missing")
-      interval <- FALSE
+      plot_interval <- FALSE
     }
   }
   
@@ -207,15 +226,30 @@ plot_timeseries <- function(model, taxa, observed = TRUE, interval = 0.95, q_adj
   B_ti <- B_ti[B_ti$Taxon %in% taxa, ]
   
   # Add confidence interval
-  if (!isFALSE(interval)) {
+  if (plot_interval) {
     
-    checkmate::assert_number(interval)
-    if (!(interval > 0 & interval < 1)) stop("interval must be between 0 and 1")
-    
-    B_ti$se_log <- sqrt(log(1 + ((B_ti$se^2) / (B_ti$est^2))))
-    B_ti$est_log <- log(B_ti$est) - (0.5 * B_ti$se_log^2)
-    B_ti$lower <- qlnorm((1 - interval) / 2, meanlog = B_ti$est_log, sdlog = B_ti$se_log)
-    B_ti$upper <- qlnorm(1 - (1 - interval) / 2, meanlog = B_ti$est_log, sdlog = B_ti$se_log)
+    if (use_se) {
+      if (dist == "lognormal") {
+        B_ti$se_log <- sqrt(log(1 + ((B_ti$se^2) / (B_ti$est^2))))
+        B_ti$est_log <- log(B_ti$est)
+        B_ti$lower <- exp(B_ti$est_log - B_ti$se_log)
+        B_ti$upper <- exp(B_ti$est_log + B_ti$se_log)
+      } else {
+        B_ti$lower <- B_ti$est - B_ti$se
+        B_ti$upper <- B_ti$est + B_ti$se
+      }
+    } else {
+      if (dist == "lognormal") {
+        B_ti$se_log <- sqrt(log(1 + ((B_ti$se^2) / (B_ti$est^2))))
+        B_ti$est_log <- log(B_ti$est)
+        B_ti$lower <- qlnorm((1 - interval) / 2, meanlog = B_ti$est_log, sdlog = B_ti$se_log)
+        B_ti$upper <- qlnorm(1 - (1 - interval) / 2, meanlog = B_ti$est_log, sdlog = B_ti$se_log)
+      } else {
+        z_val <- qnorm(1 - (1 - interval) / 2)
+        B_ti$lower <- B_ti$est - z_val * B_ti$se
+        B_ti$upper <- B_ti$est + z_val * B_ti$se
+      }
+    }
     
   }
   
@@ -224,7 +258,7 @@ plot_timeseries <- function(model, taxa, observed = TRUE, interval = 0.95, q_adj
   # Plot estimate and interval
   p <- B_ti |> 
     ggplot2::ggplot(ggplot2::aes(.data$year)) + 
-    {if (!isFALSE(interval)) ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper), alpha = 0.25, na.rm = TRUE)} + 
+    {if (plot_interval) ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper), alpha = 0.25, na.rm = TRUE)} + 
     ggplot2::geom_line(ggplot2::aes(y = .data$est, color = "Bhat"), na.rm = TRUE) + 
     ggplot2::facet_wrap(~.data$Taxon, scales = "free_y") + 
     ggplot2::labs(y = "biomass", color = "source")

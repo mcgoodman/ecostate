@@ -62,7 +62,7 @@ passed to \code{\link[RTMB]{MakeADFun}}}
 \item{tmb_par}{list of parameters for starting values, with shape identical
 to \code{tinyVAST(...)$internal$parlist}}
 
-\item{map}{list of mapping values, passed to \link[RTMB:TMB-interface]{RTMB::MakeADFun}}
+\item{map}{list of mapping values, passed to \link[RTMB:MakeADFun]{RTMB::MakeADFun}}
 
 \item{getJointPrecision}{whether to get the joint precision matrix.  Passed
 to \code{\link[TMB]{sdreport}}.}

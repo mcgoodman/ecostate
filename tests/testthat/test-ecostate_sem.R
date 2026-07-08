@@ -241,7 +241,7 @@ test_that(
     
     # Future projection setup
     extra_years <- 2023:2025
-    fut_cov <- matrix(0.5, nrow = 3, ncol = 1, dimnames = list(extra_years, "cold_pool"))
+    fut_cov <- matrix(0.5, nrow = length(extra_years), ncol = 1, dimnames = list(extra_years, "cold_pool"))
     
     # Run ecostate with future projection
     dgmrf_proj <- ecostate(
@@ -250,7 +250,7 @@ test_that(
       EE = EE, X = X, type = type, U = U, fit_B0 = "Pollock",
       control = ecostate_control(nlminb_loops = 0, getsd = TRUE, derived_quantities = c("B_ti", "Xit")), 
       sem = sem, covariates = covariates,
-      future = list(extra_years = extra_years, Frate = matrix(0, nrow = 3, ncol = length(taxa), dimnames = list(extra_years, taxa)), covariates = fut_cov)
+      future = list(extra_years = extra_years, Frate = matrix(0, nrow = length(extra_years), ncol = length(taxa), dimnames = list(extra_years, taxa)), covariates = fut_cov)
     )
     
     # 1. Verify that z_fut is present in the parameter list and mapped correctly
