@@ -1175,7 +1175,14 @@ logLik.ecostate <- function(object, ...) {
   df = length( object$opt$par )
 
   # Exclude future projection in log likelihood
-  val = val - object$rep$loglik9_fut
+  # Only subtract loglik9_fut if z_fut was not integrated out as a random effect
+  is_random <- FALSE
+  if (!is.null(object$obj$env$random)) {
+    is_random <- "z_fut" %in% names(object$obj$env$par[object$obj$env$random])
+  }
+  if (!is_random) {
+    val = val - object$rep$loglik9_fut
+  }
   df <- df - sum(names(object$opt$par) == "z_fut")  
 
   out = structure( val,
