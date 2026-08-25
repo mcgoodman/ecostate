@@ -460,9 +460,13 @@ function( p,
   for( STEP in seq_len(STEPS_PER_YEAR) ){
     # Load back in for update
     p$Y_zz_g2 = Y_zz_g2
+    B_s2_step = get_stanza_total( stanza_data = stanza_data,
+                                  Y_zz_g2 = Y_zz_g2 )
+    state_step = y[xset[STEP],]
+    state_step[stanza_data$stanzainfo_s2z[,'s']] = B_s2_step
     # Get food gain
     dBdt_step = dBdt( Time = 0,
-              State = y[xset[STEP],],
+              State = state_step,
               #State = out$B_g2
               type_i = type_i,
               n_species = n_species,
