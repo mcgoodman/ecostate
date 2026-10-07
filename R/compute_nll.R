@@ -222,7 +222,12 @@ function( p,
     # Evaluate GMRF likelihood excluding projection years
     loglik8_sem <- RTMB::dgmrf(Xvec, mu = rep(0, length(Xvec)), Q = Q, log = TRUE)
     
-    if (isTRUE(control$dev_penalty)) dev_penalty <- dev_penalty + sum(apply(Xit[as.character(years), , drop = FALSE], 2, sum)^2)
+    if (isTRUE(control$dev_penalty)) {
+      proc_vars <- setdiff(colnames(Xit), colnames(p$covariates))
+      if (length(proc_vars) > 0) {
+        dev_penalty <- dev_penalty + sum(apply(Xit[as.character(years), proc_vars, drop = FALSE], 2, sum)^2)
+      }
+    }
     
     # Derive future expected process errors
     if (use_prjn) {
