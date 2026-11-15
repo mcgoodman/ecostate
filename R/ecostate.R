@@ -187,10 +187,16 @@ function( taxa,
   # Set up inputs for SEM
   use_sem <- nchar(trimws(sem)) > 0
   if (isTRUE(use_sem)) {
-    
+
+    # SEM is only implemented for innovation process errors
+    if (control$process_error != "epsilon") {
+      warning("SEM forces innovation ('epsilon') process errors")
+      control$process_error <- "epsilon"
+    }
+
     sem_settings <- parse_ecostate_sem(
-      sem = sem, covariates = covariates, taxa = taxa, years = years, fit_eps = fit_eps, fit_nu = fit_nu, 
-      settings = settings, control = control
+      sem = sem, covariates = covariates, taxa = taxa, years = years, fit_eps = fit_eps, fit_nu = fit_nu,
+      settings = settings
     )
     
     covariates <- sem_settings$covariates
@@ -580,8 +586,13 @@ function( taxa,
       }
       map$epsilon_ti = factor(map$epsilon_ti)
     }else{
+      # epsilon_ti is derived from alpha_ti in compute_nll
+      p$epsilon_ti = array( 0, dim=c(length(par_years),n_species) )
+      map$epsilon_ti = factor( rep(NA, length(p$epsilon_ti)) )
       p$alpha_ti = array( 0, dim=c(length(par_years),n_species) )
       map$alpha_ti = array( seq_len(prod(dim(p$alpha_ti))), dim=dim(p$alpha_ti))
+      # Initial biomass is governed by delta_i, so alpha_ti[1,] is unused
+      map$alpha_ti[1,] = NA
       for(i in seq_len(n_species)){
         if( is.na(p$logtau_i[i]) ){
           p$alpha_ti[,i] = 0

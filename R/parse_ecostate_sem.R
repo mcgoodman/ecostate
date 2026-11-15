@@ -1,17 +1,12 @@
 
-parse_ecostate_sem <- function(sem, covariates, taxa, years, fit_eps, fit_nu, settings, control) {
+parse_ecostate_sem <- function(sem, covariates, taxa, years, fit_eps, fit_nu, settings) {
 
   read_model <- utils::getFromNamespace("read_model", "dsem")
-  
+
   if(isTRUE((length(fit_eps) > 0 | length(fit_nu > 0) | length(settings$fit_phi) > 0))) {
     warning("arguments fit_eps, fit_nu, and settings$fit_phi are ignored if using SEM")
   }
-  
-  if(isTRUE(control$process_error != "epsilon")) {
-    warning("SEM forces innovation ('epsilon') process errors")
-    control$process_error <<- "epsilon"
-  }
-  
+
   paths = paste(scan(
     text = sem, 
     what = list(path = "", lag = 1, par = "", start = 1, dump = ""), 

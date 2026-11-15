@@ -157,6 +157,10 @@ project <- function(
     stop("`project` is mutually exclusive with `future` argument")
   }
 
+  if (model$internal$control$process_error == "alpha") {
+    stop("`project` is not yet implemented for `process_error = \"alpha\"`")
+  }
+
   # For unconditional past variance, resample all process errors and covariates
   if (isFALSE(parm_var) & past_var == "unconditional") {
     parsim <- model$simulator(parlist, simulate_random = TRUE)
@@ -275,8 +279,7 @@ project <- function(
     sem <- parse_ecostate_sem(
       sem_path, covariates = cov_full, taxa = taxa, 
       years = years_all, fit_eps = c(), fit_nu = c(), 
-      settings = model$internal$settings,
-      control = model$internal$control
+      settings = model$internal$settings
     )$model
     
     # SEM precision matrix

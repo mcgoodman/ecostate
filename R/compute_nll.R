@@ -76,10 +76,8 @@ function( p,
   years_all <- union(years, extra_years)
   
   # Extract process errors - creates copies that can be modified without retaping
+  # For process_error = "alpha", epsilon_ti is mapped to zero and derived below
   epsilon_ti = p$epsilon_ti
-  if(control$process_error=="alpha"){
-    epsilon_ti = matrix( 0, ncol=n_species, nrow=nrow(Bobs_ti) )
-  }
   phi_tg2 = p$phi_tg2
   nu_ti = p$nu_ti
   nu_tij = p$nu_tij
@@ -151,9 +149,6 @@ function( p,
   TotalSB_tg2[1,] = p$baseSB_g2 * settings$STEPS_PER_YEAR
   TotalZ_ts2[1,] = 0
   jnll = 0
-  if( control$process_error == "alpha" ){
-    epsilon_ti[1,] = p$alpha_ti[1,] 
-  }
   Y_zz_g2 = p$Y_zz_g2
 
   # Extract initial conditions for later reporting
@@ -320,17 +315,12 @@ function( p,
       }
     }
   } else {
-    
-    if (isTRUE(control$dev_penalty)) {
-      dev_penalty <- dev_penalty + 
-        sum(apply(epsilon_ti[as.character(years),], 2, sum)^2) + 
-        sum(apply(nu_ti[as.character(years),], 2, sum)^2) + 
-        sum(apply(phi_tg2[as.character(years),], 2, sum)^2)
-    }
-    
+
+    # For process_error = "alpha", epsilon_ti is derived during the year loop,
+    # so its penalty (and dev_penalty) are evaluated after that loop
     for( i in seq_len(n_species) ){
       for( t in seq_len(nrow(Bobs_ti)) ){
-        if( (taxa %in% fit_eps)[i] ){
+        if( (taxa %in% fit_eps)[i] & control$process_error == "epsilon" ){
           loglik2_ti[t,i] = dnorm( epsilon_ti[t,i], 0, exp(p$logtau_i[i]), log=TRUE)
           if( isTRUE(simulate_data) & isTRUE(simulate_random) ){
             epsilon_ti[t,i] = rnorm( n=1, mean=0, sd=exp(p$logtau_i[i]) )
@@ -431,8 +421,13 @@ function( p,
       Bhat_ti[t,] = Bnew_i
       for( i in seq_len(n_species) ){
         if( !is.na(p$logtau_i[i]) ){
-          B_ti[t,i] = out_initial$B_i[i] * exp(p$alpha_ti[t,i])
-          epsilon_ti[t,i] = log( B_ti[t,i] / Bhat_ti[t,i] )
+          if( isTRUE(simulate_data) & isTRUE(simulate_random) ){
+            epsilon_ti[t,i] = rnorm( n=1, mean=0, sd=exp(p$logtau_i[i]) )
+            B_ti[t,i] = Bhat_ti[t,i] * exp(epsilon_ti[t,i])
+          }else{
+            B_ti[t,i] = out_initial$B_i[i] * exp(p$alpha_ti[t,i])
+            epsilon_ti[t,i] = log( B_ti[t,i] / Bhat_ti[t,i] )
+          }
         }else{
           B_ti[t,i] = Bhat_ti[t,i]
           epsilon_ti[t,i] = 0
@@ -480,6 +475,24 @@ function( p,
     #            Pars = p_t,
     #            what = "stuff" )
   }
+
+  # Process-error penalties that require epsilon_ti derived in the year loop
+  if (!use_sem) {
+    if (control$process_error == "alpha") {
+      for (i in which(taxa %in% fit_eps)) {
+        for (t in seq_len(nrow(Bobs_ti))[-1]) {
+          loglik2_ti[t,i] = dnorm( epsilon_ti[t,i], 0, exp(p$logtau_i[i]), log=TRUE)
+        }
+      }
+    }
+    if (isTRUE(control$dev_penalty)) {
+      dev_penalty <- dev_penalty +
+        sum(apply(epsilon_ti[as.character(years),], 2, sum)^2) +
+        sum(apply(nu_ti[as.character(years),], 2, sum)^2) +
+        sum(apply(phi_tg2[as.character(years),], 2, sum)^2)
+    }
+  }
+
   F_ti = exp(p$logF_ti)
   Z_ti = F_ti + M_ti 
   
