@@ -433,6 +433,15 @@ function( p,
           epsilon_ti[t,i] = 0
         }
       }
+      # Apply derived process errors to numbers-at-age for multi-stanza taxa,
+      # so that age structure remains consistent with B_ti
+      for( s2 in seq_len(stanza_data$n_s2) ){
+        s = stanza_data$stanzainfo_s2z[s2,'s']
+        g2 = stanza_data$stanzainfo_s2z[s2,'g2']
+        which_z = which( stanza_data$X_zz_g2[[g2]][,'t2'] == stanza_data$stanzainfo_s2z[s2,'t2'] )
+        Y_zz_g2[[g2]][which_z,'log_NageS'] = Y_zz_g2[[g2]][which_z,'log_NageS'] + epsilon_ti[t,s]
+        Y_tzz_g2[[g2]][t,which_z,'log_NageS'] = Y_zz_g2[[g2]][which_z,'log_NageS']
+      }
     }
 
     # Record other variables

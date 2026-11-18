@@ -350,8 +350,8 @@ function( p,
     stanzaPred = sum( exp(Yg2_zz[which_z,'log_NageS']) * Yg2_zz[which_z,'QageS'] )
     state_Biomass = sum( exp(Yg2_zz[which_z,'log_NageS']) * Yg2_zz[which_z,'WageS'] )
 
-    # Copy ecosim.cpp#L890
-    Z_s2[s2] = (LossPropToB_s[s] / state_Biomass) + F_s[s]
+    # Copy ecosim.cpp#L890, with stanza process errors 
+    Z_s2[s2] = (LossPropToB_s[s] / state_Biomass) + F_s[s] - p$epsilon_i[s]
     #Su = exp(-Zrate / STEPS_PER_YEAR);
     log_Su = -Z_s2[s2] / STEPS_PER_YEAR
     QB_s2[s2] = FoodGain_s[s] / stanzaPred
